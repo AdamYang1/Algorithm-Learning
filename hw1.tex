@@ -1,0 +1,35 @@
+\documentclass{homework}
+\author{Shixiang (Adam) Yang}
+\class{CS 270: Introduction to Algorithm}
+\date{September 9, 2022}
+\title{Assignment1}
+
+
+\graphicspath{{./media/}}
+
+\begin{document} \maketitle
+
+\question  As a simple warmup, and to make sure you understood the definition, prove the following: there cannot be any stable matching M under which there is both a single man and a single woman.
+Let's first assume that there is both a single man and a woman \textit{(m,w)} under \textit{M}. Since both \textit{m} and \textit{w} are single, \textit{m} is rejected or ditched by \textit{w}. Therefore, either \textit{w} has already had a partner \textit{m'} who is better than \textit{m} for \textit{w}, or there exists another man \textit{m''} who is also better than \textit{m} proposes to \textit{w}. Notice that once a woman has already been proposed, she always has a proposal. Therefore, \textit{w} cannot be single in either scenario since she either has a current partner \textit{m'} or there's a better man \textit{m''} proposes and she needs to ditch her current partner. Contradiction! Proved.
+
+% \[
+% 	\C \supset \R \supset \Q \supset \Z \supset \N \supset
+% 	\P \not\supset (\GF[7] = \modulo[7])  \supset \{\nil\}
+% \]
+
+\question  Prove that the modified Gale-Shapley algorithm (Algorithm 1) always terminates.
+Assume that the modified GS doesn't terminate. Therefore, there always exists one unmatched man \textit{m} and a unmatched woman \textit{w}, \textit{(m,w)}.
+
+When the number of men \textit{$|M|$} is larger than the number of women \textit{$|W|$}, every woman is guaranteed because once a woman is proposed, she always has a proposal. Therefore contradiction, there can't be such pair \textit{(m,w)} that are both unmatched. Similarly, every man is guaranteed a woman when the number of men \textit{$|M|$} is smaller than the number of women \textit{$|W|$}. Therefore contradiction. When the sizes of both groups are the same, it's a normal Gale-Shapley algorithm which always terminates. Therefore, the modified GS algorithm still terminates.
+
+
+
+\question Show that if there are more men than women, then the algorithm may output a matching that is not stable.
+
+When there are more men than women, assume that the modified GS always produce a stable matching. Provided a matching \textit{M} with three men, \textit{m1, m2, m3}, and two women, \textit{w1, w2}, \textit{m3} is unmatched and the matching is \textit{(m1, w1), (m2, w2)}. For \textit{w2}, her preference ranking is \textit{m3 > m2 > m1}. For \textit{m3}, his preference is \textit{w2 > w1}. In this scenario, \textit{w2} would rather match with \textit{m3}. However, if \textit{m3} never gets a chance to propose before the termination of algorithm, which ends one either all men or all women are matched, the matching \textit{M} will be unstable.
+Therefore contradiction in this example! Proved.
+
+\question Prove that if there are at least as many women as men, then the matching that the algorithm outputs is guaranteed to be stable.
+
+
+\end{document}
