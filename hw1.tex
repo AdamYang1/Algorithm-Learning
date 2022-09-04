@@ -1,6 +1,6 @@
 \documentclass{homework}
 \author{Shixiang (Adam) Yang}
-\class{CS 270: Introduction to Algorithm}
+\class{CS 270: Introduction to Algorithm and the Theory of Computing}
 \date{September 9, 2022}
 \title{Assignment1}
 
@@ -9,27 +9,48 @@
 
 \begin{document} \maketitle
 
-\question  As a simple warmup, and to make sure you understood the definition, prove the following: there cannot be any stable matching M under which there is both a single man and a single woman.
-Let's first assume that there is both a single man and a woman \textit{(m,w)} under \textit{M}. Since both \textit{m} and \textit{w} are single, \textit{m} is rejected or ditched by \textit{w}. Therefore, either \textit{w} has already had a partner \textit{m'} who is better than \textit{m} for \textit{w}, or there exists another man \textit{m''} who is also better than \textit{m} proposes to \textit{w}. Notice that once a woman has already been proposed, she always has a proposal. Therefore, \textit{w} cannot be single in either scenario since she either has a current partner \textit{m'} or there's a better man \textit{m''} proposes and she needs to ditch her current partner. Contradiction! Proved.
+\begin{enumerate}
+    \item
+    \question  As a simple warmup, and to make sure you understood the definition, prove the following: there cannot be any stable matching M under which there is both a single man and a single woman.
 
-% \[
-% 	\C \supset \R \supset \Q \supset \Z \supset \N \supset
-% 	\P \not\supset (\GF[7] = \modulo[7])  \supset \{\nil\}
-% \]
+    Let's first assume that there is both a single man and a woman \textit{(m,w)} under \textit{M}. Since both \textit{m} and \textit{w} are single, \textit{m} is rejected or ditched by \textit{w}. Therefore, either \textit{w} prefers her current partner \textit{m'} to \textit{m}, or there exists another man \textit{m''}, who is also better than \textit{m}, proposes to \textit{w}. Notice that once a woman will always have a proposal once proposed and that if a woman is never proposed if she is single. Therefore, \textit{w} cannot be single in either scenario because she either has had a current partner \textit{m'}, or there's a better man \textit{m''} proposes to her and she will ditch \textit{m}. Contradiction! Proved.
+    
+    \question  Prove that the modified Gale-Shapley algorithm (Algorithm 1) always terminates.
+    
+    Assume that the modified GS doesn't terminate. Therefore, there always exists one unmatched man \textit{m} and a unmatched woman \textit{w}, \textit{(m,w)}. 
+    \begin{enumerate}
+        \item When the number of men is larger than the number of women , every woman is guaranteed because (1) each woman will be proposed at least once (2) once a woman is proposed, she always has a proposal. Therefore contradiction, there can't be such pair \textit{(m,w)} that are both unmatched.
+        \item When the number of men  is smaller than the number of women, similarly, every man is guaranteed a woman because (1) each man will at least propose once (2) There is always lower ranked women for a man to propose since the number of woman is larger than the number of man. Therefore contradiction.
+        \item When the sizes of both groups are the same, it's a normal Gale-Shapley algorithm which always terminates. Therefore, the modified GS algorithm still terminates.
+    \end{enumerate}
 
-\question  Prove that the modified Gale-Shapley algorithm (Algorithm 1) always terminates.
-Assume that the modified GS doesn't terminate. Therefore, there always exists one unmatched man \textit{m} and a unmatched woman \textit{w}, \textit{(m,w)}.
+    In all the scenarios discussed above, the modified GS algorithm terminates. Proved.
+    
+    
+    \question Show that if there are more men than women, then the algorithm may output a matching that is not stable.
+    
+    Assume that the modified GS always produce a stable matching when there are more men than women. Provided a matching \textit{M} with three men \textit{m1, m2, m3} and two women \textit{w1, w2}. Under \textit{M}, \textit{m3} is unmatched and the matching pairs are \textit{(m1, w1), (m2, w2)}.  For \textit{w1}, her preference ranking is \textit{$m1 > m2 > m3$}.For \textit{w2}, her preference ranking is \textit{$m3 > m2 > m1$}. For \textit{m1}, his preference is \textit{$w1 > w2$}. For \textit{m2}, his preference is \textit{$w2 > w1$}. For \textit{m3}, his preference is \textit{$w2 > w1$}.
+    
+    In this scenario, \textit{(m3, w2)} prefer each other and \textit{w2} would rather match with \textit{m3}. Since the modified GS terminates when either all men or all women are matched (\textit{w1, w1} in this example), if \textit{m3} never gets a chance to propose before the termination of algorithm (\textit{m1} proposes to \textit{w1}, \textit{m2} proposes to \textit{w2}), the matching \textit{M} will be unstable. Therefore contradiction in this example! Proved.
+    
+    \question Prove that if there are at least as many women as men, then the matching that the algorithm outputs is guaranteed to be stable.
+    
+    Assume that the modified GS may produce an unstable matching when the size of women is larger or equal to the size of men. In this case, every man is guaranteed a matching. Therefore, there exists a pair of a man and a woman \textit{(m,w)} such that they prefer each other but the algorithm leads to one of the following results
+    \begin{enumerate}
+        \item The modified GS assigns \textit{m} with another woman \textit{w'} and \textit{w} with another man \textit{m'}. (number of men = number of women)
+        \item The modified GS assigns \textit{m} another woman \textit{w'} and leaves \textit{w} unmatched. $(number of men \leq number of women)$
+    \end{enumerate}
+    
+    In (a), since \textit{m} has proposed to \textit{w'} and \textit{m} prefers \textit{w}, \textit{m} must have proposed to \textit{w} before. Thus, there exists a man \textit{m''} and either \textit{w} rejected \textit{m} since she prefers her current partner \textit{m''} or \textit{w} ditched \textit{m} when \textit{m''} proposed to her. Since \textit{w} ended up with \textit{m'} and woman's proposal only becomes better, \textit{$m' \geq m''$} for \textit{w}. Therefore contradiction!
+    
+    In (b), since \textit{w} is unmatched, \textit{w} has never been proposed before. However, since the modified GS assign \textit{m} with \textit{w'} and \textit{m} prefer \textit{w} over \textit{w'} by the assumption, \textit{m} must have proposed to \textit{w} before. Therefore contradiction!
 
-When the number of men \textit{$|M|$} is larger than the number of women \textit{$|W|$}, every woman is guaranteed because once a woman is proposed, she always has a proposal. Therefore contradiction, there can't be such pair \textit{(m,w)} that are both unmatched. Similarly, every man is guaranteed a woman when the number of men \textit{$|M|$} is smaller than the number of women \textit{$|W|$}. Therefore contradiction. When the sizes of both groups are the same, it's a normal Gale-Shapley algorithm which always terminates. Therefore, the modified GS algorithm still terminates.
+    \item 
+    \question 
+    
+\end{enumerate}
 
 
-
-\question Show that if there are more men than women, then the algorithm may output a matching that is not stable.
-
-When there are more men than women, assume that the modified GS always produce a stable matching. Provided a matching \textit{M} with three men, \textit{m1, m2, m3}, and two women, \textit{w1, w2}, \textit{m3} is unmatched and the matching is \textit{(m1, w1), (m2, w2)}. For \textit{w2}, her preference ranking is \textit{m3 > m2 > m1}. For \textit{m3}, his preference is \textit{w2 > w1}. In this scenario, \textit{w2} would rather match with \textit{m3}. However, if \textit{m3} never gets a chance to propose before the termination of algorithm, which ends one either all men or all women are matched, the matching \textit{M} will be unstable.
-Therefore contradiction in this example! Proved.
-
-\question Prove that if there are at least as many women as men, then the matching that the algorithm outputs is guaranteed to be stable.
 
 
 \end{document}
