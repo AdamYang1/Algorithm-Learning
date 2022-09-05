@@ -6,6 +6,9 @@
 
 
 \graphicspath{{./media/}}
+\documentclass{article}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 \begin{document} \maketitle
 
@@ -31,7 +34,7 @@
     
     Assume that the modified GS always produce a stable matching when there are more men than women. Provided a matching \textit{M} with three men \textit{m1, m2, m3} and two women \textit{w1, w2}. Under \textit{M}, \textit{m3} is unmatched and the matching pairs are \textit{(m1, w1), (m2, w2)}.  For \textit{w1}, her preference ranking is \textit{$m1 > m2 > m3$}.For \textit{w2}, her preference ranking is \textit{$m3 > m2 > m1$}. For \textit{m1}, his preference is \textit{$w1 > w2$}. For \textit{m2}, his preference is \textit{$w2 > w1$}. For \textit{m3}, his preference is \textit{$w2 > w1$}.
     
-    In this scenario, \textit{(m3, w2)} prefer each other and \textit{w2} would rather match with \textit{m3}. Since the modified GS terminates when either all men or all women are matched (\textit{w1, w1} in this example), if \textit{m3} never gets a chance to propose before the termination of algorithm (\textit{m1} proposes to \textit{w1}, \textit{m2} proposes to \textit{w2}), the matching \textit{M} will be unstable. Therefore contradiction in this example! Proved.
+    In this scenario, \textit{(m3, w2)} prefer each other and \textit{w2} would rather match with \textit{m3}. Since the modified GS terminates when either all men or all women are matched (\textit{w1, w1} in this example), if \textit{m3} never gets a chance to propose before the termination of algorithm (\textit{m1} proposes to \textit{w1}, \textit{m2} proposes to \textit{w2}), the matching \textit{M} will be unstable. Therefore contradiction in this example! Proved by a counterexample.
     
     \question Prove that if there are at least as many women as men, then the matching that the algorithm outputs is guaranteed to be stable.
     
@@ -46,8 +49,35 @@
     In (b), since \textit{w} is unmatched, \textit{w} has never been proposed before. However, since the modified GS assign \textit{m} with \textit{w'} and \textit{m} prefer \textit{w} over \textit{w'} by the assumption, \textit{m} must have proposed to \textit{w} before. Therefore contradiction!
 
     \item 
-    \question 
-    
+    \question[1] Show that there are inputs (i.e., preferences) where no perfect matching exists that is both men-stable and women-stable simultaneously.
+
+    \question[2] Now, let’s make the problem easier, and assume that only one side has preferences. Think of students and single-occupancy dorm rooms: students have preferences over dorm rooms, but dorm rooms don’t actually have preferences. Give and analyze (prove correct, and analyze the running time) an algorithm which finds a student-stable matching between students and dorm rooms. Your algorithm must run in polynomial time.
+    [Hint: This is much easier than Stable Matching.]
+
+ 
+    \begin{algorithm}
+    \caption{An algorithm finding a student-stable matching between n students and n dorm rooms}\label{alg:cap}
+    \begin{algorithmic}
+    \While{there exists a student with no room assigned}
+        Let \textit{s} be any student who has not been assigned a room yet.
+        assign \textit{s} to the highest-ranked room r.
+        \While{student \textit{s} is not yet assigned a room}
+                \If{the room is not occupied}  
+                    \State assign room r to student s, \textit{(s,r)}
+                \Else
+                    \State assign \textit{s} to the next highest-ranked room r.
+                \EndIf
+        \EndWhile
+    \EndWhile
+    \end{algorithmic}
+    \end{algorithm}
+
+    Analysis:
+    \begin{enumerate}
+        \item prove that the algorithm gives perfect matching for students and rooms
+
+        According to \textbf{Definition 2 (Men-Stable, Women-stable)}, student-stability is achieved when there are not 
+    \end{enumerate}
 \end{enumerate}
 
 
