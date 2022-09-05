@@ -32,9 +32,9 @@
     
     \question Show that if there are more men than women, then the algorithm may output a matching that is not stable.
     
-    Assume that the modified GS always produce a stable matching when there are more men than women. Provided a matching \textit{M} with three men \textit{m1, m2, m3} and two women \textit{w1, w2}. Under \textit{M}, \textit{m3} is unmatched and the matching pairs are \textit{(m1, w1), (m2, w2)}.  For \textit{w1}, her preference ranking is \textit{$m1 > m2 > m3$}.For \textit{w2}, her preference ranking is \textit{$m3 > m2 > m1$}. For \textit{m1}, his preference is \textit{$w1 > w2$}. For \textit{m2}, his preference is \textit{$w2 > w1$}. For \textit{m3}, his preference is \textit{$w2 > w1$}.
+    Assume that the modified GS always produce a stable matching when there are more men than women. Provided a matching \textit{M} with three men \textit{$m_1$, $m_2$, $m_3$} and two women \textit{$w_1$, $w_2$}. Under \textit{M}, \textit{$m_3$} is unmatched and the matching pairs are \textit{($m_1$, $w_1$), ($m_2$, $w_2$)}.  For \textit{$w_1$}, her preference ranking is \textit{$m_1 > m_2 > m_3$}.For \textit{$w_2$}, her preference ranking is \textit{$m_3 > m_2 > m_1$}. For \textit{$m_1$}, his preference is \textit{$w_1 > w_2$}. For \textit{$m_2$}, his preference is \textit{$w_2 > w_1$}. For \textit{$m_3$}, his preference is \textit{$w_2 > w_1$}.
     
-    In this scenario, \textit{(m3, w2)} prefer each other and \textit{w2} would rather match with \textit{m3}. Since the modified GS terminates when either all men or all women are matched (\textit{w1, w1} in this example), if \textit{m3} never gets a chance to propose before the termination of algorithm (\textit{m1} proposes to \textit{w1}, \textit{m2} proposes to \textit{w2}), the matching \textit{M} will be unstable. Therefore contradiction in this example! Proved by a counterexample.
+    In this scenario, \textit{($m_3$, $w_2$)} prefer each other and \textit{$w_2$} would rather match with \textit{$m_3$}. Since the modified GS terminates when either all men or all women are matched (\textit{$w_1$, $w_2$} in this example), if \textit{$m_3$} never gets a chance to propose before the termination of algorithm (\textit{$m_1$} proposes to \textit{$w_1$}, \textit{$m_2$} proposes to \textit{$w_2$}), the matching \textit{M} will be unstable. Therefore contradiction in this example! Proved by a counterexample.
     
     \question Prove that if there are at least as many women as men, then the matching that the algorithm outputs is guaranteed to be stable.
     
@@ -58,14 +58,18 @@
     \begin{algorithm}
     \caption{An algorithm finding a student-stable matching between n students and n dorm rooms}\label{alg:cap}
     \begin{algorithmic}
-    \While{there exists a student with no room assigned}
-        Let \textit{s} be any student who has not been assigned a room yet.
-        assign \textit{s} to the highest-ranked room r.
+    \Require Each student has a list of n rooms for room preference
+    \Ensure Each room contains information about its availability
+    \State Start with empty matching, a list of students \textit{S}, and a list of room\textit{R}.
+    \While{the list of students is not empty}
+        \State Let \textit{s} be the last student in the list, who has not been assigned a room yet.
+        \State Let \textit{r} be the highest-rank room for \textit{s}
         \While{student \textit{s} is not yet assigned a room}
-                \If{the room is not occupied}  
-                    \State assign room r to student s, \textit{(s,r)}
+                \If{the room \textit{r} is available}  
+                    \State assign room \textit{r} to student \textit{s}, \textit{(s,r)}
+                    \State change the room \textit{r} to unavailable \State delete \textit{s} from the back of \textit{S}
                 \Else
-                    \State assign \textit{s} to the next highest-ranked room r.
+                    \State let r be the next highest-ranked room in \textit{s}'s room preference
                 \EndIf
         \EndWhile
     \EndWhile
@@ -74,9 +78,38 @@
 
     Analysis:
     \begin{enumerate}
-        \item prove that the algorithm gives perfect matching for students and rooms
+        \item Prove that the algorithm gives a student-stable matching for students and rooms:
 
-        According to \textbf{Definition 2 (Men-Stable, Women-stable)}, student-stability is achieved when there are not 
+        \begin{enumerate}
+            \item Proof by Contradiction:
+            According to \textbf{Definition 2(Men-Stable, Women-stable)}, student-stability is achieved when there are not two students \textit{$s_1, s_2$} such that they prefer each other's room \textit{$r_1, r_2$}.
+        
+            Assume that there exists two students \textit{$s_1, s_2$} assigned with rooms \textit{$r_1, r_2$}: \textit{$(s_1, r_1), (s_2, r_2)$}, but \textit{$s_1$} prefers \textit{$r_2$} and \textit{$s_2$} prefers \textit{$r_1$}. Since \textit{$s_1$} prefers \textit{$r_2$} to \textit{$r_1$}, \textit{$r_2$} must have been occupied by another student \textit{s'} before \textit{$s_1$} fails to get \textit{$r_2$}. By assumption, \textit{$r_2$} is occupied by \textit{$s_2$}, thus, either \textit{$s_2$} is \textit{s'} or \textit{$s_2$} takes the room before \textit{s'}. Observing the algorithm, the room's occupant will not change once it has been occupied for the first time. Therefore, \textit{s'} is \textit{$s_2$}. Thus, assumption tells us that \textit{$s_2$} gets \textit{$r_2$} before \textit{$s_1$} get \textit{$r_1$}.
+        
+            Look at \textit{$s_2$}. Before \textit{$s_2$} getting \textit{$r_2$}, \textit{$s_2$} must first try to get \textit{$r_1$} and fails since \textit{$s_2$} prefers \textit{$r_1$} to \textit{$r_2$}. This means that another student \textit{s''} has occupied the \textit{$r_1$} and \textit{s''} is \textit{$s_1$}. However, \textit{$s_2$} must occupy \textit{$r_2$} before \textit{$s_1$} occupies \textit{$r_1$}. Therefore contradiction! Proved.
+
+            \item proof by loop invariant:
+        \end{enumerate}
+        
+
+        \item Analyze the running time:
+        The run time is $\Theta(n^2)$.
+        \begin{enumerate}
+            \item First look at the inner while loop:
+
+            it loops through the n-size room preference list and check the availability of room of student \textit{$s_i$}. Before \textit{$s_i$}, the algorithm has assigned \textit{i-1} students with rooms. Therefore, there are only \textit{n-(i-1)} rooms left. In order to find the room, the worst case would be looping through the first \textit{i-1} occupied rooms first then find the room. Thus, the inner while loop is $O(i-1+1) = O(i)$.
+
+            \item Then look at the outer while loop:
+
+            it loop through the n-size student list \textit{S} and assign room for every \textit{$s_i$}. In the worst case discussed in (i), every student \textit{$s_i$} has the same ranking and the inner while loop will iterate \textit{i} times for \textit{$s_i$}. 
+
+            \item Let's calculate the running time:
+            For the first student, it takes $\Theta(1)$; for the second, it takes $\Theta(2)$; ... ; for the n student, it takes $\Theta(n)$. Therefore, the running time will be:
+            \[ \sum_{i=1}^{n} i = 1 + 2 + ... + n = \dfrac{n(n+1)}{2} = \Theta(n^2) \]
+            
+            
+            
+        \end{enumerate}
     \end{enumerate}
 \end{enumerate}
 
