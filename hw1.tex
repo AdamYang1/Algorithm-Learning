@@ -6,7 +6,6 @@
 
 
 \graphicspath{{./media/}}
-\documentclass{article}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 
@@ -16,13 +15,13 @@
     \item
     \question  As a simple warmup, and to make sure you understood the definition, prove the following: there cannot be any stable matching M under which there is both a single man and a single woman.
 
-    Let's first assume that there is both a single man and a woman \textit{(m,w)} under \textit{M}. Since both \textit{m} and \textit{w} are single, \textit{m} is rejected or ditched by \textit{w}. Therefore, either \textit{w} prefers her current partner \textit{m'} to \textit{m}, or there exists another man \textit{m''}, who is also better than \textit{m}, proposes to \textit{w}. Notice that once a woman will always have a proposal once proposed and that if a woman is never proposed if she is single. Therefore, \textit{w} cannot be single in either scenario because she either has had a current partner \textit{m'}, or there's a better man \textit{m''} proposes to her and she will ditch \textit{m}. Contradiction! Proved.
+    Let's first assume that there is both a single man and a woman \textit{(m,w)} under \textit{M}. Since both \textit{m} and \textit{w} are single, \textit{m} is rejected or ditched by \textit{w}. Therefore, either \textit{w} prefers her current partner \textit{m'} to \textit{m}, or there exists another man \textit{m''}, who is also better than \textit{m}, proposes to \textit{w}. Notice that (1) a woman will always have a proposal once proposed and that (2) if a woman is single, she is never proposed. Therefore, \textit{w} cannot be single in either scenario because she either has had a current partner \textit{m'}, or there's a better man \textit{m''} proposes to her and she will ditch \textit{m}. Contradiction! Proved.
     
     \question  Prove that the modified Gale-Shapley algorithm (Algorithm 1) always terminates.
     
     Assume that the modified GS doesn't terminate. Therefore, there always exists one unmatched man \textit{m} and a unmatched woman \textit{w}, \textit{(m,w)}. 
     \begin{enumerate}
-        \item When the number of men is larger than the number of women , every woman is guaranteed because (1) each woman will be proposed at least once (2) once a woman is proposed, she always has a proposal. Therefore contradiction, there can't be such pair \textit{(m,w)} that are both unmatched.
+        \item When the number of men is larger than the number of women , every woman is guaranteed because (1) each woman will be proposed at least once because there are more men than women (2) once a woman is proposed, she always has a proposal. Therefore contradiction, there can't be such pair \textit{(m,w)} that are both single.
         \item When the number of men  is smaller than the number of women, similarly, every man is guaranteed a woman because (1) each man will at least propose once (2) There is always lower ranked women for a man to propose since the number of woman is larger than the number of man. Therefore contradiction.
         \item When the sizes of both groups are the same, it's a normal Gale-Shapley algorithm which always terminates. Therefore, the modified GS algorithm still terminates.
     \end{enumerate}
@@ -88,7 +87,7 @@
         
             Look at \textit{$s_2$}. Before \textit{$s_2$} getting \textit{$r_2$}, \textit{$s_2$} must first try to get \textit{$r_1$} and fails since \textit{$s_2$} prefers \textit{$r_1$} to \textit{$r_2$}. This means that another student \textit{s''} has occupied the \textit{$r_1$} and \textit{s''} is \textit{$s_1$}. However, \textit{$s_2$} must occupy \textit{$r_2$} before \textit{$s_1$} occupies \textit{$r_1$}. Therefore contradiction! Proved.
 
-            \item proof by loop invariant:
+            % \item proof by loop invariant:
         \end{enumerate}
         
 
@@ -97,7 +96,7 @@
         \begin{enumerate}
             \item First look at the inner while loop:
 
-            it loops through the n-size room preference list and check the availability of room of student \textit{$s_i$}. Before \textit{$s_i$}, the algorithm has assigned \textit{i-1} students with rooms. Therefore, there are only \textit{n-(i-1)} rooms left. In order to find the room, the worst case would be looping through the first \textit{i-1} occupied rooms first then find the room. Thus, the inner while loop is $O(i-1+1) = O(i)$.
+            it loops through the n-size room preference list and check the availability of room of student \textit{$s_i$}. Before \textit{$s_i$}, the algorithm has assigned \textit{i-1} students with rooms. Therefore, there are only \textit{n-(i-1)} rooms left. In order to find the room, the worst case would be looping through the first \textit{i-1} occupied rooms first then find the room. Thus, the inner while loop is $\Theta(i-1+1) = \Theta(i)$.
 
             \item Then look at the outer while loop:
 
