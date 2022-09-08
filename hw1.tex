@@ -50,10 +50,15 @@
     \item 
     \question[1] Show that there are inputs (i.e., preferences) where no perfect matching exists that is both men-stable and women-stable simultaneously.
 
+    Example: Consider 2 men \textit{$m_1, m_2$} and 2 women \textit{$w_1, w_2$}. The preference ranking is the following \textit{$m_1$}: \textit{$w_2 > w_1$}; \textit{$m_2$}: \textit{$w_1 > w_2$}; \textit{$w_1$}: \textit{$m_1 > m_2$}; \textit{$w_2$}: \textit{$m_2 > m_1$}. There are two ways of matching \textit{$M_1, M_2$} for this input. \begin{enumerate}
+        \item \textit{$M_1$}: \textit{$(m_1, w_1), (m_2, w_2)$}. In this matching, \textit{$m_1$} and \textit{$m_2$} has the potential to exchange their partner while \textit{$w_1$} and \textit{$w_2$} don't. Therefore, it is woman-stable but not man-stable.
+        \item \textit{$M_2$}: \textit{$(m_1, w_2), (m_2, w_1)$}. In this matching, \textit{$w_1$} and \textit{$w_2$} has the potential to exchange their partner while \textit{$m_1$} and \textit{$m_2$} don't. Therefore, it is man-stable but not woman-stable.
+    \end{enumerate}
+
     \question[2] Now, let’s make the problem easier, and assume that only one side has preferences. Think of students and single-occupancy dorm rooms: students have preferences over dorm rooms, but dorm rooms don’t actually have preferences. Give and analyze (prove correct, and analyze the running time) an algorithm which finds a student-stable matching between students and dorm rooms. Your algorithm must run in polynomial time.
     [Hint: This is much easier than Stable Matching.]
 
- 
+    \textbf{Algorithm: }
     \begin{algorithm}
     \caption{An algorithm finding a student-stable matching between n students and n dorm rooms}\label{alg:cap}
     \begin{algorithmic}
@@ -75,7 +80,7 @@
     \end{algorithmic}
     \end{algorithm}
 
-    Analysis:
+\textbf{    Analysis:}
     \begin{enumerate}
         \item Prove that the algorithm gives a student-stable matching for students and rooms:
 
