@@ -1,62 +1,56 @@
-\documentclass{homework}
+\documentclass{article}
 \author{Shixiang (Adam) Yang}
-\class{CS 270: Introduction to Algorithm and the Theory of Computing}
+
 \date{September 9, 2022}
-\title{Assignment1}
-
-
-\graphicspath{{./media/}}
+\title{CSCI270 - Assignment1}
+% \graphicspath{{./media/}}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-
 \begin{document} \maketitle
+\section{Problem 1}
 
-\begin{enumerate}
-    \item
-    \question  As a simple warmup, and to make sure you understood the definition, prove the following: there cannot be any stable matching M under which there is both a single man and a single woman.
+    \subsection{Question a}
 
     Let's first assume that there is both a single man and a woman \textit{(m,w)} under \textit{M}. Since both \textit{m} and \textit{w} are single, \textit{m} is rejected or ditched by \textit{w}. Therefore, either \textit{w} prefers her current partner \textit{m'} to \textit{m}, or there exists another man \textit{m''}, who is also better than \textit{m}, proposes to \textit{w}. Notice that (1) a woman will always have a proposal once proposed and that (2) if a woman is single, she is never proposed. Therefore, \textit{w} cannot be single in either scenario because she either has had a current partner \textit{m'}, or there's a better man \textit{m''} proposes to her and she will ditch \textit{m}. Contradiction! Proved.
     
-    \question  Prove that the modified Gale-Shapley algorithm (Algorithm 1) always terminates.
-    
+    \subsection{Question b}
     Assume that the modified GS doesn't terminate. Therefore, there always exists one unmatched man \textit{m} and a unmatched woman \textit{w}, \textit{(m,w)}. 
     \begin{enumerate}
-        \item When the number of men is larger than the number of women , every woman is guaranteed because (1) each woman will be proposed at least once because there are more men than women (2) once a woman is proposed, she always has a proposal. Therefore contradiction, there can't be such pair \textit{(m,w)} that are both single.
-        \item When the number of men  is smaller than the number of women, similarly, every man is guaranteed a woman because (1) each man will at least propose once (2) There is always lower ranked women for a man to propose since the number of woman is larger than the number of man. Therefore contradiction.
+        \item When the number of men $a$ is larger than the number of women $b$, every woman is guaranteed because (1) By pigeonhole principle, there are $a$ pigeons and $b$ holes and $a>b$. Each hole has at least one pigeon. In this scenario, this means that each woman will be proposed at least once because there are more men than women (2) Once a woman is proposed, she always has a proposal. Therefore contradiction, there can't be such pair \textit{(m,w)} that are both single.
+        \item When the number of men $a$ is smaller than the number of women $b$, similarly, every man is guaranteed a woman because (1) By pigeonhole principle, there are $b$ pigeons and $a$ holes and $b>a$. Each hole has at least one pigeon. In this case, each man will at least propose once. (2) There is always lower ranked women for a man to propose since the number of woman is larger than the number of man. Therefore contradiction.
         \item When the sizes of both groups are the same, it's a normal Gale-Shapley algorithm which always terminates. Therefore, the modified GS algorithm still terminates.
     \end{enumerate}
 
     In all the scenarios discussed above, the modified GS algorithm terminates. Proved.
     
     
-    \question Show that if there are more men than women, then the algorithm may output a matching that is not stable.
+    \subsection{Question c}
     
     Assume that the modified GS always produce a stable matching when there are more men than women. Provided a matching \textit{M} with three men \textit{$m_1$, $m_2$, $m_3$} and two women \textit{$w_1$, $w_2$}. Under \textit{M}, \textit{$m_3$} is unmatched and the matching pairs are \textit{($m_1$, $w_1$), ($m_2$, $w_2$)}.  For \textit{$w_1$}, her preference ranking is \textit{$m_1 > m_2 > m_3$}.For \textit{$w_2$}, her preference ranking is \textit{$m_3 > m_2 > m_1$}. For \textit{$m_1$}, his preference is \textit{$w_1 > w_2$}. For \textit{$m_2$}, his preference is \textit{$w_2 > w_1$}. For \textit{$m_3$}, his preference is \textit{$w_2 > w_1$}.
     
     In this scenario, \textit{($m_3$, $w_2$)} prefer each other and \textit{$w_2$} would rather match with \textit{$m_3$}. Since the modified GS terminates when either all men or all women are matched (\textit{$w_1$, $w_2$} in this example), if \textit{$m_3$} never gets a chance to propose before the termination of algorithm (\textit{$m_1$} proposes to \textit{$w_1$}, \textit{$m_2$} proposes to \textit{$w_2$}), the matching \textit{M} will be unstable. Therefore contradiction in this example! Proved by a counterexample.
     
-    \question Prove that if there are at least as many women as men, then the matching that the algorithm outputs is guaranteed to be stable.
+    \subsection{Question d}
     
     Assume that the modified GS may produce an unstable matching when the size of women is larger or equal to the size of men. In this case, every man is guaranteed a matching. Therefore, there exists a pair of a man and a woman \textit{(m,w)} such that they prefer each other but the algorithm leads to one of the following results
     \begin{enumerate}
         \item The modified GS assigns \textit{m} with another woman \textit{w'} and \textit{w} with another man \textit{m'}. (number of men = number of women)
-        \item The modified GS assigns \textit{m} another woman \textit{w'} and leaves \textit{w} unmatched. $(number of men \leq number of women)$
+        \item The modified GS assigns \textit{m} another woman \textit{w'} and leaves \textit{w} unmatched. (number of men $<$ number of women)
     \end{enumerate}
     
-    In (a), since \textit{m} has proposed to \textit{w'} and \textit{m} prefers \textit{w}, \textit{m} must have proposed to \textit{w} before. Thus, there exists a man \textit{m''} and either \textit{w} rejected \textit{m} since she prefers her current partner \textit{m''} or \textit{w} ditched \textit{m} when \textit{m''} proposed to her. Since \textit{w} ended up with \textit{m'} and woman's proposal only becomes better, \textit{$m' \geq m''$} for \textit{w}. Therefore contradiction!
+    In (1), since \textit{m} has proposed to \textit{w'} and \textit{m} prefers \textit{w}, \textit{m} must have proposed to \textit{w} before. Thus, either $w$ rejects $m$ because she prefers her current partner $m'$ or she ditches $m$ because another man $m''$ proposes to her and $w$ prefers $m''$. For $w$, $(m'' > m)$. Observe that \textit{w} ended up with \textit{m'} and woman's proposal only becomes better, implying \textit{$m' \geq m''$} for \textit{w}, meaning $m' \geq m'' > m$. Therefore contradiction! $(m > m' by assumption)$
     
-    In (b), since \textit{w} is unmatched, \textit{w} has never been proposed before. However, since the modified GS assign \textit{m} with \textit{w'} and \textit{m} prefer \textit{w} over \textit{w'} by the assumption, \textit{m} must have proposed to \textit{w} before. Therefore contradiction!
+    In (2), since \textit{w} is unmatched, \textit{w} has never been proposed before. However, since the modified GS assign \textit{m} with \textit{w'} and \textit{m} prefer \textit{w} over \textit{w'} by the assumption, \textit{m} must have proposed to \textit{w} before. Observe that once proposed, woman always has a proposal. Therefore contradiction!
 
-    \item 
-    \question[1] Show that there are inputs (i.e., preferences) where no perfect matching exists that is both men-stable and women-stable simultaneously.
+\section{Problem 2}
+    \subsection{Question a}
 
     Example: Consider 2 men \textit{$m_1, m_2$} and 2 women \textit{$w_1, w_2$}. The preference ranking is the following \textit{$m_1$}: \textit{$w_2 > w_1$}; \textit{$m_2$}: \textit{$w_1 > w_2$}; \textit{$w_1$}: \textit{$m_1 > m_2$}; \textit{$w_2$}: \textit{$m_2 > m_1$}. There are two ways of matching \textit{$M_1, M_2$} for this input. \begin{enumerate}
         \item \textit{$M_1$}: \textit{$(m_1, w_1), (m_2, w_2)$}. In this matching, \textit{$m_1$} and \textit{$m_2$} has the potential to exchange their partner while \textit{$w_1$} and \textit{$w_2$} don't. Therefore, it is woman-stable but not man-stable.
         \item \textit{$M_2$}: \textit{$(m_1, w_2), (m_2, w_1)$}. In this matching, \textit{$w_1$} and \textit{$w_2$} has the potential to exchange their partner while \textit{$m_1$} and \textit{$m_2$} don't. Therefore, it is man-stable but not woman-stable.
     \end{enumerate}
 
-    \question[2] Now, let’s make the problem easier, and assume that only one side has preferences. Think of students and single-occupancy dorm rooms: students have preferences over dorm rooms, but dorm rooms don’t actually have preferences. Give and analyze (prove correct, and analyze the running time) an algorithm which finds a student-stable matching between students and dorm rooms. Your algorithm must run in polynomial time.
-    [Hint: This is much easier than Stable Matching.]
+\subsection{Question b}
 
     \textbf{Algorithm: }
     \begin{algorithm}
@@ -64,16 +58,17 @@
     \begin{algorithmic}
     \Require Each student has a list of n rooms for room preference
     \Ensure Each room contains information about its availability
-    \State Start with empty matching, a list of students \textit{S}, and a list of room\textit{R}.
+    \State Start with empty matching, a list of students \textit{S}, and a list of room \textit{R}.
     \While{the list of students is not empty}
         \State Let \textit{s} be the last student in the list, who has not been assigned a room yet.
         \State Let \textit{r} be the highest-rank room for \textit{s}
         \While{student \textit{s} is not yet assigned a room}
                 \If{the room \textit{r} is available}  
-                    \State assign room \textit{r} to student \textit{s}, \textit{(s,r)}
-                    \State change the room \textit{r} to unavailable \State delete \textit{s} from the back of \textit{S}
+                    \State Assign room \textit{r} to student \textit{s}, \textit{(s,r)}
+                    \State Change the room \textit{r} to unavailable
+                    \State Delete \textit{s} from the back of \textit{S}
                 \Else
-                    \State let r be the next highest-ranked room in \textit{s}'s room preference
+                    \State Let r be the next highest-ranked room in room preference list of $s$
                 \EndIf
         \EndWhile
     \EndWhile
@@ -83,17 +78,15 @@
 \textbf{    Analysis:}
     \begin{enumerate}
         \item Prove that the algorithm gives a student-stable matching for students and rooms:
-
-        \begin{enumerate}
-            \item Proof by Contradiction:
-            According to \textbf{Definition 2(Men-Stable, Women-stable)}, student-stability is achieved when there are not two students \textit{$s_1, s_2$} such that they prefer each other's room \textit{$r_1, r_2$}.
+            
+            Proof by Contradiction:
+            According to \textbf{Definition 2 (Men-Stable, Women-stable)}, student-stability is achieved when there are not two students \textit{$s_1, s_2$} such that they prefer each other's room \textit{$r_1, r_2$}.
         
             Assume that there exists two students \textit{$s_1, s_2$} assigned with rooms \textit{$r_1, r_2$}: \textit{$(s_1, r_1), (s_2, r_2)$}, but \textit{$s_1$} prefers \textit{$r_2$} and \textit{$s_2$} prefers \textit{$r_1$}. Since \textit{$s_1$} prefers \textit{$r_2$} to \textit{$r_1$}, \textit{$r_2$} must have been occupied by another student \textit{s'} before \textit{$s_1$} fails to get \textit{$r_2$}. By assumption, \textit{$r_2$} is occupied by \textit{$s_2$}, thus, either \textit{$s_2$} is \textit{s'} or \textit{$s_2$} takes the room before \textit{s'}. Observing the algorithm, the room's occupant will not change once it has been occupied for the first time. Therefore, \textit{s'} is \textit{$s_2$}. Thus, assumption tells us that \textit{$s_2$} gets \textit{$r_2$} before \textit{$s_1$} get \textit{$r_1$}.
         
             Look at \textit{$s_2$}. Before \textit{$s_2$} getting \textit{$r_2$}, \textit{$s_2$} must first try to get \textit{$r_1$} and fails since \textit{$s_2$} prefers \textit{$r_1$} to \textit{$r_2$}. This means that another student \textit{s''} has occupied the \textit{$r_1$} and \textit{s''} is \textit{$s_1$}. However, \textit{$s_2$} must occupy \textit{$r_2$} before \textit{$s_1$} occupies \textit{$r_1$}. Therefore contradiction! Proved.
 
             % \item proof by loop invariant:
-        \end{enumerate}
         
 
         \item Analyze the running time:
@@ -109,13 +102,13 @@
 
             \item Let's calculate the running time:
             For the first student, it takes $\Theta(1)$; for the second, it takes $\Theta(2)$; ... ; for the n student, it takes $\Theta(n)$. Therefore, the running time will be:
-            \[ \sum_{i=1}^{n} i = 1 + 2 + ... + n = \dfrac{n(n+1)}{2} = \Theta(n^2) \]
+            \[ \sum_{i=1}^{n} i = 1 + 2 + ... + n = \frac{n(n+1)}{2} = \Theta(n^2) \]
             
             
             
         \end{enumerate}
     \end{enumerate}
-\end{enumerate}
+
 
 
 
