@@ -29,18 +29,45 @@
 
         Assume $p$ and $g$ are sorted as described in the algorithm. Let $f(i)=i$ be the matching provided by our algorithm, and let $f^*$ be some optimal matching. Showing that $f^*$ and $f$ are equivalent prove the algorithm provides best matching.
 
-        Assume the matching $f^*$ is optimal and different from $f$. Then there must be some smallest $i$ such that $f^*(i) \neq f(i) = i$. Then, it must be the case that $f^*(i) = j > i$ (as the matchings are identical up to position i). Let also $k$ such that $f^*(k) = i, k > i$. Now consider changing $f*$ such that $f^*(i)=i, f^*(k)=j$. \textbf{[The content above is using the template solution in discussion 2 since the way to prove it is similar and the mathematic languages are similar.]} The total yard of $f^*$ will increase by \textbf{1820493} different possible ways.
+        Assume the matching $f^*$ is optimal and different from $f$. Then there must be some smallest $i$ such that $f^*(i) \neq f(i) = i$. Then, it must be the case that $f^*(i) = j > i$ (as the matchings are identical up to position i). Let also $k$ such that $f^*(k) = i, k > i$. Now consider changing $f*$ such that $f^*(i)=i, f^*(k)=j$. \textbf{[The content(assumption) above is using the template from the solution for discussion 2 on piazza since the way to prove it is similar and the mathematic languages are similar.]} 
+        For convenience, let $a=b_i, b=b_k, c=r_i, d=r_j$. We have two relations are listed and won't be repeatedly mentioned in the following discussion:
+        \[a\leq b, c\leq d\]
+        
+        The total yard of $f^*$ will increase in the following different ways:
         \begin{enumerate}
-            \item when $r_j > r_i > b_k > b_i$, the increase of changes will be
+            \item when $a \leq b \leq c \leq d$ , the increase of yards will be
             
-            \begin{dmath}
-                   (1+(r_i-b_i)^2) + (1+(r_j-b_k)^2) - (1+(r_i-b_k)^2) - (1+(r_j-b_i)^2)
-                   \\
-                   = -2r_ib_i-2r_jb_k+2r_ib_k+2r_jb_i
-                   \\
-                   =
-            \end{dmath}
-         
+                   $(1+(c-a)^2) + (1+(d-b)^2) - (1+(c-b)^2) - (1+(d-a)^2)\\
+                   = -2ac-2bd+2bc+2ad\\
+                   = 2c(b-a)-2d(b-a)\\
+                   = 2(c-d)(b-a) \leq 0\\$
+            Thus, at least less yards after changed.
+            \item when $a \leq c \leq b \leq d$, the increase of yards will be
+
+                $(1+(c-a)^2) + (1+(d-b)^2) - \frac{1}{1+(b-c)^2} - (1+(d-a)^2)\\
+                = 1+c^2+b^2-2ac-2bd-\frac{1}{1+b^2+c^2-2bc}+2ad\\
+                \leq a^2+b^2+c^2+d^2-2ac-2bd-\frac{(b-c)^2}{1+(b-c)^2}\\
+                ....unfinished
+                $
+            \item when $a \leq c \leq d \leq b$, the increase of yards will be
+
+                $(1+(c-a)^2) + \frac{1}{1+(b-d)^2} - \frac{1}{1+(b-c)^2} - (1+(d-a)^2)\\
+                =c^2-d^2+2ad-2ac
+                $
+            \item when $c \leq a \leq b \leq d$, the increase of yards will be
+
+                $\frac{1}{1+(a-c)^2}+(1+(d-b)^2)-\frac{1}{1+(b-c)^2}-(1+(d-a)^2)
+                $
+            \item when $c \leq a \leq d \leq b$, the increase of yards will be
+
+            $
+                \frac{1}{1+(a-c)^2}+\frac{1}{1+(b-d)^2}-\frac{1}{1+(b-c)^2}-(1+(d-a)^2)
+                $
+           \item when $c \leq d \leq a \leq b$, the increase of yards will be
+
+                $
+                \frac{1}{1+(a-c)^2}+\frac{1}{1+(b-d)^2}-\frac{1}{1+(b-c)^2}-\frac{1}{1+(d-a)^2}
+                $
         \end{enumerate}
         
     \end{enumerate}
