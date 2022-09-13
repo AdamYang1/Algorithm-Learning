@@ -1,0 +1,93 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algorithmic}
+\title{Min Spanning Tree}
+\author{Adam Yang}
+\date{September 2022}
+
+\begin{document}
+
+\maketitle
+
+\section{Intro}
+\subsection{Definition}
+\begin{enumerate}
+    \item connected, undirected graph $G=(V,E)$, weights $w(e) \geq 0$ (all $w(e)$ are distinct)
+    \item A cut $(S, \bar{S})$ of a graph is a partition of the nodes into two sets.
+    
+    \item An edge \textit{e} (bridge edge) "crosses" the cut $(S,\bar{S})$ if one of its endpoints is in \textit{S} and the other is in \textit{\bar{S}}.
+    
+    \item Cut Property: If the edge \textit{e} is the cheapest among edges crossing some cut $(S, \bar{S})$, then \textit{e} must be in every MST
+\end{enumerate}
+
+
+
+\subsection{Goal}Find a min total cost of connected subgraph of $G$
+
+\subsection{Application}
+- build a infrastructure to keep points connected at min cost
+- Not fault-tolerant (if one edge goes down, the grpah becomes disconnected)
+- subroutine problems: Traveling Salesman
+
+\subsection{First Observation}
+- Solution must be a tree. If it's a cycle, one can remove an edge and make it cheaper
+- So it must be MST
+
+\subsection{Intuition Question}
+- Include the cheapest of all edges?
+- Include any bridge edge (only edge connecting two components)?
+
+
+
+\section{Algorithm}
+A generic type of algorithm:
+include all edges e for which we know that they are cheapest across some cut.
+(all of those must be in MST)
+
+Could the MST contain edges that are not cheapest for any cut?
+Nom as captured by the following lemma:
+Lemma: If T is a tree containing e and e is not cheapest for any cut, then T is not an MST.
+Proof: T $\backslash$ \{e\} has two connected components S, S'. These define a cut. Because e is not cheapest across any cut, it is not cheapest across this specific cut (S, S'). SO there is a cheaper edge e' connecting S and S'. so, T $\backslash$ \{e\} + \{e'\} is a cheaper spannign tree than T. QED
+==$>$ generic algorithm computes a MST.\\
+
+Specific Instantiation 1: Kruskal's Algo
+\begin{enumerate}
+    \item sort edges by increasing cost
+    \item Go through the edges in tihs order:
+
+    include the current edge e if it doesn't create a cycle with the previously included edges
+\end{enumerate}
+
+Specific Instantiation 2: Prim's Algo
+\begin{enumerate}
+    \item start with S= \{s\} (s is an arbitrary start vertex)
+    \item until S = V, in each iteration:
+        \begin{enumerate}
+            \item find the cheapest edge e = (u,v) between S and S'
+            \item add e, add v to S
+        \end{enumerate}
+\end{enumerate}
+
+\section{Proof}
+\subsection{proof for Cut Property}
+[exchange argument]
+
+Let $T$ be some spanning tree that doesn't include \textit{e}  (cheapest edge "crossing" two cut, connecting (u,v)). Consider the graph $T+\{e\}$. This creates a cycle \textit{C}. Let $(S, \bar{S})$ be a cut S.T. e is the cheapest for the cut. We will show that \textit{C} must contain some other \textit{e'} that also crosses the cut.
+
+Because \textit{e} is the cheapest, $w(e') > w(e)$. So adding \textit{e} to \textit{T} and removing e' gives a cheaper solution than T. The result is connected because any path that used to use e' can now use C $\backslash$ \{e'\} instead.
+
+So T is not an MST. Proof by contrapositive The complete.
+
+To prove the existence of \textit{e'}, notice that the remainder of \textit{C} is a path from \textit{u} to \textit{v}.  u in S, v in S', at least one of the edges on the path must have gone from S to S'. QED
+
+\subsection{proof of Kruskal's Algo correctness}
+We will show that each edge e this is included is the cheapest for some cut.
+Kruskal builds/grows connected components. When e is included, it connects two separate compoenntes $C_1, C_2$. It is the cheapest edge for $(C_1, C_1')$ [and also for $(C_2, C_2')$]. So the output is a subset of the MST. THe output is also connected (because the input graph was connected, so for any possible cut, at some poitn, a first edge across that cut was considered. To the output contains the same number of edges as the MST, and it is a subset of the MST, so it is equal to MST. QED
+
+\subsection{proof of Prim's Algo correctness}
+Whenever an edge e is added, it is explicitly chosen as cheapest between S and S' so each added edge is cheapest across some cut.
+
+The algorithm adds n-1 edges, so the output must be the MST. [connectivity is implicitly used to show that an edge can always be found and/or that the algo terminitates] QED
+\end{document}
