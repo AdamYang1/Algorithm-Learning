@@ -1,0 +1,49 @@
+\documentclass{article}
+\author{Shixiang (Adam) Yang}
+
+\date{September 9, 2022}
+\title{CSCI270 - Assignment1}
+% \graphicspath{{./media/}}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\begin{document} \maketitle
+\section{Problem 1}
+    \textbf{Algorithm: }
+    \begin{algorithm}
+    \caption{An algorithm computing an assignment of defensive backs to receivers that minimizes the expected yardage gain of the opponent}\label{alg:cap}
+    \begin{algorithmic}
+    
+    \State Start with empty matching, a list of opponents' height $R$, and a list of defenders' height $B$.
+    \State Sort $R, B$ into ascending order.
+    \For{Each $r_i$ in $R$ and $s_i$ in $S$}
+        \State Match $r_i$ and $s_i$
+    \EndFor
+    \State Finalize the matching
+    \end{algorithmic}
+    \end{algorithm}
+
+
+    \textbf{Analysis:}
+    \begin{enumerate}
+        \item Prove that it gives the best matching
+
+        Assume $p$ and $g$ are sorted as described in the algorithm. Let $f(i)=i$ be the matching provided by our algorithm, and let $f^*$ be some optimal matching. Showing that $f^*$ and $f$ are equivalent prove the algorithm provides best matching.
+
+        Assume the matching $f^*$ is optimal and different from $f$. Then there must be some smallest $i$ such that $f^*(i) \neq f(i) = i$. Then, it must be the case that $f^*(i) = j > i$ (as the matchings are identical up to position i). Let also $k$ such that $f^*(k) = i, k > i$. Now consider changing $f*$ such that $f^*(i)=i, f^*(k)=j$. \textbf{[The content above is using the template solution in discussion 2 since the way to prove it is similar and the mathematic languages are similar.]} The total yard of $f^*$ will increase by \textbf{1820493} different possible ways.
+        \begin{enumerate}
+            \item when $r_j > r_i > b_k > b_i$, the increase of changes will be
+            
+            \begin{dmath}
+                   (1+(r_i-b_i)^2) + (1+(r_j-b_k)^2) - (1+(r_i-b_k)^2) - (1+(r_j-b_i)^2)
+                   \\
+                   = -2r_ib_i-2r_jb_k+2r_ib_k+2r_jb_i
+                   \\
+                   =
+            \end{dmath}
+         
+        \end{enumerate}
+        
+    \end{enumerate}
+
+
+\end{document}
