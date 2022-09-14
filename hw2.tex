@@ -6,9 +6,11 @@
 % \graphicspath{{./media/}}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{indentfirst}
+\setlength\parindent{24pt}
 \begin{document} \maketitle
 \section{Problem 1}
-    \textbf{Algorithm: }
+    \subsection{Algorithm: }
     \begin{algorithm}
     \caption{An algorithm computing an assignment of defensive backs to receivers that minimizes the expected yardage gain of the opponent}\label{alg:cap}
     \begin{algorithmic}
@@ -23,54 +25,33 @@
     \end{algorithm}
 
 
-    \textbf{Analysis:}
-    \begin{enumerate}
-        \item Prove that it gives the best matching
-
-        Assume $p$ and $g$ are sorted as described in the algorithm. Let $f(i)=i$ be the matching provided by our algorithm, and let $f^*$ be some optimal matching. Showing that $f^*$ and $f$ are equivalent prove the algorithm provides best matching.
-
-        Assume the matching $f^*$ is optimal and different from $f$. Then there must be some smallest $i$ such that $f^*(i) \neq f(i) = i$. Then, it must be the case that $f^*(i) = j > i$ (as the matchings are identical up to position i). Let also $k$ such that $f^*(k) = i, k > i$. Now consider changing $f*$ such that $f^*(i)=i, f^*(k)=j$. \textbf{[The content(assumption) above is using the template from the solution for discussion 2 on piazza since the way to prove it is similar and the mathematic languages are similar.]} 
+    \subsection{Analysis:}
+        \subsubsection{Prove that it gives the best matching} 
+        \\
+        \indent Assume list of opponents $R$ and defensive backers $B$ are sorted as described in the algorithm. Let $f(i)=i$ be the matching provided by our algorithm, and let $f^*$ be some optimal matching. Showing that $f^*$ and $f$ are equivalent prove the algorithm provides best matching.
+        
+        Assume the matching $f^*$ is optimal and different from $f$. Then there must be some smallest $i$ such that $f^*(i) \neq f(i) = i$. Then, it must be the case that $f^*(i) = j > i$ (as the matchings are identical up to position i). Let also $k$ such that $f^*(k) = i, k > i$. Now consider changing $f*$ such that $f^*(i)=i, f^*(k)=j$. \textbf{[The assumption above uses template of discussion 2 on piazza for convenience and accuracy on mathmetical language.]} 
         For convenience, let $a=b_i, b=b_k, c=r_i, d=r_j$. We have two relations are listed and won't be repeatedly mentioned in the following discussion:
-        \[a\leq b, c\leq d\]
+        \[a\leq b, c\leq d \]
+        \indent Thus, the changing from $f^*$ to $f$ increase total yards by
+        \[2^{c-a}+2^{d-b}-2^{c-b}-2^{d-a}\\
+        % =\frac{2^c}{2^a}+\frac{2^d}{2^b}-\frac{2^c}{2^b}-\frac{2^d}{2^a}\\
+        =2^c(\frac{1}{2^a}-\frac{1}{2^b})+2^d(\frac{1}{2^b}-\frac{1}{2^a})
+        \]
+
+        Notice that $a\leq b, c\leq d$, $\frac{1}{2^a}-\frac{1}{2^b} \leq 0, \frac{1}{2^c}-\frac{1}{2^d} \leq 0$, and $2^c \geq 0, 2^d\geq 0$, we have
+        \[2^c(\frac{1}{2^a}-\frac{1}{2^b})+2^d(\frac{1}{2^b}-\frac{1}{2^a}) \leq 0\]
+
+        Thus, the total expected yards computed by the our algorithm is at least less than the optimal matching. Since $f^*$ is the optimal, $f^* = f$, the algorithm is optimal.
+        \\
+        \subsubsection{Running time Analysis} 
+        Observing the algorithm, we first sort. Using quick sort or merge sort, the run time for this part will be $\theta(2nlogn) = \theta(nlogn)$. Then, we loop through two lists and match each of them, which will be $\theta(n)$. Sum up, we have $\theta(nlogn)+\theta(n) = \theta(nlogn)$
+
+\section{Problem 2}
+    \subsection{problem a}
+        \subsubsection{Prove that add a smaller weight \textit{w} won't help later}
+
+        Assume there is another set $S'$ size of \textit{n} and it produces a range $\{1,2,..., W'\}$, $W'\geq W+1$. By assumption, there must be a smallest weight $w_i$ such that $w_i \in S$, $w_i \notin S'$. In $S'$, there is another weight $w_j'\notin S$ and $w_j' > w_i$ and $w_j'$ will help summing up to $W'$ later. Because $w_i$ is the smallest  weight that is different from \textit{S'}, the first $(i-1)$ weights in $S$ and $S'$ are the same. 
         
-        The total yard of $f^*$ will increase in the following different ways:
-        \begin{enumerate}
-            \item when $a \leq b \leq c \leq d$ , the increase of yards will be
-            
-                   $(1+(c-a)^2) + (1+(d-b)^2) - (1+(c-b)^2) - (1+(d-a)^2)\\
-                   = -2ac-2bd+2bc+2ad\\
-                   = 2c(b-a)-2d(b-a)\\
-                   = 2(c-d)(b-a) \leq 0\\$
-            Thus, at least less yards after changed.
-            \item when $a \leq c \leq b \leq d$, the increase of yards will be
-
-                $(1+(c-a)^2) + (1+(d-b)^2) - \frac{1}{1+(b-c)^2} - (1+(d-a)^2)\\
-                = 1+c^2+b^2-2ac-2bd-\frac{1}{1+b^2+c^2-2bc}+2ad\\
-                \leq a^2+b^2+c^2+d^2-2ac-2bd-\frac{(b-c)^2}{1+(b-c)^2}\\
-                ....unfinished
-                $
-            \item when $a \leq c \leq d \leq b$, the increase of yards will be
-
-                $(1+(c-a)^2) + \frac{1}{1+(b-d)^2} - \frac{1}{1+(b-c)^2} - (1+(d-a)^2)\\
-                =c^2-d^2+2ad-2ac
-                $
-            \item when $c \leq a \leq b \leq d$, the increase of yards will be
-
-                $\frac{1}{1+(a-c)^2}+(1+(d-b)^2)-\frac{1}{1+(b-c)^2}-(1+(d-a)^2)
-                $
-            \item when $c \leq a \leq d \leq b$, the increase of yards will be
-
-            $
-                \frac{1}{1+(a-c)^2}+\frac{1}{1+(b-d)^2}-\frac{1}{1+(b-c)^2}-(1+(d-a)^2)
-                $
-           \item when $c \leq d \leq a \leq b$, the increase of yards will be
-
-                $
-                \frac{1}{1+(a-c)^2}+\frac{1}{1+(b-d)^2}-\frac{1}{1+(b-c)^2}-\frac{1}{1+(d-a)^2}
-                $
-        \end{enumerate}
-        
-    \end{enumerate}
-
-
+        Observing the algorithm, we only add a weight $w_i$ to $S$ if we can't get the sum of $w_i$. Therefore, if $w_i \notin S'$, there must be a way to sum up to $w_i$ using the first $(i-t)$th weights. However, we have prove that the first $(i-1)$th weights in both \textit{S} and \textit{S'} are the same, meaning the first $(i-1)$th weights in \textit{S'} can't sum up to $w_i$ and the range produced by $S'$ is not consecutive. Contradiction! proved.
 \end{document}
