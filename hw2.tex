@@ -51,7 +51,42 @@
     \subsection{problem a}
         \subsubsection{Prove that add a smaller weight \textit{w} won't help later}
 
-        Assume there is another set $S'$ size of \textit{n} and it produces a range $\{1,2,..., W'\}$, $W'\geq W+1$. By assumption, there must be a smallest weight $w_i$ such that $w_i \in S$, $w_i \notin S'$. In $S'$, there is another weight $w_j'\notin S$ and $w_j' > w_i$ and $w_j'$ will help summing up to $W'$ later. Because $w_i$ is the smallest  weight that is different from \textit{S'}, the first $(i-1)$ weights in $S$ and $S'$ are the same. 
+        Let $s(k)$ be the size of set \textit{S} computed by our algorithm when \textit{S} produces range $\{1,2,...,k\}$.. Let $i(k)$ be an optimal set when it produces range $\{1,2,...,k\}$. By showing that $s(W) \leq i(W)$, we can say that \textit{S} computed by our algorithm is the optimal.
         
-        Observing the algorithm, we only add a weight $w_i$ to $S$ if we can't get the sum of $w_i$. Therefore, if $w_i \notin S'$, there must be a way to sum up to $w_i$ using the first $(i-t)$th weights. However, we have prove that the first $(i-1)$th weights in both \textit{S} and \textit{S'} are the same, meaning the first $(i-1)$th weights in \textit{S'} can't sum up to $w_i$ and the range produced by $S'$ is not consecutive. Contradiction! proved.
+            Induction on k:\\
+            Base Case: when $k = 1, s(1)=i(1)=1, S=I=\{1\}$\\
+            Inductive Hypothesis: assume that $\forall k\in [1,k]: s(k)\leq i(k))$\\
+            Inductive Step: we know $s(k)\leq i(k)$, to prove $s(k+1)\leq i(k+1)$. Our algorithm picks the weights \textit{w} to which no subset in \textit{S} can sum up. Therefore, either \begin{enumerate}
+                \item $S$ add another weight $w'$. Notice that there is no such a subset in $S$ that can sum up to $w'$, thus, $s(k+1) = s(k) + 1$
+                \begin{enumerate}
+                    \item when $i(k) = s(k)$. By Inductive Hypothesis, it takes at least $s(k)$ weights to get the range $\{1,2,...,k\}$. Therefore, any set size of $k$ cannot need to add $w'$ if there is no such a subset in $S$ that can sum up to $w'$.
+                    Because there is also no such a subset in \textit{I} that can sum up to \textit{w'}, \textit{I} also needs to also add weight \textit{w'}. $i(k+1) = i(k)+1$. Because $s(k)\leq i(k)$, $s(k+1)=s(k)+1\leq i(k)+1=i(k+1)$.
+                    
+                    \item when $i(k) > s(k) => i(k) \geq s(k) + 1$ (consecutive sequence). Therefore, $s(k+1)=s(k)+1\leq i(k)\leq i(k+1)$
+                    
+                \end{enumerate}
+                \item or $S$ doesn't change, $s(k+1) = s(k)$. Because $s(k)\leq i(k)$ and \textit{I} is the optimal set, \textit{I} will also not change. Thus, $i(k+1)=i(k)$. So, $s(k+1)\leq i(k+1)$
+            \end{enumerate}
+
+            Because $s(k)\leq i(k) \forall k>0$, our algorithm is always no worse than the optimal Set. Thus, our algorithm produces optimal set $S$ that gets largest consecutive range $\{1,2,...,W\}$. Proved.
+
+        \subsubsection{Analyze the running time}
+            In order to add the number that the current $S$ cannot reach, it only take $\theta(1)$. Observe the loop, it iterates for n times. Therefore, the running time will be
+            \[n\theta(1)=\theta(n)\]
+            
+        \subsection{problem b}
+        \subsubsection{pattern:}
+            $S = \{1, 2, 4, 8, 16, 32, ..., 2^{n-1}\}$
+        \subsubsection{prove the pattern above}
+            We now have the theorem that the $m$-th weight in the set \textit{S} computed by our algorithm is $2^{m-1}$. Let's do induction on \textit{m}.\\
+            Base Case: m=1, $2^{m-1}=2^0=1$\\
+            Inductive Hypothesis: the $m$-th weight has weight $2^{m-1}$.\\
+            Inductive Step: we know $w_m=2^{m-1}$, to prove $w_{m+1}=2^{m}$. When $w_m$ is the last weight in $S$, the largest range $\{1,2,...,W\}$ we could reach is 
+    \[ W = \sum_{n=1}^{m} 2^{m-1} = \frac{1-2^m}{1-2}=2^m-1 \]
+            Therefore, by the algorithm, the next weight to add into $S$ is $2^m-1+1=2^m$ because the largest subset ($S$ itself) can't reach $2^m$. Therefore, $w_{m+1}=2^{(m+1)-1}=2^m$. Proved.
+            
+        
+        % Assume there is another set $S'$ size of \textit{n} and it produces a range $\{1,2,..., W'\}$, $W'\geq W+1$. By assumption, there must be a smallest weight $w_i$ such that $w_i \in S$, $w_i \notin S'$. In $S'$, there is another weight $w_j'\notin S$ and $w_j' > w_i$ and $w_j'$ will help summing up to $W'$ later. Because $w_i$ is the smallest  weight that is different from \textit{S'}, the first $(i-1)$ weights in $S$ and $S'$ are the same. 
+        
+        % Observing the algorithm, we only add a weight $w_i$ to $S$ if we can't get the sum of $w_i$. Therefore, if $w_i \notin S'$, there must be a way to sum up to $w_i$ using the first $(i-t)$th weights. However, we have prove that the first $(i-1)$th weights in both \textit{S} and \textit{S'} are the same, meaning the first $(i-1)$th weights in \textit{S'} can't sum up to $w_i$ and the range produced by $S'$ is not consecutive. Contradiction! proved.
 \end{document}
