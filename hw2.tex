@@ -28,7 +28,7 @@
     \subsection{Analysis:}
         \subsubsection{Prove that it gives the best matching} 
         \\
-        \indent Assume list of opponents $R$ and defensive backers $B$ are sorted as described in the algorithm. Let $f(i)=i$ be the matching provided by our algorithm, and let $f^*$ be some optimal matching. Showing that $f^*$ and $f$ are equivalent prove the algorithm provides best matching.
+         Assume list of opponents $R$ and defensive backers $B$ are sorted as described in the algorithm. Let $f(i)=i$ be the matching provided by our algorithm, and let $f^*$ be some optimal matching. Showing that $f^*$ and $f$ are equivalent prove the algorithm provides best matching.
         
         Assume the matching $f^*$ is optimal and different from $f$. Then there must be some smallest $i$ such that $f^*(i) \neq f(i) = i$. Then, it must be the case that $f^*(i) = j > i$ (as the matchings are identical up to position i). Let also $k$ such that $f^*(k) = i, k > i$. Now consider changing $f*$ such that $f^*(i)=i, f^*(k)=j$. \textbf{[The assumption above uses template of discussion 2 on piazza for convenience and accuracy on mathmetical language.]} 
         For convenience, let $a=b_i, b=b_k, c=r_i, d=r_j$. We have two relations are listed and won't be repeatedly mentioned in the following discussion:
@@ -51,24 +51,26 @@
     \subsection{problem a}
         \subsubsection{Prove that add a smaller weight \textit{w} won't help later}
 
-        Let $s(k)$ be the size of set \textit{S} computed by our algorithm when \textit{S} produces range $\{1,2,...,k\}$.. Let $i(k)$ be an optimal set when it produces range $\{1,2,...,k\}$. By showing that $s(W) \leq i(W)$, we can say that \textit{S} computed by our algorithm is the optimal.
+        Let $s(k)$ be the size of set \textit{S} computed by our algorithm when \textit{S} produces range $\{1,2,...,k\}$. Let $i(k)$ be the size of the optimal set $I$ when it produces range $\{1,2,...,k\}$. Naturally, we have $s(1)\leq s(2)...\leq s(W), i(1)\leq i(2)...\leq i(W). $ By showing that $\forall k\in \mathbb{N}^{+}: s(k) \leq i(k)$, we can say that \textit{S} computed by our algorithm is the optimal.
         
-            Induction on k:\\
-            Base Case: when $k = 1, s(1)=i(1)=1, S=I=\{1\}$\\
-            Inductive Hypothesis: assume that $\forall k\in [1,k]: s(k)\leq i(k))$\\
+            Induction on k: $k\Rightarrow k+1$\\
+             Inductive Hypothesis: assume that $\forall k\in [1,k], k\in \mathbb{N}^{+}: s(k)\leq i(k)$\\
+            Base Case $k = 1, s(1)=i(1)=1, S=I=\{1\}$\\
             Inductive Step: we know $s(k)\leq i(k)$, to prove $s(k+1)\leq i(k+1)$. Our algorithm picks the weights \textit{w} to which no subset in \textit{S} can sum up. Therefore, either \begin{enumerate}
-                \item $S$ add another weight $w'$. Notice that there is no such a subset in $S$ that can sum up to $w'$, thus, $s(k+1) = s(k) + 1$
+                \item $S$ add another weight $w'$. Because there is no such a subset in $S$ that can sum up to $w'$, $s(k+1) = s(k) + 1$. Here, $w' = k+1$ because (1) the range is consecutive and (2) $S'$ can reach \textit{k} but not $k+1$.
                 \begin{enumerate}
-                    \item when $i(k) = s(k)$. By Inductive Hypothesis, it takes at least $s(k)$ weights to get the range $\{1,2,...,k\}$. Therefore, any set size of $k$ cannot need to add $w'$ if there is no such a subset in $S$ that can sum up to $w'$.
-                    Because there is also no such a subset in \textit{I} that can sum up to \textit{w'}, \textit{I} also needs to also add weight \textit{w'}. $i(k+1) = i(k)+1$. Because $s(k)\leq i(k)$, $s(k+1)=s(k)+1\leq i(k)+1=i(k+1)$.
+                    \item when $i(k) = s(k)$.  By Inductive Hypothesis, $S$ with size of $s(k)$ is definitely no worse then other set in size of $s(k)$ because $s(k)\leq i(k)$ and $I$ is the optimal set. Thus, if $S$ of size $s(k)$ can only reach range $\{1,2,...,W'\}$, any other set of the same size can only reach $\{1,2,...,W''\}$, $W''\leq W'$.\\
+                    Thus, if $S$ of size $s(k)$ only reaches $k$ needs to add another weight $w'=k+1$, any other set of the same size needs to at least adding $w'$. Because $i(k)=s(k)$,\textit{I} also needs to also add weight \textit{w'}, $i(k+1) = i(k)+1$. By I.H. $s(k)\leq i(k)$, 
+                    \[s(k+1)=s(k)+1\leq i(k)+1=i(k+1)\].
                     
-                    \item when $i(k) > s(k) => i(k) \geq s(k) + 1$ (consecutive sequence). Therefore, $s(k+1)=s(k)+1\leq i(k)\leq i(k+1)$
+                    \item when $i(k) > s(k)$. Naturally, $i(k) \geq s(k) + 1$ because size of $I, S$ have to be an integer. Since $i(k) \leq i(k+1)$, \[s(k+1)=s(k)+1\leq i(k)\leq i(k+1)\]
                     
                 \end{enumerate}
-                \item or $S$ doesn't change, $s(k+1) = s(k)$. Because $s(k)\leq i(k)$ and \textit{I} is the optimal set, \textit{I} will also not change. Thus, $i(k+1)=i(k)$. So, $s(k+1)\leq i(k+1)$
+                \item or $S$ doesn't change, $s(k+1) = s(k)$. By I.H. $s(k)\leq i(k)$ and $i(k)\leq i(k+1)$, \[s(k+1) = s(k) \leq i(k) \leq i(k+1)\]
+                
             \end{enumerate}
 
-            Because $s(k)\leq i(k) \forall k>0$, our algorithm is always no worse than the optimal Set. Thus, our algorithm produces optimal set $S$ that gets largest consecutive range $\{1,2,...,W\}$. Proved.
+            Because $\forall k\in \mathbb{N}^{+}: s(k)\leq i(k) $, our algorithm is always no worse than the optimal Set. Thus, our algorithm produces optimal set $S$ that gets largest consecutive range $\{1,2,...,W\}$. Proved.
 
         \subsubsection{Analyze the running time}
             In order to add the number that the current $S$ cannot reach, it only take $\theta(1)$. Observe the loop, it iterates for n times. Therefore, the running time will be
@@ -78,9 +80,11 @@
         \subsubsection{pattern:}
             $S = \{1, 2, 4, 8, 16, 32, ..., 2^{n-1}\}$
         \subsubsection{prove the pattern above}
-            We now have the theorem that the $m$-th weight in the set \textit{S} computed by our algorithm is $2^{m-1}$. Let's do induction on \textit{m}.\\
+            We now have the theorem that the $m$-th $w_m$ weight in the set \textit{S} computed by our algorithm is $2^{m-1}$. 
+            
+            Induction on \textit{m}: $m\Rightarrow m+1$.\\
+              Inductive Hypothesis: $\forall m\in [1,m], m\in \mathbb{N}^{+}: w_m = 2^{m-1}$.\\
             Base Case: m=1, $2^{m-1}=2^0=1$\\
-            Inductive Hypothesis: the $m$-th weight has weight $2^{m-1}$.\\
             Inductive Step: we know $w_m=2^{m-1}$, to prove $w_{m+1}=2^{m}$. When $w_m$ is the last weight in $S$, the largest range $\{1,2,...,W\}$ we could reach is 
     \[ W = \sum_{n=1}^{m} 2^{m-1} = \frac{1-2^m}{1-2}=2^m-1 \]
             Therefore, by the algorithm, the next weight to add into $S$ is $2^m-1+1=2^m$ because the largest subset ($S$ itself) can't reach $2^m$. Therefore, $w_{m+1}=2^{(m+1)-1}=2^m$. Proved.
