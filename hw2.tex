@@ -50,17 +50,19 @@
 \section{Problem 2}
     \subsection{problem a}
         \subsubsection{Prove that the algorithm produces a set \textit{S} such that among all possible sets \textit{T} of size n, \textit{S} produces the largest consecutive range $\{1, 2, . . . , W\}$ of weights as sums of subsets.}
+
+        If there are two set $S_1, S_2$ (both are size of $n$) and $S_1$ is the optimal set. $S_1$ produces $\{1,2,...W_1\}$, $S_2$ produces $\{1,2,...W_2\}$, $W_1\geq W_2$. Therefore, there exists a smallest $i$-th weight $w_i \in S_1$ such that a subset in $S_1, \{1,2,4,...,w_i\}$ can reach $W_2$, $i\leq n$. For the rest of $(n-i)$ weights in $S_1$, they contribute to $W_1$. This means that the optimal set will always reach the largest range of any other set with the same size using first $i$-th weights and keep increasing the range using the rest $n-i$ weights. Therefore, (proving that a  set with size of $n$ always produces largest range is optimal) $\Leftrightarrow$ (proving that the set that always uses the least number of items to reach same range is the optimal set).
         
         Let $s(k)$ be the size of set \textit{S} computed by our algorithm when \textit{S} produces range $\{1,2,...,k\}$. Let $i(k)$ be the size of the optimal set $I$ when it produces range $\{1,2,...,k\}$. Naturally, we have $s(1)\leq s(2)...\leq s(W), i(1)\leq i(2)...\leq i(W). $ By showing that $\forall k\in \mathbb{N}^{+}: s(k) \leq i(k)$, we can say that \textit{S} computed by our algorithm is the optimal.
         
             Induction on k: $k\Rightarrow k+1$\\
-             Inductive Hypothesis: assume that $\forall k\in [1,k], k\in \mathbb{N}^{+}: s(k)\leq i(k)$\\
+             Inductive Hypothesis: assume that $\forall j\in [1,k], j\in \mathbb{N}^{+}: s(j)\leq i(j)$\\. (To reach range $\{1,2,...,j\}$, a set has to contain at least $s(j)$ weights)
             Base Case $k = 1, s(1)=i(1)=1, S=I=\{1\}$\\
             Inductive Step: we know $s(k)\leq i(k)$, to prove $s(k+1)\leq i(k+1)$. Our algorithm picks the weights \textit{w} to which no subset in \textit{S} can sum up. Therefore, either \begin{enumerate}
                 \item $S$ add another weight $w'$. Because there is no such a subset in $S$ that can sum up to $w'$, $s(k+1) = s(k) + 1$. Here, $w' = k+1$ because (1) the range is consecutive and (2) $S'$ can reach \textit{k} but not $k+1$.
                 \begin{enumerate}
-                    \item when $i(k) = s(k)$.  By Inductive Hypothesis, $S$ with size of $s(k)$ is definitely no worse then other set in size of $s(k)$ because $s(k)\leq i(k)$ and $I$ is the optimal set. Thus, if $S$ of size $s(k)$ can only reach range $\{1,2,...,W'\}$, any other set of the same size can only reach $\{1,2,...,W''\}$, $W''\leq W'$.
-                    Thus, if $S$ of size $s(k)$ only reaches $k$ needs to add another weight $w'=k+1$, any other set of the same size needs to at least adding $w'$. Because $i(k)=s(k)$,\textit{I} also needs to also add weight \textit{w'}, $i(k+1) = i(k)+1$. By I.H. $s(k)\leq i(k)$, 
+                    \item when $i(k) = s(k)$.  By Inductive Hypothesis, to reach range $\{1,2,...,k\}$, a set has to contain at least $s(k)$ weights because $s(k)\leq i(k)$ and $I$ is the optimal set. This is same as saying that if the set $S$ computed by our algorithm with size of $s(k)$ can reach range $\{1,2,...,W'\}$, any other set of the same size can reach $\{1,2,...,W''\}$, $W''\leq W'$. 
+                    Thus, if $S$ of size $s(k)$ needs to add another weight $w'=k+1$, any other set of the same size needs to at least adding $w'$. Because $i(k)=s(k)$,\textit{I} also needs to also add weight \textit{w'}, $i(k+1) = i(k)+1$. By I.H. $s(k)\leq i(k)$, 
                     \[s(k+1)=s(k)+1\leq i(k)+1=i(k+1)\].
                     
                     \item when $i(k) > s(k)$. Naturally, $i(k) \geq s(k) + 1$ because size of $I, S$ have to be an integer. Since $i(k) \leq i(k+1)$, \[s(k+1)=s(k)+1\leq i(k)\leq i(k+1)\]
