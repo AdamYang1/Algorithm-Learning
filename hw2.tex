@@ -6,6 +6,7 @@
 % \graphicspath{{./media/}}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{amsfonts}
 \usepackage{indentfirst}
 \setlength\parindent{24pt}
 \begin{document} \maketitle
@@ -27,7 +28,6 @@
 
     \subsection{Analysis:}
         \subsubsection{Prove that it gives the best matching} 
-        \\
          Assume list of opponents $R$ and defensive backers $B$ are sorted as described in the algorithm. Let $f(i)=i$ be the matching provided by our algorithm, and let $f^*$ be some optimal matching. Showing that $f^*$ and $f$ are equivalent prove the algorithm provides best matching.
         
         Assume the matching $f^*$ is optimal and different from $f$. Then there must be some smallest $i$ such that $f^*(i) \neq f(i) = i$. Then, it must be the case that $f^*(i) = j > i$ (as the matchings are identical up to position i). Let also $k$ such that $f^*(k) = i, k > i$. Now consider changing $f*$ such that $f^*(i)=i, f^*(k)=j$. \textbf{[The assumption above uses template of discussion 2 on piazza for convenience and accuracy on mathmetical language.]} 
@@ -49,8 +49,8 @@
 
 \section{Problem 2}
     \subsection{problem a}
-        \subsubsection{Prove that add a smaller weight \textit{w} won't help later}
-
+        \subsubsection{Prove that the algorithm produces a set \textit{S} such that among all possible sets \textit{T} of size n, \textit{S} produces the largest consecutive range $\{1, 2, . . . , W\}$ of weights as sums of subsets.}
+        
         Let $s(k)$ be the size of set \textit{S} computed by our algorithm when \textit{S} produces range $\{1,2,...,k\}$. Let $i(k)$ be the size of the optimal set $I$ when it produces range $\{1,2,...,k\}$. Naturally, we have $s(1)\leq s(2)...\leq s(W), i(1)\leq i(2)...\leq i(W). $ By showing that $\forall k\in \mathbb{N}^{+}: s(k) \leq i(k)$, we can say that \textit{S} computed by our algorithm is the optimal.
         
             Induction on k: $k\Rightarrow k+1$\\
@@ -59,7 +59,7 @@
             Inductive Step: we know $s(k)\leq i(k)$, to prove $s(k+1)\leq i(k+1)$. Our algorithm picks the weights \textit{w} to which no subset in \textit{S} can sum up. Therefore, either \begin{enumerate}
                 \item $S$ add another weight $w'$. Because there is no such a subset in $S$ that can sum up to $w'$, $s(k+1) = s(k) + 1$. Here, $w' = k+1$ because (1) the range is consecutive and (2) $S'$ can reach \textit{k} but not $k+1$.
                 \begin{enumerate}
-                    \item when $i(k) = s(k)$.  By Inductive Hypothesis, $S$ with size of $s(k)$ is definitely no worse then other set in size of $s(k)$ because $s(k)\leq i(k)$ and $I$ is the optimal set. Thus, if $S$ of size $s(k)$ can only reach range $\{1,2,...,W'\}$, any other set of the same size can only reach $\{1,2,...,W''\}$, $W''\leq W'$.\\
+                    \item when $i(k) = s(k)$.  By Inductive Hypothesis, $S$ with size of $s(k)$ is definitely no worse then other set in size of $s(k)$ because $s(k)\leq i(k)$ and $I$ is the optimal set. Thus, if $S$ of size $s(k)$ can only reach range $\{1,2,...,W'\}$, any other set of the same size can only reach $\{1,2,...,W''\}$, $W''\leq W'$.
                     Thus, if $S$ of size $s(k)$ only reaches $k$ needs to add another weight $w'=k+1$, any other set of the same size needs to at least adding $w'$. Because $i(k)=s(k)$,\textit{I} also needs to also add weight \textit{w'}, $i(k+1) = i(k)+1$. By I.H. $s(k)\leq i(k)$, 
                     \[s(k+1)=s(k)+1\leq i(k)+1=i(k+1)\].
                     
@@ -67,9 +67,7 @@
                     
                 \end{enumerate}
                 \item or $S$ doesn't change, $s(k+1) = s(k)$. By I.H. $s(k)\leq i(k)$ and $i(k)\leq i(k+1)$, \[s(k+1) = s(k) \leq i(k) \leq i(k+1)\]
-                
             \end{enumerate}
-
             Because $\forall k\in \mathbb{N}^{+}: s(k)\leq i(k) $, our algorithm is always no worse than the optimal Set. Thus, our algorithm produces optimal set $S$ that gets largest consecutive range $\{1,2,...,W\}$. Proved.
 
         \subsubsection{Analyze the running time}
