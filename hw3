@@ -1,0 +1,65 @@
+\documentclass{article}
+\author{Shixiang (Adam) Yang}
+
+\date{September 23, 2022}
+\title{CSCI270 - Assignment3}
+% \graphicspath{{./media/}}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tikz} 
+\usepackage{amsfonts}
+\usepackage{indentfirst}
+\setlength\parindent{24pt}
+\begin{document} \maketitle
+\section{Problem 1}
+\subsection{Problem a}
+\subsubsection{Is the graph $(V,E')$ connected?}
+
+With graph $(V,E)$ looks like the following:
+\begin{center}
+\begin{tikzpicture}[node distance={15mm}, thick, main/.style = {draw, circle}] 
+\node[main] (1) {$x_1$}; 
+\node[main] (2) [above right of=1] {$x_2$}; 
+\node[main] (3) [below right of=1] {$x_3$}; 
+\node[main] (4) [above right of=3] {$x_4$}; 
+\draw (1) -- node[above] {1} (2); 
+\draw (1) -- node[above] {2} (3); 
+\draw (2) -- node[above] {2} (4); 
+\draw (3) -- node[above] {1} (4);  
+\end{tikzpicture}
+\end{center}
+
+ (V,E') will be disconnected because $E'$  only contains the cheapest edge for $x_1, x_2, x_3, x_4$. Therefore, the edges with weight of two are not contained in $E'$ because (1) for $x_1$, the edge $(x_1,x_3)$ is larger than $(x_1,x_2)$ (2) for $x_2$, the edge $(x_2,x_4)$ is larger than $(x_1,x_2)$ (3) for $x_3$, the edge $(x_1,x_3)$ is larger than $(x_3,x_4)$ (4) for $x_4$, the edge $(x_2,x_4)$ is larger than $(x_3,x_4)$. The graph $(V,E')$ looks like
+\begin{center}
+\begin{tikzpicture}[node distance={15mm}, thick, main/.style = {draw, circle}] 
+\node[main] (1) {$x_1$}; 
+\node[main] (2) [above right of=1] {$x_2$}; 
+\node[main] (3) [below right of=1] {$x_3$}; 
+\node[main] (4) [above right of=3] {$x_4$}; 
+\draw (1) -- node[above] {1} (2); 
+\draw (3) -- node[above] {1} (4);  
+\end{tikzpicture}
+\end{center}
+
+Therefore, graph $(V,E')$ is not connected, proved by counterexample.
+
+\subsubsection{Is the graph $(V,E')$ acyclic?}
+Assume the graph has a cycle with $n$ edges and $n$ vertices. Consider this cycle $C$. WLOG, look at a vertex $v \in C$. $v$ has two edges $e_1, e_2$ that connect $v$ to $C-v$. Because each edge's cost $c_e$ is distinct, WLOG, $c_{e_1} > c_{e_2}$. By definition, $E'$ only contains the cheapest of all edges incident on $v$, therefore, $E'$ will only contain $e_2$. Thus, $C$ only contains $n-1$ edges. Therefore contradiction!
+
+\subsection{Problem b}
+\subsubsection{prove the output graph $(V,T)$ is a MST}
+The output is a spanning tree. In each iteration, the algorithm combine at least two separate components $C_1, C_2$ into a larger connected component with an edge $e$. Therefore, a new element can be viewed as the combination of all vertices in $C_1, C_2$. Since the number of separate components will always decrease, the algorithm will always terminate when the number of connected components converges to 1, which is the combination of all vertices. Consider each component as a node, the algorithm can be viewed as finding the cheapest edge $e$ for each "contracted node". Proven above, this operation computes an acyclic graph. Thus, the output is a spanning tree because (1) it includes every vertex (2) it is a tree.
+
+The output is a MST. WLOG, whenever an edge $e$ is added to a component $C$, it is explicitly chosen as the cheapest edge that connects $C$ and $\bar C$. Therefore, each added edge is cheapest across some cut. Since the output is always a spanning tree with $n-1$ edges, the output has to be a MST. Because $E$ is a connected graph, an edge can always be found or the algorithm terminates. QED
+
+\subsubsection{prove that it can be done in $O(m\log{n})$}
+Notice that for each separate component, it will be connected to at least one other connected components in each iteration. Therefore, with $i$ separate components at the beginning of the iteration, the algorithm produces at most $\frac{i}{2}$ new separate connected components. This happens when each new component only contains two previous components. 
+
+The algorithm terminates when there are only two separate components at the start of an iteration. Let assume it take $k$ iterations until the algorithm terminates (only one component left in $(V,T)$ after $k$-th iteration).
+\[\frac{n}{2^k}=1\]
+Therefore, it takes at most $\log{n}$ iterations until $(V,T)$ is connected.
+
+In each iteration, it takes $O(m)$ steps to check the cheapest edges for all the components. Therefore, the running time is
+\[O(m)*O(\log{n})=O(m\log{n})\]
+
+\end{document}
