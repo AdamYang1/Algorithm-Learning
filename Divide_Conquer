@@ -1,0 +1,130 @@
+\documentclass{article}
+\author{Shixiang (Adam) Yang}
+
+% \date{September 16, 2022}
+\title{Divide \& Conquer}
+% \graphicspath{{./media/}}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsfonts}
+\usepackage{indentfirst}
+\setlength\parindent{24pt}
+\begin{document} \maketitle
+
+\section{High level Idea}
+    -take a problem instance I of size n
+    
+    - divide it into smaller instances I(1), I(2), ... , I(k)
+    
+    - solve each of the I(j) separately, resulting in SoL(j)
+    
+    - do some post processing work to produce a solution SoL from SoL(j)
+
+    - if the input is small enough (smaller than some constant), solve it directly\\
+    Most frequently, k = 2\\
+    Often the sub-problems I(j) all have the same size, and are disjoint parts of the input, of size n/k
+\subsection{Merge Sort example}
+    \textbf{Merge Sort(a[], L, R)}
+    \\- if R==L, then nothing to do
+    \\- else
+        \begin{enumerate}
+            \item let m = (R+L)/2, rounded down
+            \item Merge Sort(a[], L,m);
+            \item Merge Sort(a[], m+1,R);
+            \item Merge(a[], L, m, R);
+        \end{enumerate}
+
+    \textbf{Merge(a[], L, m, R)}
+    \\ array b to copy into [0-indexed]
+    \\ int i = L, j = m+1, k = 0;
+    \\ while($i<=m || j<=R$) // one more to copy
+        \begin{enumerate}
+            \item if($j>R$ $||$ (i$<=$m \&\& a[i]$<=$a[j])
+            \\ b[k]=a[i]; i++; k++
+            \item b[k] = a[j]; j++; k++;
+        \end{enumerate}
+        for(i=L; $i<=R;$ i++) a[i]=b[i-k];
+\subsection{prove that merge sort is correct}
+    Correctness: The output is sorted
+    and the array still contains the same elements as before.
+    
+    Since MergeSort relies so heavily on Merge, we need to first state what Merge does.
+
+    Lemma [Merge]: If the input arrays a[L..m] and [m+1..R] are sorted, then Merge terminates, and after Merge runs, a[L..R] is sorted. And a[L..R] still contains the same elements as before the call.
+
+    Proof: not here. Formulate the right loop invariant, and prove by induction on k (or on i+j)
+
+    Theorem [MergeSort Correctness]: If you call MergeSort(a[], L, R), it terminates, and afterwards, a[L..R] is sorted, and still contains the same elements.
+
+    Proof: by induction on n = R-L+1 (size of the array we are currently working on).
+    [Note: Correctness proofs for basically all recursion need induction because the calls for bigger inputs require correctly solving the smaller inputs]
+
+    Base Case [n=1 (R==L)]: Algorithms does nothing, correctly sorts one element.
+    Induction Step [array size n]:
+    We get to assume that MergeSort works for all array sizes 1, ..., n-1 (Strong induction hypothesis.)
+    sizes for recursive calls:  m+1-L = $\lfloor \frac{L+R}{2} \rfloor +1-L$ $<R+1-L=n$,
+    $R+1-(m+1)=R-\lfloor \frac{L+R}{2}\rfloor$ $<R+1-L=n$ if $R>L$.\\
+    Because both subarrays are smaller, we can use the induction hypothesis on them, so both calls terminate, and the results are sorted and contain the same elements as before.\\
+    Therefore, we can apply the Merge lemma, which proves that the final output a[L..R] is sorted and contains the same elements. QED.
+
+\subsection{Running time for merge sort}
+MergeSort: $T_ms(n) \leq 2*T_ms(n/2)+\Theta(n)$\\
+Merge - $\Theta(R-L)=\Theta(n)$
+
+Solve the recurrence $T(n) = 2T(n/2)+\Theta(n)=>T(n)=\Theta(n\log{n})$ \\
+Solve:$T(n)=a*T(\frac{n}{b})+f(n)$\\
+Level: $\log_b{n}$\\
+For each level: $f(\frac{n}{b^i})*a^i$\\
+Total: $T(n)=\sum_{i=0}^{\log_b{n}}a^if(\frac{n}{b^i})$
+
+\subsection{Master Theorem}
+Let $a\geq 1, b>1$ and T(n) defined by
+\[T(n) = a*T(n/b)+f(n), T(1)=\Theta(1)\]
+Then:
+\begin{enumerate}
+    \item if $f(n)=O(n^{\log_b{c}-\epsilon})$ for some $\epsilon > 0$, then \[T(n)=\Theta(n^{\log_b{c}})\]
+    \item if $f(n)=\Theta(n^{\log_b{a}})$, then \[\Theta(n^{\log_b{a}}*\log{n})\]
+    \item if $f(n)=\Omega(n^{\log_b{c+\epsilon}})$ for some $\epsilon>0$, and $a(f(n/b))\leq c*f(n)$ for some $c<1, n\geq n_0$, then \[T(n)=\Theta(f(n))\]
+
+    $f(n)=n\log{n}$, it falls into third scenario
+\end{enumerate}
+
+\section{Integer Multiplication:}
+Given x,y compute x*y. (Lets do it binary)
+\\Running Time: x has n digits, y has m digits $\Theta(nm)$
+\subsection{Make it faster}
+We now assume $n = m$.
+\[x=x_{n-1}x_{n-2}...x_0=\sum_{i=0}^{n-1} 2^i*x_i\] 
+\[y=y_{n-1}y_{n-2}...y_0=\sum_{i=0}^{n-1} 2^i*y_i\]
+(concatenation, not multiplication)\\
+$x^+$ is the left half, $x^-$ is the right half, similarly works for y
+\[x=x^+*2^{n/2}+x^-\]
+\[y=y^+*2^{n/2}+y^-\]
+\[x*y=(x^+*2^{n/2}+x^-)(y^+*2^{n/2}+y^-)\]
+\[=x^+y^+*2^n+x^-y^+*2^{n/2}+x^+y^-*2^{n/2}+x^-y^-\]
+
+If our recursive calls compute these four products correctly, then the formula gives us $x*y$.
+Thus, the formula is basically the induction step of a correctness proof
+\\\textbf{Base Case:} $n=1: 0*0 = 0*1 = 1*0 = 0, 1*1 = 1$.
+\subsection{Running Time}
+4 recursive calls, each with size $n/2$. Additional time for shifting and adding the result: $O(n)$
+\\Recurrence: $T(n)=4T(n/2)+O(n)$
+\\Apply Master Theorem: $f(n)=O(n), a=4, b=2, \log_b{a}=2$
+\[f(n) \leq n^(\log_b{a}) = n^2\]
+\\Master Theorem Case(1): $T(n)=\Theta(n^2)$ (NO Improvement!)
+
+\subsection{Actually Make it Faster}
+\[x*y=(x^+*2^{n/2}+x^-)(y^+*2^{n/2}+y^-)\]
+\[=x^+y^+*2^n+(x^-y^++x^+y^-)*2^{n/2}+x^-y^-\]
+Notice that
+\[(x^-y^++x^+y^-)=(x^++x^-)(y^++y^-)-x^+y^+-x^-y^-\]
+Rule: Compute $a = x^+y^+, b=x^-y^-, c=((x^++x^-)(y^++y^-))$
+\\Then compute $a*2^n+(c-a-b)*2^{n/2}+b$
+\\We just showed that this is the correct answer
+\subsection{Running Time 2}
+This time we are actually faster!
+Time for computation: $\Theta(n)$
+\\Recurrence: $T(n)=3T(n/2)+\Theta(n)$
+\\$\log_b{a}=\log_2{3}=1.59$
+\\MT Case 1: $T(n)=\Theta(n^{1.59})$
+\end{document}
