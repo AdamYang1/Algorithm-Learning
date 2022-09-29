@@ -92,23 +92,58 @@ We prove by contradiction. Assume that for $i\in [1,n-1]$, there is no such pair
 \subsection{Problem b}
 \begin{algorithm}[!ht]
 \DontPrintSemicolon
-  
-  \KwInput{An array A with $a_1 < a_n$, lower bound index $l$, upper bound index $u$}
-  \KwOutput{a pair ($a_i, a_{i+1}$): $a_i < a_{i+1}$, $i\in[1,n-1]$}
-  \tcc{Initialize $l, u, m$. \\$A[l:u]$ is the range the function searches, $m$ is the middle index}
-  $m \leftarrow \lfloor\frac{m+n}{2}\rfloor$
-  
-  \If{$A[m] < A[m+1]$}{
-    return $(A[m], A[m+1])$
-  } \Else { \tcc{$A[m] \geq A[m+1]$}
-    \If{$A[l] \geq A[m]$}{
-        \tcc{}
+\KwInput{$A[ ]$, 1, n (we only search $A[l:u]$)}
+  \SetKwFunction{FSub}{Find} 
+    \SetKwProg{Fn}{Def}{:}{} 
+      \Fn{\FSub{$A[ ]$, $l$, $u$}}{ 
+    \If{$l==u$}{
+        return null; 
+    } \Else{
+          $m \leftarrow \lfloor\frac{m+n}{2}\rfloor$
+          
+          \If{$A[m] < A[m+1]$}{
+            return $(A[m], A[m+1])$
+          } \Else {
+            \If{$A[l] \geq A[m]$}{
+                return Find($A[], m, u$)
+            } \Else{
+                return Find($A[ ], l, m$)
+            }
+          }
+
     }
-  }
-  
-  
+      }
+      \;
 
 \caption{An algorithm finding a pair ($a_i < a_{i+1}$)}
 \end{algorithm}
 
+\textbf{Prove of Correctness:}
+\\\textbf{Correctness:} The output is a pair ($a_i<a_{i+1}$) for $i\in [1,n-1]$ in A. Proven in problem a, an array A with $a_1 < a_n$ must has a pair ($a_i,a_{i+1}$) such that $a_i<a_{i+1}$ on $A[1:n]$.
+\\Since the algorithm is largely dependent on the subarray we find from line 6 to 12. We explicitly choose the subarray $Sub[] = A[l:m]$ or $Sub[]=A[m+1:u]$ with size $p$ that satisfies $Sub[1] < Sub[p]$ to work on.
+\\\textbf{Lemma:} if the input array A[l:u] has $A[l] < A[u], m=\lfloor \frac{l+u}{2}\rfloor$, there always exists a subarray  $Sub[] = A[l:m]$ or $Sub[]=A[m+1:u]$ with size $p$ that satisfies $Sub[1] < Sub[p]$ and contains the desired pair for the algorithm to find.
+\\\textbf{Proof of Lemma:} To prove the lemma, we always assume that the input array $A[]$ has at least two elements because the algorithm doesn't concern finding the subarray for the array that has only one element. When the array $A[]$ only has two elements, it means we have found the element since the $A[1]<A[2]$. WLOG, let's look at the array $A[]$ indexed from $1$ to $n$, $A[1] < A[n], n>1$. In this case, $l = 1, u = n, m=\lfloor \frac{l+u}{2}\rfloor$. There are three cases here:
+\begin{enumerate}
+    \item $A[m] < A[m+1]$: we don't need to concern about the subarray here since the algorithm will terminate once finding the desired pair.
+    \item $A[m] \geq A[m+1]$ \textbf{and} $A[l] \geq A[m]$: because $A[m+1] \leq A[m] \leq A[l] < A[u]$, $A[m+1] < A[u]$. Therefore, the subarray $Sub[] = A[m+1:u]$ with size $p$ has $Sub[1] = A[m+1] < A[u] = Sub[p]$
+    \item $A[m] \geq A[m+1]$ \textbf{and} $A[l] < A[m]$: the subarray $Sub[]=A[l:m]$ with size $p$ has $Sub[1] = A[l] < A[m] = Sub[p]$
+\end{enumerate}
+Therefore, when the size of $A[]$ is at least 2, either the algorithm terminates for finding desired pair or keeps working on a subarray $Sub[]$ that has the first element strictly less than the last element and contains the desired pair. Lemma Proved!
+\\\textbf{Theorem [Algorithm Correctness]:} If you call Find($A[ ], l, u$), it terminates, and afterwards, it returns a pair ($a_i<a_{i+1}$) for $i\in [1,n-1]$ in $A[l:u]$.
+\\By induction on $n = u-l+1$ (size of the array that we are working on)
+\\\textbf{Base Case:} n=1 (l==u), algorithm does nothing since there's only one element we are working on. We return null since there is no a pair.
+\\\textbf{Inductive Hypothesis:} Assume that the algorithm works for all array size $1, 2, ..., n-1$
+\\\textbf{Inductive Step:} We get to assume that algorithm works
+for all array sizes 1, ..., n-1 (Strong induction hypothesis.) 
+\\sizes for recursive calls:
+\begin{enumerate}
+    \item $m-l+1 = \lfloor \frac{l+u}{2}\rfloor - l + 1 < u-l+1=n$
+    \item $u-m+1 = \lfloor -\frac{l+u}{2}\rfloor +u + 1 < u-l+1=n$
+\end{enumerate}
+
+The lemma tells us that when the size of input array $A$ is at least two, the algorithm always find the subarray that has the first element strictly less than the last element to work on. Because both subarrays are smaller and we only choose the subarray that contains the desired pair the work on, we can use the induction hypothesis on one of the recursive call that will terminate, and the result is the desired pair. QED
+
+\textbf{Running time analysis:}\\
+Observing the algorithm, on each level recursion of size $n$ we has another recursive call of size $n/2$ and primitive operation (comparison and assignment) that takes $\Theta(1)$. Assume the running time of algorithm with input array size of n as $T(n)$. The recurrence relation is \[T(n)=T(n/2)+\Theta(1)\]
+By master theorem, $a = 1, b = 2, \log_b{a} = \log_2{1} = 0 < 1 = f(n)$. The running time is: \[T(n) = n^{\log_b{a}}*\log{n} = n^0*\log{n} = \log{n}\]
 \end{document}
