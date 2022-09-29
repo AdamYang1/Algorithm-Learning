@@ -124,7 +124,66 @@ Rule: Compute $a = x^+y^+, b=x^-y^-, c=((x^++x^-)(y^++y^-))$
 \subsection{Running Time 2}
 This time we are actually faster!
 Time for computation: $\Theta(n)$
-\\Recurrence: $T(n)=3T(n/2)+\Theta(n)$
-\\$\log_b{a}=\log_2{3}=1.59$
-\\MT Case 1: $T(n)=\Theta(n^{1.59})$
+
+Recurrence: $T(n)=3T(n/2)+\Theta(n)$
+
+$\log_b{a}=\log_2{3}=1.59$
+
+MT Case 1: $T(n)=\Theta(n^{1.59})$
+
+\section{Finding closest Pair of Points (2-D)}
+Given points p(1) = (x(1),y(1)),...,p(n)=(x(n),y(n))
+
+\textbf{Goal: Find the closet pair of points}\\
+Distance: $ d(p(i),p(j)) = \sqrt{(x(i)-x(j))^2+(y(i)-y(j))^2}$
+\\Brute Force (try all pairs) takes $O(n^2)$
+\\For simplicity, assume all coordinates and all y coordinate are different
+\\To do better than $n^2$, we want to try Divide and Conquer
+\begin{enumerate}
+    \item if n is small enough (n=1, or maybe n=2), then solve directly
+    \item Otherwise, partition the points into left and right half
+    \item Recursively find the closet pair on the left and closet pair on the right
+    \item Then do something to finish the result
+\end{enumerate}
+
+One implementation of Step 4: Try all pairs consisting of one point on the left and one point on the right. There are $n^2/4$ such pairs, so we would already spend $\Omega(n^2)$ here.$ ==>$ no improvement 
+
+To reduce the number of pairs we need to check, observe that if one of the points is very far from the dividing line, then it cannot be part of the closes  t pair.
+
+Let $\delta_l, \delta_r$ be the smallest distance in left and right part
+
+Let $ \delta=min(\delta_l, \delta_r)$
+
+However, it is possible that most/all of the points are still in play (in $2\delta$ area). They might have (nearly) identical x coordinates, but very different y coordinates.
+
+Pursuing the idea of "all points lie on the same x coordinate" further:
+\\If this were the case, we could sort the points by y coordinate. Then the closet pair would be adjacent in the sorted order. So we could just one a loop through an array in that order and find the closet pair, by comparing each point to the next one.
+
+Using this intuition, we can do the following:
+\begin{enumerate}
+    \item Let 1, ..., n' be the indices of the points int he green strip satisfying $m-\delta \leq x(i) \leq m+\delta$
+    \item Sort points by y coordinate
+    \item For each point i:
+        \begin{enumerate}
+            \item start with $j = i+1$
+            \item go through candidates points j until $y(j) >  y(j)+\delta$
+            \item for each such j, compute the actual distance between p(i), p(j)
+            \item keep track of the closest pair, updating if beats $\delta$
+        \end{enumerate}
+\end{enumerate}
+
+Correctness proof idea:
+Induction on the array size. Base case, n = 1 easiest (return infinity)
+\\Induction step: use the recursive calls find the closest respective pairs(by IH), so $\delta$ will be correct.
+\\The pruning does not remove any points that could be part of a closest pair.
+\\The procedure above looks at all candidate pairs that might be at distance $\delta$ or less.
+\\This gives us correctness of the overall output.
+
+The concern would be that the loop over j still has to look at a lot of points. But if so, they are all within a width $2\delta$ strip around the red line, and their y coordinate differs from that of i by no more than $\delta$. But these points are also at pairwise distance at least delta. So we shouldn't be able to squeeze too many of them into this limited area.
+\\Here we will show an upper bound of 12.\\(A better upper bound is probably possible with more careful analysis)
+\\Imagine a grid of $\delta/2 * \delta/2$ squares. 
+\\In this grid, for a point p(i), we have to check at most its own row and the rows above that. The next row after that is at distance more than $\delta$ in y-coordinate alone.
+\\Each such square contains at most one point.
+\\So there are at most 12 points to check.\\
+$\rightarrow$ the loop over j indices runs for at most 12 iterations.
 \end{document}
