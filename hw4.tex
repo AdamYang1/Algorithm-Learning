@@ -144,7 +144,7 @@ for all array sizes 1, ..., n-1 (Strong induction hypothesis.)
     \item $u-(m+1)+1 = u-\lfloor \frac{l+u}{2}\rfloor < u-l+1=n$
 \end{enumerate}
 
-The lemma tells us that when the size of input array $A$ is at least two, the algorithm always find the subarray that has the first element strictly less than the last element to work on. Because both subarrays are smaller and we only choose the subarray that contains the desired pair the work on, we can use the induction hypothesis on one of the recursive call that will terminate, and the result is the desired pair. $\square$
+The lemma tells us that when the size of input array $A$ is at least two, the algorithm always find the subarray that has the first element strictly less than the last element to work on. Because both subarrays are smaller and we only choose the subarray that contains the desired pair to work on, we can use the inductive hypothesis on choosen recursive call that will terminate, and the result is the desired pair. $\square$
 
 \textbf{Running time analysis:}\\
 Observing the algorithm, on each level recursion of size $n$ we has another recursive call of size $n/2$ and primitive operation (comparison and assignment) that takes $\Theta(1)$. Assume the running time of algorithm with input array size of n as $T(n)$. The recurrence relation is \[T(n)=T(n/2)+\Theta(1)\]
@@ -153,39 +153,57 @@ By master theorem, $a = 1, b = 2, \log_b{a} = \log_2{1} = 0 < 1 = f(n)$. The run
 \section{Problem 3}
 \begin{algorithm}[!ht]
 \DontPrintSemicolon
-\KwInput{$a[ ]$,$b[]$, $l_a$, $u_a$, $l_b$, $u_b$ (indexed from 0 to n-1)}
+\KwInput{$a[ ]$,$b[]$, $l_a$, $u_a$, $l_b$, $u_b$ (indexed from 1 to n)}
   \SetKwFunction{FSub}{FindStudent} 
     \SetKwProg{Fn}{Def}{:}{} 
       \Fn{\FSub{$a[ ]$,$b[]$, $l_a$, $u_a$, $l_b$, $u_b$}}{ 
-        \If{$u_a+u_b-l_a-l_b == 2$ or $4$}{
-            sort $a[l],a[u],b[l],b[u]$
-            
-            return the median of these numbers
-        } \Else{
-            $m_a \leftarrow \lfloor(u_a+l_a)/2 \rfloor$
-            
-            $m_b \leftarrow \lfloor(u_b+l_b)/2 \rfloor$
-
-            \If{$m_a<m_b$}{
-                return FindStudent($a[],b[],m_a+1,u_a,l_b,m_b$)
-            } \ElseIf{$m_b<m_a$}{
-                return FindStudent($a[],b[],l_a,m_a,m_b+1,u_b$)
+      \tcc{we only work on $a[l_a:u_a]$ and $b[l_b:u_b]$}
+        $m_a \leftarrow \lfloor\frac{u_a+l_a}{2}\rfloor$
+        
+        $m_b \leftarrow \lfloor\frac{u_b+l_b}{2}\rfloor$
+        
+        \If{$a[m_a] < b[m_b]$}{
+            \If{$a[m_a+1]<b[m_b+1]$}{
+                return FindStudent($a[],b[], m_a+1, u_a, l_b, m_b$)
             } \Else {
-                return $a[m_a]$
+                return $b[m_b+1]$
+            }
+        } \Else {
+            \If{$a[m_a+1]>b[m_b+1]$} {
+                return FindStudent($a[],b[],l_a, u_a,m_b+1, u_b$)
+            } \Else {
+                return $a[m_a+1]$
             }
         }
     }
-    desiredMiddleNumber $\leftarrow$ FindStudent($a[],b[],0,n,0,n$)
+    
+    desiredMiddleNumber $\leftarrow$ FindStudent($a[],b[],1,n,1,n$)
       \;
 \caption{An algorithm finding "most middle" student}
 \end{algorithm}
 \textbf{Proof of Correctness:}\\
 \textbf{Correctness:} The output is a student $i$ (out
-of the $2n$ total) such that at least $n$ students had scores no higher than $i$, and at least $n$ students had scores no
-lower than $i$.\\
-From line 22 to 24, we choose different subarrays $S_a[], S_b[]$ in $a[]$ and $b[]$.\\
-\textbf{Lemma:} 
-\\\textbf{Theorem[Algorithm Correctness]:} If you call FindStudent($a[ ]$,$b[]$, $l_a$, $u_a$, $l_b$, $u_b$), it terminates, and afterwards, it returns an integer $i$ such that $n$ integers in $a[]$ and $b[]$ are no less than $i$, $n$ integers are no more than $i$.\\
+of the $2n$ total) such that at least $n$ students had scores no higher than $i$, and at least $n$ students had scores no lower than $i$. In this question, we assume $n$ is always even. Therefore, $m = \lfloor\frac{u+l}{2}\rfloor$, $a[l_a:m_a], a[m_a+1:u_a], b[l_b:m_b], a[m_b+1:u_b]$ all contain exactly $n/2$ students. \\
+\textbf{Lemma:} The subarrays we choose from $a[], b[]$ of the same size n to work on involve the desired median $(n>2)$. When $n=2$, we can easily solve the problem in $O(1)$. We define $l_a, u_a$ as the lower bound and upper bound of array $a[]$'s range that algorithm is working on, $l_b, u_b$ as lower bound and upper bound of array $b[]$'s range that algorithm is working on.
+\\\textbf{Proof of Lemma:} 
+Given two sorted array $a[l_a: u_a], b[l_b:u_b]$ both of size $n$ ($u_a-l_a = u_b-l_b=n$). We have four scenarios to deal with \begin{enumerate}
+    \item $a[m_a] < b[m_b]$ 
+     
+            \textbf{1.1} \textbf{$a[m_a+1]<b[m_b+1]$}\\
+            The median student $M$ must lie on $a[m_a+1:u_a]$ or $b[l_b:m_b]$.
+            \\\textbf{1) It cannot lie on }$a[l_a:m_a]$\\
+             This can be proved by contradiction. Assume $M$ is in $a[l_a:m_a]$. Thus, $M$ is at most no less than $\frac{n}{2}$ students on $a[l_a:m_a]$. Meanwhile, because $a[m_a]<b[m_b]$, $M$ is at most no less than $\frac{n}{2}-1$ students on $b[l_b:m_b-1]$. (If $m_b-1 < l_b$, we have nothing on this range, which trivially makes $M$ also contradicts the definition.) Therefore, $M$ is at most no less than at most $n-1$ students. By definition, the median is at least no less than $n$ scores. Contradiction! Therefore, $M \geq a[m_a]+1$, the desired median mustn't exist in $a[l_a:m_a]$.
+            \\\textbf{2) It cannot lie on} $b[m_b+1: u_b]$.\\
+            This can be also proved by contradiction. Assume the median student $M$ is in $b[m_b+1: u_b]$. Thus, $M$  is at most no greater than $\frac{n}{2}$ students on $b[m_b+1: u_b]$. Meanwhile, because $a[m_a+1] < b[m_b+1]$, $M$ is at most no grater than $\frac{n}{2}-1$ students on $a[m_a+2:u_a]$. (When $m_a+2 < u_a$, we have nothing on this range, which trivially makes $M$ contradicts the definition.) Therefore, $M$ is at most no greater than at most $n-1$ students, which contradicts the definition. Therefore, the desired median cannot exist in $b[m_b+1:u_b]$.
+        
+        Therefore, the algorithm neglect the ranges that cannot contain desired student $M$ and work on ranges $a[m_a+1:u_a]$ and $b[l_b,m_b]$, both of same size of $n/2$ and contain desired median student $M$.
+
+            \textbf{1.2} $a[m_a+1]\geq b[m_b+1]$\\
+            The median student $M$ is $b[m_b+1]$. Because $b[m_b+1] \geq b[m_b]$, it is at least no less than $n/2$ students on $b[l_b:m_b]$. Because $a[m_a+1]\geq b[m_b+1] \geq b[m_b] > a[m_a]$, $b[m_b+1]$ is also at least no less than $n/2$ students on $a[l_a:m_a]$. Therefore, it is no less than at least Because $b[m_b+1] \in b[m_b+1:u_b]$, $b[m_b+1]$ is no greater than $n/2$ students on $b[m_b+1:u_b]$. Because 
+    
+    
+\end{enumerate}
+\textbf{Theorem[Algorithm Correctness]:} If you call FindStudent($a[ ]$,$b[]$, $l_a$, $u_a$, $l_b$, $u_b$), it terminates, and afterwards, it returns an integer $i$ such that $n$ scores in $a[]$ and $b[]$ are no less than $i$, $n$ scores are no more than $i$.\\
 \textbf{Proof:} by induction on $n$ (total size of one of the array we are currently working on)
 \\\textbf{Base Case:} n=1, Algorithm sorts two numbers and return the median, which is the smaller number that satisfies.
 \\\textbf{Inductive Hypothesis:} Assume the theorem holds for $1,2,...,n-1$
@@ -195,4 +213,6 @@ From line 22 to 24, we choose different subarrays $S_a[], S_b[]$ in $a[]$ and $b
     \item $m_a-l_a+1+u_b-(m_b+1)+1\\= \lfloor\frac{l_a+u_a}{2}\rfloor-l_a+u_b-\lfloor\frac{l_b+u_b}{2}\rfloor+1 < u_a-l_a+r_b-l_b+2=2n$
     \item $u_a-(m_a+1)+1+m_b-l_b+1\\= u_a-\lfloor\frac{l_a+u_a}{2}\rfloor+\lfloor\frac{l_b+u_b}{2}\rfloor-l_b+1 < u_a-l_a+r_b-l_b+2=2n$
 \end{enumerate}
+
+The lemma tells us that when the size of two input array a[], b[] is larger than 2, the algorithm always find the subarray that involves the desired median to work on. Since both subarrays are smaller and we only choose the subarray that contains the desired median to work on, we can use the inductive hypothesis on the choosen recursive call that will terminate, and the result is the desired median.
 \end{document}
