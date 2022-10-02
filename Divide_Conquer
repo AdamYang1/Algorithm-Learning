@@ -172,18 +172,45 @@ Using this intuition, we can do the following:
         \end{enumerate}
 \end{enumerate}
 
-Correctness proof idea:
-Induction on the array size. Base case, n = 1 easiest (return infinity)
-\\Induction step: use the recursive calls find the closest respective pairs(by IH), so $\delta$ will be correct.
-\\The pruning does not remove any points that could be part of a closest pair.
-\\The procedure above looks at all candidate pairs that might be at distance $\delta$ or less.
-\\This gives us correctness of the overall output.
+\textbf{Correctness proof idea:}
+Induction on the array size. 
+
+\textbf{Base case:} n = 1 easiest (return infinity)
+
+\textbf{Induction step:} use the recursive calls find the closest respective pairs on left and right side (by IH), so $\delta$ will be correct.
+
+The pruning does not remove any points that could be part of a closest pair.
+
+So because any pair that might be closer than $\delta$ (and those are the only ones we are still interested in) must be within at most $\delta$ of the middle line, we can safely remove all others.
+
+The code above finds the closet pair among points within $\delta$ of the middle line. So it finds the closet pair overall, by returning the one from recursive calls($\delta$), or the new pair if it is better.
+
+This gives us correctness of the overall output. $\square$
+
 
 The concern would be that the loop over j still has to look at a lot of points. But if so, they are all within a width $2\delta$ strip around the red line, and their y coordinate differs from that of i by no more than $\delta$. But these points are also at pairwise distance at least delta. So we shouldn't be able to squeeze too many of them into this limited area.
-\\Here we will show an upper bound of 12.\\(A better upper bound is probably possible with more careful analysis)
+\\\textbf{Here we will show an upper bound of 12}.\\(A better upper bound is probably possible with more careful analysis)
 \\Imagine a grid of $\delta/2 * \delta/2$ squares. 
 \\In this grid, for a point p(i), we have to check at most its own row and the rows above that. The next row after that is at distance more than $\delta$ in y-coordinate alone.
 \\Each such square contains at most one point.
 \\So there are at most 12 points to check.\\
-$\rightarrow$ the loop over j indices runs for at most 12 iterations.
+$\rightarrow$ the loop over j indices runs for at most 12 iterations. $\square$
+
+\textbf{Running Time Analysis:}
+
+For now, assume we get all the sorting (by x-coordinates and by y-coordinates) for free.
+
+1. Find the median (dividing line) and partition points into left and right: at most $O(n)$ [or at most O(1) if we pass indices L,R]
+
+2. Computing $\delta$ as the min of $\delta_L, \delta_R$: O(1)
+
+3. Find the points in the middle strip: O(n) with one scan through the array sorted by x coordinate.
+
+4. Running the comparison function for the point in the strip
+$\leq$ n iterations over points i, and for each, we need to look at at most 12 indices ahead by the square area argument: O(n)
+
+\textbf{Recurrence:} T(n) = 2T(n/2)+O(n)
+Solution: $T(n) = O(n\log{n})$
+
+To avoid having to sort by x and/or y corrdinate in each recursive call(which would cause the time to be O(nlogn) rateher than O(n)) we can pre-sort the entire array once by x and once by y. When we know which subset we deal with, we go through the sorted arrays, and copy the desired subset in sorted order into another array that is used in the sub-call
 \end{document}
