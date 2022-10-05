@@ -298,6 +298,7 @@
         \end{proof}
 % unnumbered theorem/proposition/definition/example/etc: add *
 
+\section*{Problem}
 \begin{problem*}{Weighted Interval Selection}
     Same as our original selection problem:
     $n$ intervals with start times s(i), finish time f(i), and \textbf{*weights*} w(i).
@@ -315,120 +316,79 @@
 		\renewcommand{\qedsymbol}{} % hide the QED square
         Exhaustive search works, but the running time is $2^n$. 
 
-        If we have intervals 1, ..., n available, the pimum solution for those intervals does one of the following (with respect to interval $i$):
+        If we have intervals 1, ..., n available, the optimum solution for those intervals does one of the following (with respect to interval $i$):
 
-        \qquad 1) Not include $i$, and get the optimum solution for aol intervals except $i$.
+        \qquad 1) Not include $i$, and get the optimum solution for all intervals except $i$.
         
         \qquad 2) Include $i$, and get the optimum solution for all intervals except those intersecting $i$, plus the weight that it gets from $i$ itself.
 
         \qquad Among these, the optimum solution (being optimal) chooses the better one.
 
-        What makes this tick is that once we commit to including $i$, or to not including $i$, we compute/use the \textbf{*optimum*} solution for the resulting subproblem. \textbf{This is the key property for DP:} The optimal solution for a big input contains as subparts the optimal solutions for smaller problems.
+        What makes this tick is that once we commit to including $i$, or to not including $i$, we compute/use the \textbf{*optimum*} solution for the resulting subproblem. \textbf{This is the key property for DP:} Any optimal soution must contain optimal solutions to the subproblems contained in it. We have to define the subproblems to that this is true, in order to be able to apply DP.
 \end{proof}
 
-
-
-% END MAIN Doc
-
-
-\begin{theorem*}{Weak Law of Large Numbers}{}
-		Let $X_1,X_2,...$ be i.i.d. In order that there exists $\{\mu_n\}$ such that $S_n /n\to \mu_n$ in probability, it is necessary and sufficient that
-		\[
-				x \mathbb{P}(\lvert X_1\rvert >x) \to 0 \qquad \text{ as }\qquad x\to \infty.
-		\] 
-		If so, $\mu_n:= \mathbb{E}[X_1 1_{\{\lvert X_1\rvert \leqslant n\}}]$ works.
+\begin{theorem*}{}
+    For DP, we often analyze relatively easy (or even trivial) properties of the optimum solution, and exploit them to derive an efficient algorithm
 \end{theorem*}
+\begin{solution*}{}
+    Define OPT(S):= maximum weight that can be obtained from intervals in S.
 
-% idk why each environment is followed by two extra {}{}
-% to change theorem's names (or def/proposition/example/etc, basically everything but proofs), enter something in the second {} as shown above
-% if only used for homework, it's okay to just * every theorem environment
-% to chance the name of a proof, however, replace second {} by [] with text inside. See below
-\begin{proof}[Not a proof]{}
-		No, this is not the WLLN I know.
-\end{proof}
+    \begin{center}
+            \textbf{[Find the max from including interval i or not including i]}
+    \end{center}
+    
+    OPT(S) = max( OPT(s\textbackslash \{i\}), w(i)+OPT(S \textbackslash \{everything intersecting i\}) )
 
-% default proof
-\begin{proof}{}{}
-		The sufficiency part follows by (i) truncating the variables, (ii) showing truncation has bounded effect, (iii) proving theorem works for truncated variables, and (iv) combining (ii) and (iii) to obtain result.
-\end{proof}
+    \textbf{Base Case:} OPT(\{\}) = 0
 
+    \begin{proof}{This is not optimal if we do it recursively}
+    
+        Implementing this \textbf{recursively} is just exhaustive search with backtracking, and runs in about $2^n$ times.
 
-\subsection*{Problem -25565} % I use * to suppress automatic numbering except when I write big comprehensive notes
+        If we store all OPT(S) values in a table to avoid recomputing, with the current approach, we still take $2^n$ and the able size is $2^n$
+    \end{proof}
 
-% solution: two versions
+    Our power is that we can choose the interval number i that we branch over. By a careful choice, we can make sure that only polynomially many (in fact: linearly many) subproblems need to solved.
 
-\begin{solution*}{}{}
-		I don't like this box but you can configure it yourself.
+    Assume from now on that intervals are sorted by non-decreasing finish time f(i). Subproblems of the form \{1,2,...,k\} for k = 0,...,n.
+
+    We define the following notations
+    
+    OPT(k):= optimum weight for the subproblems \{1,2,...,k\}
+    
+    t(k):= the largest index j such that $f(j) < s(k)$ [the latest interval that does not intersect interval k.]
+    
+    Recurrence Relation:
+    \[OPT(k) = max(OPT(k-1), w(k)+OPT(t(k)))\]
+
+    \textbf{Base Case:} OPT(0) = 0
+    
+    \textbf{Justification:} The opt solution for intervals 1,..,k either doesn't contain k (in which case it is the OPT(k-1)) or it does contain k, and includes the opt solution for the still available intervals
+
+    Final answer we're interested in: OPT(n)
+
+    \textbf{Implementation:}
+
+    \qquad \texttt{1. Sort intervals by non-decreasing f(i)}
+    
+    \qquad \texttt{2. Precompute all of the t[k];}
+    
+    \qquad \texttt{3. a[0] = 0;}
+    
+    \qquad \texttt{4. for(int i = 1; i <= n; ++i) a[i] = max(a[i-1], w[i]+a[t[i]]);}
+    
+    \qquad \texttt{5. return a[n];}
 \end{solution*}
 
-\begin{proof}[Solution]{}
-		\renewcommand{\qedsymbol}{} % hide the QED square
-		Alternatively, this is a ``solution'' environment borrowed from the proof environment. 
-\end{proof}
+To output the solution itself:
+k=n; while(k>0) if (k yellow) {output k; k = t[k];} else k--;
 
-\begin{problem*}{}{}
-		Write a function to compute the square root of a \texttt{float}.
-\end{problem*}
+% \begin{proof}[Problem Insight]{}
+% \renewcommand{\qedsymbol}{}
+%         what do we know for sure about the opt solution set S, and on particular interval?
 
-\begin{proof}[Solution]{}
-		\renewcommand{\qedsymbol}{}
-		(I don't like to \verb|\usepackage{algorithms}|, so below is an alternative.) 
-		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
-float Q_rsqrt( float number )
-{
-	long i;
-	float x2, y;
-	const float threehalfs = 1.5F;
+        
+% \end{proof}
 
-	x2 = number * 0.5F;
-	y  = number;
-	i  = * ( long * ) &y;                       // evil floating point bit level hacking
-	i  = 0x5f3759df - ( i >> 1 );               // what the fuck? 
-	y  = * ( float * ) &i;
-	y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
-//	y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
-	return y;
-}
-		\end{lstlisting} 
-		Convince yourself it works.
-\end{proof}
-
-\textbf{Bold} \textit{italic} \emph{underline} \verb|code| and \texttt{more code} \textsc{whatever this is} {\color{cyan} blue/cyan} {\color{red} red} $\mathcal{AND}$ $\mathbb{SO}$ $\mathfrak{ON}$.
-
-\subsection*{\texttt{Tikz} Code for HW3 1a}
-
-\begin{center}
-				\begin{tikzpicture}
-						\begin{scope}[every node/.style={circle,thick,draw}]
-								\node (A) at (0,-2) {$a$};
-								\node (B) at (0,0) {$b$};
-								\node (C) at (4,-2) {$c$};
-								\node (D) at (4,0) {$d$};
-								\node (A2) at (8,-2) {$a$};
-								\node (B2) at (8,0) {$b$};
-								\node (C2) at (12,-2) {$c$};
-								\node (D2) at (12,0) {$d$};
-						\end{scope}
-						\node at (6, -1) {$\implies$};
-						\begin{scope}[>={Stealth[black]},
-										every node/.style={fill=white,circle},
-								every edge/.style={draw=red,very thick}]
-								\path (A) edge node {$1$} (B);
-								\path (B) edge node {$2$} (C);
-								\path (C) edge node {$1$} (D);
-						\end{scope}
-						\begin{scope}[>={Stealth[black]},
-										every node/.style={fill=white,circle},
-								every edge/.style={draw=cyan,very thick}]
-								\path (A2) edge node {$1$} (B2);
-								\path (C2) edge node {$1$} (D2);
-						\end{scope}
-						\begin{scope}[>={Stealth[black]},
-										every node/.style={fill=white,circle},
-								every edge/.style={draw=cyan, dashed}]
-								\path (B2) edge node {$2$} (C2);
-						\end{scope}
-				\end{tikzpicture}
-		\end{center}
-
+% END MAIN Doc
 \end{document}
