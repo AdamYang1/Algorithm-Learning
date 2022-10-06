@@ -1,0 +1,402 @@
+\documentclass{memoir}
+\usepackage[american]{babel}
+\usepackage{amsmath, amsfonts, amsthm, amssymb, bm}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{ulem}
+\usepackage{graphicx, subfig}
+\usepackage[utf8]{inputenc}
+\usepackage{marvosym}
+\usepackage[top=1.6cm,bottom=5mm,left=5mm,right=5mm]{geometry}
+%\usepackage{afterpage}
+%\usepackage{ulem}
+%\usepackage{siunitx}
+\usepackage{charter}
+\usepackage{mathtools}
+\usepackage{blindtext}
+\usepackage{MnSymbol}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{etoolbox}
+\usepackage{caption}
+\usepackage{float}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage[T1]{fontenc}
+\usepackage[numbered,framed]{matlab-prettifier}
+%\usepackage{tablefootnote} 
+\usepackage{listings}
+\usepackage{varwidth}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usepackage[object=vectorian]{pgfornament}
+%\usetikzlibrary{shapes,positioning,arrows,fit,calc,graphs,graphs.standard}
+\usepackage{multicol}
+\usepackage{wrapfig}
+\usepackage{microtype}
+\usepackage{pdfpages}
+%\usepackage[nodisplayskipstretch]{setspace}
+
+\let\bar\overline
+
+\newcommand\mmybox[2][fill=cyan!20]{%
+    \tikz[baseline]\node[%
+        inner ysep=0pt, 
+        inner xsep=2pt, 
+        anchor=text, 
+        rectangle, 
+        rounded corners=1mm,
+        #1] {\strut#2};%
+}
+
+\usetikzlibrary{arrows.meta}
+
+
+\makeatletter
+\g@addto@macro \normalsize {%
+ \setlength\abovedisplayskip{5pt minus 4pt}%
+ \setlength\belowdisplayskip{5pt minus 4pt}%
+}
+\makeatother
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\sectionmark}[1]{\markright{\arabic{section} - #1}}
+\lhead{CSCI 270}
+\chead{Midterm Exam Cheat Sheet}
+\rhead{AdamYang}
+\renewcommand{\headrulewidth}{1pt}
+\linespread{1.1}
+
+\definecolor{realPurple}{HTML}{AA05F9}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	style=Matlab-editor,
+	language = C++,
+	aboveskip=3mm,
+	belowskip=3mm,
+	xleftmargin=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	frame=none,
+	basicstyle={\small\ttfamily},
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{black},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{black},
+	breaklines=true,
+	breakatwhitespace=true,
+	mlshowsectionrules = true,
+	tabsize=3,
+	escapechar = ~,
+	backgroundcolor=\color{cyan!5}
+}
+
+\definecolor{defBlue}{HTML}{0673FF}
+\definecolor{remarkPurple}{HTML}{8346FF}
+
+\newtcbtheorem[no counter]{proposition}{Proposition}%
+{enhanced,colback=white,breakable,frame empty,interior empty,colframe=defBlue!75!white, top=8mm,
+	coltitle=black,fonttitle=\bfseries,colbacktitle=defBlue!20!white,
+	borderline={0.5mm}{0mm}{defBlue!20!white},
+	borderline={0.5mm}{0mm}{defBlue!50!white,dashed},
+	attach boxed title to top left={yshift=-5mm},
+	boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{prop}
+
+\newtcbtheorem[no counter,]{theorem}{Theorem}%
+{enhanced,colback=white, breakable,frame empty,interior empty,colframe=cyan!50!white, top=8mm,
+	coltitle=black,fonttitle=\bfseries,colbacktitle=cyan!15!white,
+	borderline={0.5mm}{0mm}{cyan!15!white},
+	borderline={0.5mm}{0mm}{cyan!50!white,dashed},
+	attach boxed title to top left={yshift=-5mm},
+	boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{thm}
+
+\tcolorboxenvironment{proof}{% amsthm' 
+	blanker,breakable,left=5mm,
+	before skip=10pt,after skip=10pt,
+	borderline west={0.5mm}{0pt}{cyan!40},
+	borderline west={0.5mm}{0pt}{remarkPurple!10, dashed}}
+
+ 
+\begin{document}
+%\footnotesize
+%\small
+
+\begin{multicols*}{3}
+\setlength{\parindent}{0pt}
+\setlength\multicolsep{1cm}
+
+\textsc{CSCI 270 Midterm Cheatsheet}
+
+\scriptsize
+
+\section*{1. Stable Matching}
+
+\begin{itemize}
+		\item Given a bipartite instance with rankings, a matching is \textbf{stable} if for each pair $(u,s)$ \textit{not} assigned (no edge), either $u$ prefers its assigned node over $s$ or $s$ their assigned node over $u$. 
+		\item Stable matching is not unique: men $A,B$, women $1,2$, $A$ prefers $1$, $B$ prefers $2$, $1$ prefers $B$, and $2$ prefers $A$, then $\{(A,1), (B,2)\}$ and $\{(B,1), (A,2)\}$ are both stable.
+\end{itemize}
+
+
+\textbf{Gale-Shapley proposal algorithm}: WLOG, there are $n$ men and $n$ women, each with a ranking of everyone of the opposite gender (if numbers don't equal, we can create dummies with bottom rankings).
+\begin{lstlisting}[basicstyle=\fontsize{7}{8}\selectfont\ttfamily]
+Start with empty assignment 
+While there is still single man:
+	- Pick single man ~$m$~
+	- Let ~$w$~ be ~$m$~'s highest ranked woman not yet proposed
+	- If ~$w$~ is single OR prefers ~$m$~ over her current partner:
+		- Match ~$m$~ with ~$w$~
+		- If ~$w$~ had partner, he becomes single
+	- Else: do nothing
+\end{lstlisting}
+
+\textbf{Key facts of G-S}:
+\begin{itemize}
+		\item Once a woman becomes matched: \textbf{never becomes single} again and her \textbf{matches only improve}.
+		\item The algorithm terminates. There cannot be a single man forever: if so, since \#men $=$ \#women, there will be a single woman, so she was never proposed to. The man can just proposed!
+\end{itemize}
+
+\textbf{Stability proof}
+
+\begin{proof}{}{}
+		\begin{itemize}
+				\item B.W.O.C . Let $(m,w')$ and $(m',w)$ be pairs with $m$, $w$ preferring each other. 
+				\item $m$ have once proposed to $w$, and it took place earlier than when $m$ proposed to $w'$.
+				\item $m$ either got rejected or later dumped because of some other $m''$ that $w$ preferred over $m$.
+				\item But then $w$ must have chosen $m''$ at some point. Since she ended up with $m'$, $m' \geqslant m''$ for $w$, and so $m' \geqslant m'' > m$ for $w$, contradiction.
+		\end{itemize}
+\end{proof}
+
+\textbf{Man-optimality of G-S}: define $P(m):=$ the set of all women $w$ that $m$ can end up with \emph{in some stable matching} (valid choice). Men always get their best valid choice.
+
+\begin{proof}{}{}
+		\begin{itemize}
+				\item Assume B.W.O.C, that some man is not with their best valid choice $b(\boldsymbol\cdot )$ in G-S. At some point he must have been rejected by best valid choice.
+				\item Look at the first time that \emph{some} man $m$ got dumped/rejected by \emph{some} woman in $P(m)$. Call this woman $w$. 
+				\item $w$ rejects $m$ for $m'$, $w: m'>m$.
+				\item Since $w\in P(m)$, \textbf{there exists stable matching} $M'$, $(m,w)$ exists. In $M'$, $(m',w')$.
+				\item \textit{If $m': w > w'$. In $M'$, $m'$ and $w$ prefer each other (unstable).} So, $m': w'>w$.
+				\item In GS, $(m',w)$, so he must have been rejected/dumped by $w'$, and this happened even before $w$ rejected/dumped $m$...
+				\qedhere
+		\end{itemize}
+\end{proof}
+
+
+\section*{2. Greedy Algorithms}
+
+\textbf{Greedy algorithm in a nutshell}: pick whatever choice seems best at the moment and \ address future problems later. 
+
+\textbf{Proof} 1. Feasibility (May be trivial through simply sorting)
+2. Optimality
+
+\mmybox{\textbf{Example1 -- interval selection}}: given intervals $[a_i,b_i]$, pick as many without overlap as possible.
+
+\textbf{Algorithm} $\mathcal{O}(n\log n)$: 
+\begin{lstlisting}[basicstyle=\fontsize{7}{8}\selectfont\ttfamily]
+Sort intervals by non-decreasing finish times ~$f(i)$~
+~$R$~ = all intervals, ~$A$~ = {}
+while ~$R$~ not empty
+	- let ~$i$~ be the index of earliest finishing intervals in ~$R$~
+	- add ~$i$~ to ~$A$~
+	- remove interval ~$i$~ and all intervals intersecting it from ~$R$~
+\end{lstlisting}
+
+\mmybox{\textbf{Optimality -- proof [Greedy stays ahead]}}
+ if $i(1)<i(2)<... < i(k)$ and $j(1)<j(2)<...<j(k)$ are the first $k$ intervals picked by greedy and by any optimal solution, then the end time of $i(k) \leqslant $ the end time of $j(k)$. \textit{In each stage, greedy performs no worse than the optimal solution.}
+ \begin{itemize}
+     \item Label $X\{x_1,...,x_n\}, \mathcal{O} \{o_1,...,o_n\}$ (algo, opt), define measure $f(\boldsymbol\cdot )$
+     \item Induction on \# elements. $f(x_k)[\geqslant \leqslant] f(o_k)$.
+     
+     \textbf{Range:} $\geqslant$, [weights/axis] $f(o_{k+1})$ covers $f(x_k)$ to $f(o_{k+1})$. $(k+1)$-th step chooses $x_{k+1}$ AGAP subject to the [question-specific] condition between $x_k$ and $x_{k+1}$, so $f(x_{k+1})\geqslant f(o_{k+1})$ $\square$ 
+     
+     \textbf{Time:} $\leqslant$, [this problem]. BWOC, assume $\mathcal{O}$ picks more. $f(x_k)\leqslant f(o_k)$, $\mathcal{O}$ picks $k+1$-th item must starts after $f(o_k)$, thus available for $X$. Contradiction! $\square$
+ \end{itemize}
+
+
+
+\mmybox{\textbf{Example2 -- job selection}}: Given, $n$ jobs with deadlines $d_i$, $1\leqslant i\leqslant n$. do all jobs and minimize max lateness. NOTE: optimal solution contains no rest between jobs.
+
+\textbf{Algorithm}: do jobs in the order of their deadlines, from earliest to latest.
+
+\textbf{Optimality -- adjacent inversion}: if the greedy order is $G(i) = i$ for $1\leqslant i\leqslant n$ and the optimal solution $\mathcal{O}$ is not identical, then there exist jobs $i,j$ forming an \textit{adjacent inversion}:
+% \begin{itemize}
+% 		\item job $j$ is scheduled immediately after job $i$ by optimal $\mathcal{O}$
+% 		\item deadline of $j$ is earlier than deadline of $i$ ($d_j < d_i$).
+% \end{itemize}
+
+\mmybox{\textbf{Optimality -- proof [Exchange Argument]}}:
+\begin{itemize}
+		\item Assume the matching $\mu^*$ is optimal and different from $\mu$ (algo). Then, $\exists$ smallest $i$ S.T. $\mu^*(i) \neq \mu(i) = i$
+            \item Then, $\exists \mu^*(i) = j > i$ (as the matchings are identical up to position $i$). Let also $k$ be such that $\mu^*(k) = i, k > i$. Changing $\mu^*$ S.T. $\mu^*(i) = i, \mu^*(k) = j.$ (In this problem, such swap has to be adjacent for not impacting other work. May need to prove the mapped $k$ is larger than $i$ BWOC.)
+            \item Other way: [Fractional Knapsack] algo: $a_i<a_j$ opt: $o_i<o_j$, $a_i=o_i+\epsilon, a_j=o_j-\epsilon*X$. Derive $X=\frac{W_i}{W_j}$ for calculating the equal total sum.
+		\item Thus, a\textbf{fter the swap}, the total cost of the swap would decrease or stay the same.
+		\item As $\mu^*$ is the optimal solution it must be the case that the cost stays the same, however now the first $i$ positions of $\mu^*$ match $\mu$. Repeating this process for all $n$ positions will lead to a matching $\mu^*$ equal to $\mu^*$. This concludes $\mu$ is also an optimal matching.
+\end{itemize}
+
+\mmybox{\textbf{Example: MST construction}}: given a graph with distinct edge weights $G=(V,E)$, construct a MST (min cost connected subgraph of $G$). NOTE: MST cannot contain cycles. 
+
+\begin{proposition}{Cut Property}{}
+		A \textbf{cut} is a partition $(S,S')$ of $V$.
+
+		If an edge $e$ is the cheapest among all edges crossing \textit{some} cut $(S,S')$ then $e\in$ \textit{every} MST.
+\end{proposition}
+
+(Proof sketch: add $e$ to form a circle and remove the original cut-crossing edge; this results in a lower total cost subgraph.)
+
+\textbf{Kruskal's algorithm} $\mathcal{O}(m\log n)$:
+
+\begin{lstlisting}[basicstyle=\fontsize{7}{8}\selectfont\ttfamily]
+Sort edges by increasing cost
+For each edge ~$e$~ in this order
+	Add ~$e$~ if it does not create a cycle
+\end{lstlisting}
+
+\begin{proof}{}{}
+		\begin{itemize}
+				\item Any edge added is a min cost edge across some cut, so output $\subset $ MST.
+				\item Any two disconnected components have edges connecting them, and Kruskal adds $\geqslant 1$ such edge, so output is a spanning tree. \qedhere
+		\end{itemize}
+\end{proof}
+
+\textbf{Prim's algorithm} $\Theta(m\log n)$:
+\begin{lstlisting}[basicstyle=\fontsize{7}{8}\selectfont\ttfamily]
+Start with any ~$S=\{s\}$~
+While ~$S \neq V$~
+	Find the cheapest edge ~$e=(u,v)$~ between ~$S$~ and ~$S'$~
+	Add ~$e$~ to tree, add ~$v$~ to ~$S$~
+\end{lstlisting}
+\begin{proof}{}{}
+		Output $\subset $ MST by cut property. Output obviously is a spanning tree.
+\end{proof}
+
+\section*{3. Divide \textit{\&} Conquer}
+
+\textbf{Divide \textit{\&} Conquer in a nutshell}:
+
+		(1) Divide into smaller problems. (2) Solve small instances and produce a big solution. If input small enough, directly solve.
+  
+  \textbf{Example}: merge sort. \textit{Proof sketch}: prove correctness of \texttt{merge} by induction, then prove correctness of \texttt{MergeSort} by induction again.
+
+
+\begin{theorem*}{Master Theorem}{}
+		Let $a\geqslant 1, b>1$. Assume some recursion relation's complexity satisfies
+		\[
+				T(n) = a T(n /b) + f(n)\qquad T(1) = \Theta (1).
+		\] 
+		\begin{itemize}
+				\item[(MT1)] If $f(n) = \mathcal{O}(n ^{ \log _b a-\epsilon})$ for some $\epsilon>0$, then $\boxed{T(n) = \Theta (n^{\log _ba})}$.
+				\item[(MT2)] If $f(n) = \Theta  (n^{\log _b a})$, then $\boxed{T(n) = \Theta  (n^{\log _b a} \log n)}$.
+				\item[(MT3)] If $f(n) = \Omega(n^{\log _b a+\epsilon})$ for some $\epsilon>0$ and $a(f(n/b))\leq c*f(n)$ for some $c<1, n\geq n_0$, then $\boxed{T(n) = \Theta (f(n))}$.
+		\end{itemize}
+\end{theorem*}
+Intuition: $A=\log_ba$, If $f(n) < A$, MT1. If $f(n)=A$, MT2. If $f(n)>A$ and \textbf{...}, MT3.
+
+\mmybox{\textbf{Int mult -- Karatsuba algorithm}}: cut $n$-bit $x$ into two $n /2$-bit $x^+$ and $x^-$ with $x = 2^{n /2} x^+ + x^-$. Same for $y$. Then
+\begin{align*}
+		x\cdot y &= 2^{n}x^+y^+ + 2^{n /2} \underbrace{(x^+ y^- + x^- y^+)}_{\mathclap{ = x\cdot y - x^+y^+ - x^-y^-}} + x^-y^-
+\end{align*}
+has complexity 
+\[
+		T(n) = 3T(n /2) + \Theta (n)
+\] 
+which by (MT1) has $T(n) = \Theta (n^{\log _3 2})$.
+
+\mmybox{\textbf{Example: closest pair of points}}:
+
+\textbf{Algorithm} (high-level sketch):
+\begin{lstlisting}[basicstyle=\fontsize{7}{8}\selectfont\ttfamily]
+// Works to be done before starting recursion:
+// Sort all points by ~$x$~-coordinates and store in an array
+// Sort all points by ~$y$~-coordinates and store in another array
+
+Partition points into L and R based on median of ~$x$~-coord
+Two recursive calls on L and R subsets 
+// ~$2T(n /2)$~ work
+
+Let ~$\delta$~ be the smaller return value from the two cursive calls
+~$S$~ = set of points within ~$\delta$~ from the middle line 
+// ~$\mathcal{O}(n)$~ or ~$\mathcal{O}(\log n)$~ passing indices
+
+Check close pairs between L and R
+- Index and sort points ~$p(i)$~ in ~$S$~ by ~$y$~-coord ~$y(i)$~
+		- For each point index ~$i$~:
+		- start with ~$j=i+1$~, stop when ~$y(j) > y(i) + \delta$~
+		- for each ~$j$~, compute ~$d(p(i), p(j))$~
+		- keep track of ~$\min d(p(i),p(j))$~, update ~$\delta$~ when necessary
+\end{lstlisting}
+
+\begin{proof}[Remark]{}
+		\renewcommand{\qedsymbol}{}
+		Given $\delta$ and $i$, the loop over $j$ repeats at most $12$ times due to the fact that points in $L$ must be $\geqslant \delta$ apart and points in $R$ must also be $\geqslant \delta$ apart. Then lines $14$ to $18$ takes $\mathcal{O}(n)$ time, giving
+		\[
+				T(n) = 2T(n /2) + \mathcal{O}(n),
+		\] 
+		giving $\boxed{T(n) = \mathcal{O}(n\log n)}$ runtime to search for closest pair.
+\end{proof}
+
+\section*{4. Dynamic Programming}
+
+\textbf{DP in a nutshell}: in order to do \textit{this}, what do I need to do the previous step? DP is closely related to brute-force / backtracking but avoids unnecessary recomputation.
+
+\mmybox{\textbf{Example -- interval selection w/ weights}}: given $n$ intervals with start times $s(i)$, finish times $f(i)$, and weights $w(i)$, find the set of non-overlapping intervals with maximal total weight. 
+
+\textit{Note}: no greedy algorithm works.
+
+\textbf{Key insight}: 
+\begin{itemize}
+		\item If optimal solution includes interval $i$, then it does not include anything else intersecting $i$.
+		\item If optimal solution does not include $i$, it is the same as the optimal solution for intervals $1,..., i-1, i+1, ..., n$.
+		\item
+						$\mathrm{Opt} (j) = \max_{}  \{v_j + \mathrm{Opt} (p(j)), \mathrm{Opt} (j-1)\}$
+				where $p(j)$ is the largest $i<j$ such that intervals $i,j$ are disjoint.
+\end{itemize}
+
+
+\textbf{Memoization} in one sentence: storing values for future recursive calls, like the array used in Fibonacci previously. 
+
+\textbf{Algorithm} using memoization ($\mathcal{O}(n)$): 
+\begin{lstlisting}[basicstyle=\fontsize{7}{8}\selectfont\ttfamily]
+~$M[0] = 0$~
+For ~$i = 1,2,\hdots, n$~
+	~$M[i] = \max \{v_i + M[p(i)], M[i-1]\}$~
+\end{lstlisting}
+
+\begin{proof}[Correctness Proof]{}
+	   Show $\forall i: M[i] = \mathrm{Opt}(i)$
+
+    Proof by induction on i, the loop variable.
+
+    \textbf{B.C. :} $i = 0: M[0] = 0 = \mathrm{Opt}(0)$ [ by the recurrence that we gave ]
+    
+    \textbf{I.H. [strong]:} $\forall i' < i: a[i'] = \mathrm{Opt}(i')$
+    
+    \textbf{I.S. :}
+    $M[i] =$ max$(M[i-1], w[i] + M[t[i]])$ [ by algorithm's assignment ] = max$(\mathrm{Opt}(i-1), w[i] + \mathrm{Opt}(t[i]))$ [by IH, because $i-1 < i$ and $t[i] < i]= \mathrm{Opt}(i)$ [ by recurrence relation]
+\end{proof}
+
+\mmybox{\textbf{Example -- Subset Sums}}: given $n$ jobs, each with $w_i$ work time, and a cap $W$ on total work time, maximize work time $\sum w_i$. Let $\mathcal{O}$ be optimal. Let $\mathrm{Opt} (n,W)$ be the optimal value on first $n$ jobs and $w$ total time. For job $i$:
+\begin{itemize}
+		\item If $n \notin  \mathcal{O}$, $\mathrm{Opt} (n,W) = \mathrm{Opt} (n-1,W)$. (Makes no difference to $\mathcal{O}$ if we exclude $n$.)
+		\item If $n\in \mathcal{O}$, $\mathrm{Opt} (n,W) = w_n + \mathrm{Opt}(n-1, W-w_n)$.
+		\item To sum up:
+				\[
+						\hspace{-5pt}\mathrm{Opt} (i,w) = \max_{} ( \mathrm{Opt}(i-1,w), w_i + \mathrm{Opt} (i-1, w-w_i)). 
+				\] 
+\end{itemize}
+
+\textbf{Algorithm} (tabular, $\mathcal{O}(nW)$):
+\begin{lstlisting}[basicstyle=\fontsize{7}{8}\selectfont\ttfamily]
+// First initialize ~$n\times W$~ matrix ~$M$~
+For ~$i = 1,2,\hdots, n$~
+	For ~$w = 0, 1, \hdots, W$~
+		Compute ~$M[i][w] := \mathrm{Opt} (i,w)$~ using (*)
+\end{lstlisting}
+
+
+
+
+
+\end{multicols*}
+\end{document}
