@@ -65,7 +65,7 @@
 \chead{Midterm Exam Cheat Sheet}
 \rhead{AdamYang}
 \renewcommand{\headrulewidth}{1pt}
-\linespread{1.1}
+\linespread{1.2}
 
 \definecolor{realPurple}{HTML}{AA05F9}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -229,10 +229,16 @@ while ~$R$~ not empty
 \mmybox{\textbf{Optimality -- proof [Exchange Argument]}}:
 \begin{itemize}
 		\item Assume the matching $\mu^*$ is optimal and different from $\mu$ (algo). Then, $\exists$ smallest $i$ S.T. $\mu^*(i) \neq \mu(i) = i$
+  
+            / Assume the $X\{x_1,...,x_n\}$ and $\mathcal{O}\{o_1,...,o_n\}$. (assume decreasing order) Then, $\forall i,j: \exists$ a pair$ (x_i,x_j)$ S.T. $o_i>x_i, o_j<x_j,i < j$. (\textit{BWOC}, prove if $o_i>x_i$, then $o_j<x_j$)
+  
             \item Then, $\exists \mu^*(i) = j > i$ (as the matchings are identical up to position $i$). Let also $k$ be such that $\mu^*(k) = i, k > i$. Changing $\mu^*$ S.T. $\mu^*(i) = i, \mu^*(k) = j.$ (In this problem, such swap has to be adjacent for not impacting other work. May need to prove the mapped $k$ is larger than $i$ BWOC.)
-            \item Other way: [Fractional Knapsack] algo: $a_i<a_j$ opt: $o_i<o_j$, $a_i=o_i+\epsilon, a_j=o_j-\epsilon*X$. Derive $X=\frac{W_i}{W_j}$ for calculating the equal total sum.
-		\item Thus, a\textbf{fter the swap}, the total cost of the swap would decrease or stay the same.
-		\item As $\mu^*$ is the optimal solution it must be the case that the cost stays the same, however now the first $i$ positions of $\mu^*$ match $\mu$. Repeating this process for all $n$ positions will lead to a matching $\mu^*$ equal to $\mu^*$. This concludes $\mu$ is also an optimal matching.
+            \item Other way: [Fractional Knapsack] algo: $a_i<a_j$ opt: $o_i<o_j$, $a_i=o_i+\epsilon, a_j=o_j-\epsilon*X$. Derive $X={W_i}/{W_j}$ for calculating the equal total sum.
+		\item Thus, prove that \textbf{after the swap}, the total cost of the swap would decrease or stay the same. 
+		\item As $\mu^*$ is the optimal solution it must be the case that the cost stays the same, however now the first $i$ positions of $\mu^*$ match $\mu$. [better/not worse]
+  
+            Such a swap makes $\mathcal{O}/$ more greedy and $\mathcal{O}$ [better/not worse].
+            \item \textbf{Repeating this process} for all $n$ positions will lead to a matching $\mu^*$ equal to $\mu^*$. This concludes $\mu$ is also an optimal matching.
 \end{itemize}
 
 \mmybox{\textbf{Example: MST construction}}: given a graph with distinct edge weights $G=(V,E)$, construct a MST (min cost connected subgraph of $G$). NOTE: MST cannot contain cycles. 
@@ -288,7 +294,7 @@ While ~$S \neq V$~
 		\begin{itemize}
 				\item[(MT1)] If $f(n) = \mathcal{O}(n ^{ \log _b a-\epsilon})$ for some $\epsilon>0$, then $\boxed{T(n) = \Theta (n^{\log _ba})}$.
 				\item[(MT2)] If $f(n) = \Theta  (n^{\log _b a})$, then $\boxed{T(n) = \Theta  (n^{\log _b a} \log n)}$.
-				\item[(MT3)] If $f(n) = \Omega(n^{\log _b a+\epsilon})$ for some $\epsilon>0$ and $a(f(n/b))\leq c*f(n)$ for some $c<1, n\geq n_0$, then $\boxed{T(n) = \Theta (f(n))}$.
+				\item[(MT3)] If $f(n) = \Omega(n^{\log _b a+\epsilon})$ for some $\epsilon>0$ and $a(f(n/b))\leq cf(n)$ for some $c<1, n\geq n_0$, then $\boxed{T(n) = \Theta (f(n))}$.
 		\end{itemize}
 \end{theorem*}
 Intuition: $A=\log_ba$, If $f(n) < A$, MT1. If $f(n)=A$, MT2. If $f(n)>A$ and \textbf{...}, MT3.
@@ -301,7 +307,7 @@ has complexity
 \[
 		T(n) = 3T(n /2) + \Theta (n)
 \] 
-which by (MT1) has $T(n) = \Theta (n^{\log _3 2})$.
+which by (MT1) has $T(n) = \Theta (n^{\log _2 3})$.
 
 \mmybox{\textbf{Example: closest pair of points}}:
 
@@ -346,8 +352,8 @@ Check close pairs between L and R
 
 \textbf{Key insight}: 
 \begin{itemize}
-		\item If optimal solution includes interval $i$, then it does not include anything else intersecting $i$.
-		\item If optimal solution does not include $i$, it is the same as the optimal solution for intervals $1,..., i-1, i+1, ..., n$.
+		\item If optimal solution \textbf{includes interval} $i$, then it does not include anything else intersecting $i$.
+		\item If optimal solution \textbf{does not include interval} $i$, it is the same as the optimal solution for intervals $1,..., i-1, i+1, ..., n$.
 		\item
 						$\mathrm{Opt} (j) = \max_{}  \{v_j + \mathrm{Opt} (p(j)), \mathrm{Opt} (j-1)\}$
 				where $p(j)$ is the largest $i<j$ such that intervals $i,j$ are disjoint.
@@ -394,9 +400,26 @@ For ~$i = 1,2,\hdots, n$~
 		Compute ~$M[i][w] := \mathrm{Opt} (i,w)$~ using (*)
 \end{lstlisting}
 
+\mmybox{\textbf{Example -- knapsacks}}: given $n$ items, each with value $v_i$ and weight $w_i$, and a cap $W$ on total weight, maximize $\sum w_i$, the value of items taken. Let $\mathcal{O}$ be an optimal solution. Let $\mathrm{Opt} (n,W)$ be the optimal value with first $n$ items and total allowance $W$. For job $i$:
+\begin{itemize}
+		\item If $n \notin  \mathcal{O}$, $\mathrm{Opt} (n,W) = \mathrm{Opt} (n-1, W)$.
+		\item If $n \in \mathcal{O}$, $\mathrm{Opt} (n,W) = v_n + \mathrm{Opt} (n-1, W-w_n)$.
+		\item Combining:
+				\[
+							\hspace{-5pt}\mathrm{Opt} (i,w) = \max_{} (\mathrm{Opt} (i-1,w) , v_i + \mathrm{Opt} (i-1, w-w_i)).
+				\] 
+		\item A similar algorithm with an $n\times W$ array gives $\mathcal{O}(nW)$ runtime.
+\end{itemize}
 
 
+\mmybox{\textbf{Dijkstra}}: Formally, we will show the following: (1) For all $v \in S$, the arrival time a[v] computed by the algorithm is equal to the earliest possible time to reach node $v$. (2) For all $v\not\in$, the temporary value a[v] is equal to the earliest possible
+time to reach node v if the connections can only use nodes in S.
 
+Induction on $|S|$, which equals the number of iterations of the outer loop.
+
+\textbf{BC:} $|S| = 1$, the only node in S is s, and a[s] = T, which is the start time and thus the earliest that s can be reached by any path (because no train connections go back in time). For other nodes, the only possible paths using nodes in S only are the direct edges from s. So the values of a[v] are set correctly: nodes without any edges from s are not reachable (and have a[v] = $\infty$), and others have the earliest arrival time with a direct edge from s.
+
+\textbf{IS:} consider a \textbf{larger set} S. We didn’t overwrite any values a[v] for any v that were previously in S, so \textbf{the claim still holds for them}. For the newly added node u, a[u] was the earliest arrival time of any node using only connections through nodes in S. Beause trains cannot go back in time, and any node $v\in S$ is reached no earlier than u, going through connections outside S cannot reach u faster, so the value of u is correct. For the nodes $v\not\in S$, $v\not\in u$, we need to show that the new a[v] are correct. The shortest connection to reach v through only $S \And \{u\}$ either only uses S, or uses u. The fastest connection of the first type is already in a[v] by induction hypothesis. For the second type, notice that the hop (u, v) must be the last hop, as going from u to another node w in S cannot get to w faster (because by induction hypothesis, the value a[w] was correct). The loop for edges out of u exactly updates a[v] to the earliest edge (in terms of arrival time at v) that is available given the arrival time a[u] at u.
 
 \end{multicols*}
 \end{document}
