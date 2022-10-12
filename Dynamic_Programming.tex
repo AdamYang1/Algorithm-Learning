@@ -330,6 +330,7 @@
 \begin{theorem*}{}
     For DP, we often analyze relatively easy (or even trivial) properties of the optimum solution, and exploit them to derive an efficient algorithm
 \end{theorem*}
+\section*{Solution}
 \begin{solution*}{}
     Define OPT(S):= maximum weight that can be obtained from intervals in S.
 
@@ -378,11 +379,134 @@
     \qquad \texttt{4. for(int i = 1; i <= n; ++i) a[i] = max(a[i-1], w[i]+a[t[i]]);}
     
     \qquad \texttt{5. return a[n];}
+
+    To output the solution itself:
+    \texttt{k=n; while(k>0) if (k yellow) {output k; k = t[k];} else k--;}
+    
+
+    
 \end{solution*}
 
-To output the solution itself:
-k=n; while(k>0) if (k yellow) {output k; k = t[k];} else k--;
+    \begin{proof}[\textbf{Running time}]{}
+    \renewcommand{\qedsymbol}{}
+    
+        \qquad \texttt{1. O(nlogn)}
+        
+        \qquad \texttt{2. O(nlogn) with n binary searches, can improve to O(n)}
+        
+        \qquad \texttt{4. and return O(n)}
+        
+        \qquad \texttt{Other: O(1)}
 
+        Total: O(nlogn)
+    \end{proof}
+
+    \begin{proof}[\textbf{Correctness Proof}]{}
+    \renewcommand{\qedsymbol}{}
+        We want to show that the algorithm outputs the right answer. Algorithm outputs a[n]; right answer is OPT(n). So we want to show that a[n]=OPT(n).
+
+        
+    \end{proof}
+
+
+
+\section*{Problem}
+\begin{problem*}{Edit Distance/Sequence Alginment}
+    Given two strings x[1..n], y[1..m], how "similar"/"different" are they?
+
+    \qquad 1. Hamming Distance: $\#$ of positions where the strings are different $\rightarrow$ not here (too easy)
+    
+    \qquad 2. Number or total cost of operations that turn x into y. (x$\rightarrow$y)
+    
+    \textbf{Operations:} insert - cost A; delete - cost A; replace - cost B [We could assign different costs for insertion and deletion, or for inserting/ deleting different characters, or for replacing different characters with
+each other ==> nothing at all changes, just more parameters.]
+
+    \textbf{Goal:} Given x, y, find a minimum cost sequence of operations that turns x into y.
+\end{problem*}
+
+\begin{proof}[Key Insight:]{}
+		\renewcommand{\qedsymbol}{} % hide the QED square
+
+        Alternative view: String alignment
+        
+        Insert blanks into one or both strings, and write them on top of each other. Cost of A for being matched with a blank, and B for being mismatched.
+
+        \textbf{Goal:} find the min cost of insert blanks into both strings to minimize alignment cost
+
+        What do we know about the optimum way of aligning x[1..n] with y[1..m]? It involves one of the following three:
+        
+        \qquad 1) x[n] is aligned with y[m]; incur cost B if x[n]!= y[m]. x[1..n-1] with y[1..m-1] are aligned *optimally*.
+        
+        \qquad 2) x[n] is aligned against a blank: incur cost A. x[1..n-1] and y[1..m] are aligned *optimally*.
+
+        \qquad 3) y[m] is aligned against a blank: incur cost A. x[1..n] and y[1..m-1] are aligned *optimally*.
+
+        \qquad Among these, the optimum solution (being optimal) chooses the better one.
+
+        What makes this tick is that once we commit to including $i$, or to not including $i$, we compute/use the \textbf{*optimum*} solution for the resulting subproblem. \textbf{This is the key property for DP:} Any optimal soution must contain optimal solutions to the subproblems contained in it. We have to define the subproblems to that this is true, in order to be able to apply DP.
+\end{proof}
+
+\section*{Solution}
+\begin{solution*}
+    \textbf{Subproblems:} optimal alignment of the first i characters of x (for 0 $\leq$ i $\leq$ n) and the first j characters of y (for 0 $\leq$ j $\leq$ m).
+
+    Define OPT(i,j) to be the minimum total cost for aligning x[1..i] with y[1..j].
+
+    \textbf{Recurrence Relation:}
+    
+    OPT(i,j) = min(OPT(i-1,j-1) + B*[1 if x[i] != y[j]; 0 if x[i] = y[j]],OPT(i-1,j) + A, OPT(i,j-1) + A)
+
+    \textbf{Base cases:}
+    
+OPT(i,0) = A*i [ turn length-i string into empty string]
+OPT(0,j) = A*j [ turn empty string into length-j string]
+
+    \textbf{Implementation:}
+
+    \qquad \texttt{for (i = 0; i <= n; i++) a[i][0] = i*A;}
+
+\qquad \texttt{for (j = 0; j <= m; j++) a[0][j] = j*A;}
+
+\qquad \texttt{for (i = 1; i <= n; i ++)}
+
+\qquad \qquad \texttt{for (j = 1; j <= m; j++)}
+
+\qquad \qquad \qquad \texttt{if(x[i] == y[j]) a[i][j] = min(a[i-1][j-1], a[i-1][j] + A, a[i][j-1] + A);}
+
+\qquad \qquad \qquad \texttt{else a[i][j] = min(a[i-1][j-1] + B, a[i-1][j] + A, a[i][j-1] + A);}
+
+\qquad \texttt{return a[n][m];}
+\end{solution*}
+
+\begin{proof}{}{}
+\textbf{To prove: a[n][m] = OPT(n,m)}
+
+We will prove along the way: $\forall$ i, j: a[i][j] = OPT(i,j)
+
+Proof by (strong) induction on \textbf{i+j}.
+
+\textbf{Base case:} i+j = 0 => i = j = 0. a[0][0] = 0 = OPT(0,0).
+
+\textbf{Induction Step:}
+
+\textbf{Induction Hypothesis:} whenever i'+j' < i+j, a[i'][j'] = OPT(i',j')
+
+\qquad \textbf{Case 1:} x[i] = y[j]:
+
+Algorithm writes:\\ a[i][j] = min(a[i-1][j-1], a[i-1][j] + A, a[i][j-1] + A)\\= min (OPT(i-1,j-1), OPT(i-1,j) + A, OPT(i,j-1) + A)
+[ by IH, because (i-1) + (j-1) < i+j, (i-1)+j < i+j, i+(j-1) < i+j ] = OPT(i,j) [ by recurrence relation ]
+
+\qquad \textbf{Case 2:} x[i] != y[j], and i > 0 and j > 0
+
+The algorithm writes:\\a[i][j] = min(a[i-1][j-1] + B, a[i-1][j] + A, a[i][j-1] + A) \\= min(OPT(i-1,j-1) + B, OPT(i-1,j) + A, OPT(i,j-1) + A) [ by IH ]
+= OPT(i,j) [ by recurrence relation ]
+
+\qquad \textbf{Case 3:} i = 0. The algorithm writes a[0][j] = A * j = OPT(0,j).
+
+\qquad \textbf{Case 4:} j = 0. The algorithm writes a[i][0] = A * i = OPT(i,0).
+
+\end{proof}
+    
 % \begin{proof}[Problem Insight]{}
 % \renewcommand{\qedsymbol}{}
 %         what do we know for sure about the opt solution set S, and on particular interval?
