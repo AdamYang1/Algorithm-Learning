@@ -266,29 +266,74 @@
     % \texttt{bool hasNext(int[] dp, int index)}\\
     % \qquad \texttt{}
 
-    \texttt{def findSeq(d[]) //d[] is the map information array}
+    \texttt{/** \\ If i is a ladder, d[i] = a square later in the board > i.\\If i is a chute, d[i] = undefined because you die. \\If i is a normal square, d[i] = i.}
 
-    \texttt{/** \\ If i is a ladder, d[i] = a square later in the board.\\If i is a chute, d[i] = undefined because you die. \\If i is a normal square, d[i] = i. \\ **/}
+    \qquad \texttt{i is a chute:}
+
+    \texttt{1. we won't reach i by rolling in [i-6:i-1], i >= 7}
     
-    \qquad \texttt{int dp[n+1]; //dp[i] is the min step to get to index i}
-
-    \qquad \texttt{dp[0]=0;}
-
-    \qquad \texttt{for(int i = 1; i <= n+1; ++i) \{}
-
-    \qquad \qquad \texttt{if(i<=6 \&\& i >=1) dp[i]=1;}
+    \texttt{2. if we reached i through ladder before, we have updated when we found the ladder}
     
-    \qquad \qquad \texttt{else dp[i]=INT\_MAX;}
+    \texttt{3. if we never reached i, it is initialized to INT\_MAX, no further consideration}
+
+    \qquad \texttt{i is a normal square or a ladder}
+
+    \texttt{1. either get i from rolling once from [i-6:i-1] i >= 7\\2. or we have reached i before \\ **/}
+    
+    \texttt{int[] helper(int[] d) \{//d[] is the map information array}
+    
+    \qquad \texttt{int dp[n+1]; dp[0] = 0; //i $ \in$[0,n], dp[] needs n+1 plots}
+
+    \qquad \texttt{for(int i = 1; i <= n; ++i) \{}
+
+    \qquad \qquad \texttt{if(i<=6 \&\& i >=1) dp[i] = 1;}
+    
+    \qquad \qquad \texttt{else dp[i] = INT\_MAX;}
     
     \qquad \texttt{\}}
 
-    \qquad \texttt{for(int i = 1; i <= n+1; ++i)\{}
+    \qquad \texttt{for(int i = 1; i <= 6; ++i) \{}
+
+    \qquad \qquad \texttt{if(d[i]>i) dp[d[i]] = 1; //d[i] is the locations of the ladder}
+
+    \qquad \texttt{\}}
+    
+    \qquad \texttt{for(int i = 7; i <= n; ++i)\{}
+ 
+    \qquad \qquad \texttt{if(d[i] == undefined) continue;}
+
+    
+    \qquad \qquad \texttt{dp[i] = min(dp[i-1]+1,dp[i-2]+1,dp[i-3]+1,dp[i-4]+1,}
+    
+    \qquad \qquad \qquad \qquad \texttt{dp[i-5]+1,dp[i-6]+1,dp[i]);}
+
+    \qquad \qquad \texttt{if(d[i]>i) dp[d[i]] = dp[i]; //update ladder termination steps}
+    
+    \qquad \texttt{\}}
+
+    \qquad \texttt{return dp; //we use dp[] to find the sequence in the main function}
+
+    \texttt{\}}
+
+    \texttt{vector<int> findSeq(int[] d)\{ //d[] is the map info array}
+
+    \qquad \texttt{int[] dp = helper(d);}
+
+    \qquad \texttt{if(dp[n] == INT\_MAX) return \{\}; //can't find a path}
+
+    \qquad \texttt{else \{}
+
+    \qquad \texttt{vector<int> res;}
+
+    \qquad \qquad \texttt{for(int i=n; i>=0; ++i)\{}
 
     \qquad \qquad \texttt{}
 
+    \qquad \qquad \texttt{\}}
+    
     \qquad \texttt{\}}
 
-    
+    \texttt{\}}
 \end{proof}
 
 
