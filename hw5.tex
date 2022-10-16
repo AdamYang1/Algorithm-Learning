@@ -337,18 +337,18 @@ vector<int> findSeq( int[] d )
 
         \textbf{struct square:} this is a collection of information for each square i, i$\in$[0,n]. \textbf{square.count} stores the how many times to get to i, \textbf{square.seq} stores the sequence of roll to get i. Notice that if we get i by climbing a ladder, we won't need to record i into the sequence since we only need the sequence of rolling dice.
         
-        \textbf{vector<Square> dp:} dp[] needs n+1 elements since the map ranges from 0 to n (Don't consider the '/' char here since it's a pseudo-code). i $\in$ [0 , n], dp[i] stores two information through \texttt{struct square}. dp[i].count is the least times of rolling a dice to get i, dp[i].seq is the sequence of rolling a dice to get i. Notice that, for every i$\in$[0,n], if i is a chute, we simply skip them in the loop since we will never roll a dice to get to a chute and if we get to this chute through a ladder before, its information has been updated when we found the ladder, we will prove this later.
+        \textbf{vector<Square> dp:} dp[] needs n+1 elements since the map ranges from 0 to n (Don't consider the '/' char here since it's a pseudo-code). i $\in$ [0 , n], dp[i] stores two information through \texttt{struct square}. dp[i].count is the fewest times of rolling a dice to get i, dp[i].seq is the sequence of rolling a dice to get i. Notice that, for every i$\in$[0,n], if i is a chute, we simply skip them in the loop since we will never roll a dice to get to a chute and if we get to this chute through a ladder before, its information has been updated when we found the ladder, we will prove this later.
         
-        \textit{Initialization:} \textbf{dp[0] = \{0,\{\}\}} because we start at 0. \textbf{For i=1,2,3,4,5,and 6,} we initialize dp[i].count = 1, dp[i].seq = \{i\} if they are not chutes since we can roll from 1-6 from starting point 0 and get to i and it takes indeed least step for i. \textbf{For the i$\in$[7:n],} we initialize dp[i].count = $\infty$ and dp[i].seq = \{\} since we haven't reach them before we start finding them. Then we look back to i=1,2,3,4,5,6, if i is a ladder, we also update dp[d[i]].count = 1 where d[i] is the destination of ladder i because they only take one roll to arrive i and then to d[i], dp[d[i]].seq = dp[i].seq because we only need to roll once to get to i and then d[i].
+        \textit{Initialization:} \textbf{dp[0] = \{0,\{\}\}} because we start at 0. \textbf{For i=1,2,3,4,5,and 6,} we initialize dp[i].count = 1, dp[i].seq = \{i\} if they are not chutes since we can roll from 1-6 from starting point 0 and get to i and it takes indeed fewest step for i. \textbf{For the i$\in$[7:n],} we initialize dp[i].count = $\infty$ and dp[i].seq = \{\} since we haven't reach them before we start finding them. Then we look back to i=1,2,3,4,5,6, if i is a ladder, we also update dp[d[i]].count = 1 where d[i] is the destination of ladder i because they only take one roll to arrive i and then to d[i], dp[d[i]].seq = dp[i].seq because we only need to roll once to get to i and then d[i].
 
        
 \end{proof}
 
 \subsection*{Proof}
 \begin{proof}[Correctness]{}
-    For notation, count = $\infty$ and seq = \{\} are dummy values to denote a square has never been reached. For each square, it stores information about the count and seq that corresponds to each other. Saying the information for a square i is optimal simply means dp[i].seq is the sequence that takes least times of roll and dp[i].count stores the times of roll. First, let's prove some properties in the algorithm that we'll use in proof.
+    For notation, count = $\infty$ and seq = \{\} are dummy values to denote a square has never been reached. For each square, it stores information about the count and seq that corresponds to each other. Saying the information for a square i is optimal simply means dp[i].seq is the sequence that takes fewest times of roll and dp[i].count stores the times of roll. First, let's prove some properties in the algorithm that we'll use in proof.
 \subsubsection*{Property 1}
-    For i$\in$[7,n], when we loop to check square i (starting from line 31), if we have reached i through some ladder k before, 1$\leq$k$<$i, d[k] = i, dp[d[k]] = dp[i] has stored some "count" of rolls and "seq" that take temporarily least rolls before we do comparison with i's 6 predecessor (count != $\infty$, seq != \{\}).
+    For i$\in$[7,n], if we have reached some ladder k before, 1$\leq$k$<$i S.T. d[k] = i, dp[d[k]] = dp[i] will store some "count" of rolls and "seq" that take temporarily fewest rolls before we do comparison with i's 6 predecessor (count != $\infty$, seq != \{\}).
     \begin{proof}{Property 1}
          Observing the algorithm on line 35-37, 51-53, whenever we found a ladder k, we always take a look at its destination square, denoted as i, d[k] = i. There are two ways to reach i: (1) We have already reached i through some ladder k' before, 1$\leq$k'$<$i (2) We roll a dice from [k-6:k-1] to arrive i and climb to d[i]. This takes us min(dp[k-6:k-1].count) rolls plus another roll to i. Then, we do a comparison between (1) and (2) and update dp[i].count and dp[i].seq with the sequence that takes fewer times of roll. If it's the first time we reach i, dp[i].count = $\infty$ > min(dp[k-6:k-1].count)+1, dp[i] has stored the information that is temporarily optimal before we loop to i and check. If it's not the first time, we either replace square information with sequence taking fewer steps or and don't change the original information since it's better. Notice that in this case, dp[i].seq won't include i itself because we didn't roll to reach i.
          
@@ -364,224 +364,76 @@ vector<int> findSeq( int[] d )
     \end{proof}
 
 \subsubsection*{Property 3}
+    For i$\in$[1,n], dp[i].count and dp[i].seq always correspond to each other.
+    \begin{proof}
+        Notice that the algorithm updates dp[i].seq and dp[i].count at the same time only when dp[i].count can become smaller. Therefore, even though there might be different sequences to reach a same square i, dp[i].seq and dp[i].count are always paired.
+    \end{proof}
+
+\subsubsection*{Property 4}
     The algorithm terminates.
     \begin{proof}
         Since the algorithm only use for loop on local variable i and s, all of which only have ++i or ++s operation on its value, the algorithm always terminates.
     \end{proof}
+\subsubsection*{Lemma}
+    For i$\in$[7,n], when we finish checking i-1 square, dp[i].seq always store the optimal sequence information that takes fewest times of rolls
+    \begin{proof}
+        According to Property 1, whenever we reach a ladder 1$\leq$k$<$i S.T. d[k] = i, dp[d[k]] = dp[i] will store a temporarily optimal information about the sequence for reaching i. We prove this by induction on k.
+        
+        \textbf{Base Case:} k=1, if k is a ladder and reach i, dp[i] has been updated in the initialization. if not, we still not yet find a way to i and dp[i].count stays $\infty$ and dp[i].seq = \{\}.
+        
+        \textbf{Inductive Hypothesis:} the claim holds true for  1$\leq$k$<$i-2.
+        
+        \textbf{Inductive Step:} When we start checking i-1, if d[i-1]=i, the algorithm compare this sequence to the one d[i] has already have. By Property 1, if i-1 is a ladder that leads to i, we always keep the temporarily best result. We compare the temporarily best sequence to reach i from 1 to i-2 (by strong IH) with the one from i-1. Since the algorithm always pick the better one, dp[i].seq stores the best possible sequence to arrive itself through a ladder after we checking(comparing) i-1.
+        
+        When we finish checking i-1 square, we have finished checking every possible ladder for i. In each iteration, we will pick a better sequence if there is one if we can get i through ladder k with fewer rolls, we pick the one with the fewest times of rolls when we finish checking i-1 square.
+        
+        This completes the inductive step and thus the proof.
+    \end{proof}
+\subsubsection*{Correctness}
+Now, let's start proving the correctness with the properties and lemma.
+For a optimal solution to reach a square i, either (1) we reach their by rolling a dice once from its 6 predecessor or (2) we reach their by climbing a ladder before.
 
-\begin{lemma*}{For i$\in$[7,n], when we finish checking i-1, i always store the optimal sequence information that takes least times of roll}
-    
+We know that the optimum way of getting q involves one of the following two:
 
-\end{lemma*}
+1. roll a dice once from q-6 or q-5 or ... or q-1 and reach q, incur the sequences to  q-6, q-5, ..., q-1 are *optimal*
 
+2. we reach q through some ladder 1$\leq$k$<$i, incur the sequences to k is *optimal*
 
-Now, let's start proving the correctness.
-For a optimal solution to reach a square i, either (1) we reach their by rolling a dice once from its 6 predecessor or (2) we reach their by climbing a ladder before
+The optimum does the best of the two.
 
-% \begin{center}
-%     \texttt{OPT(i) := sequence of roll to reach i that takes least time of roll;
-% \\OPT(i) = min( OPT(i-6)+\{i\}, OPT(i-5)+\{i\}, OPT(i-4)+\{i\}, \\OPT(i-3)+\{i\}, OPT(i-2)+\{i\}, OPT(i-1)+\{i\}, OPT$_{temp}$(i) );
-% }
-% \end{center}
+\textbf{Subproblems:} find the sequence of roll to get square q with fewest times of rolls for q = 0, ..., n.
 
+Define \texttt{\\OPT(q) := times of roll of the sequence to reach q with fewest times of roll \\OPT$_{temp}$(q) := times of rolls of the sequence to reach q through a ladder after checking q-1}
 
+\textbf{Recurrence Relation:} \texttt{\\OPT(q) = min( min( OPT(q-1), OPT(q-2), OPT(q-3), OPT(q-4), OPT(q-5), OPT(q-6) ) + 1, OPT$_{temp}$(q) )}
 
-    \textbf{Base Case:}
+\textbf{Base Case:} OPT(0)=0, OPT(1)= OPT(2) = OPT(3) = OPT(4) = OPT(5) = OPT(6) = 1
+
+By Property 3, dp[q].count and dp[q].seq are always paired. Therefore, finding the min times of roll means finding the best sequence. To prove: dp[n].count = OPT(n), dp[n].seq is the optimal
+
+\textbf{Base case:} i = 0, dp[0].count = 0, i = 1,2,...,6 dp[i].count = 1 = OPT(i).
+
+\textbf{Induction Hypothesis:} algorithm finds the best sequence (fewest times of rolls) to reach i for 0$\leq$i$\leq$n-1.
+
+\textbf{Inductive Step:} The algorithm assigns dp[n].count with \texttt{min( min(dp[n-6:n-1].count) + 1, dp[n])} and dp[n].seq with corresponding sequence by property 3. By Lemma, when we finish checking n-1, dp[n].count = OPT${_temp}$(n) is indeed the best sequence to reach n through a ladder. By strong IH, \texttt{min(dp[n-6:n-1].count) = min( OPT(n-6), OPT(n-5), ..., OPT(n-1) )}, therefore, \texttt{dp[n].count = min( min(OPT(n-6), OPT(n-5), ..., OPT(n-1))+1, OPT$_{temp}$(n) )} = OPT(n) [by recurrence relation]. By Property 3, dp[n].count and dp[n].seq always correspond. Therefore, dp[n].seq is the optimal since dp[n].count = OPT(n)
+
+This completes the inductive step and thus the proof.
+
 \end{proof}
 
-
-
-
-
-
-
-
-\begin{theorem*}{}
-    For DP, we often analyze relatively easy (or even trivial) properties of the optimum solution, and exploit them to derive an efficient algorithm
-\end{theorem*}
-\section*{Solution}
-\begin{solution*}{}
-    Define OPT(S):= maximum weight that can be obtained from intervals in S.
-
-    \begin{center}
-            \textbf{[Find the max from including interval i or not including i]}
-    \end{center}
-    
-    OPT(S) = max( OPT(s\textbackslash \{i\}), w(i)+OPT(S \textbackslash \{everything intersecting i\}) )
-
-    \textbf{Base Case:} OPT(\{\}) = 0
-
-    \begin{proof}{This is not optimal if we do it recursively}
-    
-        Implementing this \textbf{recursively} is just exhaustive search with backtracking, and runs in about $2^n$ times.
-
-        If we store all OPT(S) values in a table to avoid recomputing, with the current approach, we still take $2^n$ and the able size is $2^n$
-    \end{proof}
-
-    Our power is that we can choose the interval number i that we branch over. By a careful choice, we can make sure that only polynomially many (in fact: linearly many) subproblems need to solved.
-
-    Assume from now on that intervals are sorted by non-decreasing finish time f(i). Subproblems of the form \{1,2,...,k\} for k = 0,...,n.
-
-    We define the following notations
-    
-    OPT(k):= optimum weight for the subproblems \{1,2,...,k\}
-    
-    t(k):= the largest index j such that $f(j) < s(k)$ [the latest interval that does not intersect interval k.]
-    
-    Recurrence Relation:
-    \[OPT(k) = max(OPT(k-1), w(k)+OPT(t(k)))\]
-
-    \textbf{Base Case:} OPT(0) = 0
-    
-    \textbf{Justification:} The opt solution for intervals 1,..,k either doesn't contain k (in which case it is the OPT(k-1)) or it does contain k, and includes the opt solution for the still available intervals
-
-    Final answer we're interested in: OPT(n)
-
-    \textbf{Implementation:}
-
-    \qquad \texttt{1. Sort intervals by non-decreasing f(i)}
-    
-    \qquad \texttt{2. Precompute all of the t[k];}
-    
-    \qquad \texttt{3. a[0] = 0;}
-    
-    \qquad \texttt{4. for(int i = 1; i <= n; ++i) a[i] = max(a[i-1], w[i]+a[t[i]]);}
-    
-    \qquad \texttt{5. return a[n];}
-
-    To output the solution itself:
-    \texttt{k=n; while(k>0) if (k yellow) {output k; k = t[k];} else k--;}
-    
-
-    
-\end{solution*}
-
-    \begin{proof}[\textbf{Running time}]{}
-    \renewcommand{\qedsymbol}{}
-    
-        \qquad \texttt{1. O(nlogn)}
-        
-        \qquad \texttt{2. O(nlogn) with n binary searches, can improve to O(n)}
-        
-        \qquad \texttt{4. and return O(n)}
-        
-        \qquad \texttt{Other: O(1)}
-
-        Total: O(nlogn)
-    \end{proof}
-
-    \begin{proof}[\textbf{Correctness Proof}]{}
-    \renewcommand{\qedsymbol}{}
-        We want to show that the algorithm outputs the right answer. Algorithm outputs a[n]; right answer is OPT(n). So we want to show that a[n]=OPT(n).
-
-        
-    \end{proof}
-
-
-
-\section*{Problem}
-\begin{problem*}{Edit Distance/Sequence Alginment}
-    Given two strings x[1..n], y[1..m], how "similar"/"different" are they?
-
-    \qquad 1. Hamming Distance: $\#$ of positions where the strings are different $\rightarrow$ not here (too easy)
-    
-    \qquad 2. Number or total cost of operations that turn x into y. (x$\rightarrow$y)
-    
-    \textbf{Operations:} insert - cost A; delete - cost A; replace - cost B [We could assign different costs for insertion and deletion, or for inserting/ deleting different characters, or for replacing different characters with
-each other ==> nothing at all changes, just more parameters.]
-
-    \textbf{Goal:} Given x, y, find a minimum cost sequence of operations that turns x into y.
-\end{problem*}
-
-\begin{proof}[Key Insight:]{}
-		\renewcommand{\qedsymbol}{} % hide the QED square
-
-        Alternative view: String alignment
-        
-        Insert blanks into one or both strings, and write them on top of each other. Cost of A for being matched with a blank, and B for being mismatched.
-
-        \textbf{Goal:} find the min cost of insert blanks into both strings to minimize alignment cost
-
-        What do we know about the optimum way of aligning x[1..n] with y[1..m]? It involves one of the following three:
-        
-        \qquad 1) x[n] is aligned with y[m]; incur cost B if x[n]!= y[m]. x[1..n-1] with y[1..m-1] are aligned *optimally*.
-        
-        \qquad 2) x[n] is aligned against a blank: incur cost A. x[1..n-1] and y[1..m] are aligned *optimally*.
-
-        \qquad 3) y[m] is aligned against a blank: incur cost A. x[1..n] and y[1..m-1] are aligned *optimally*.
-
-        \qquad Among these, the optimum solution (being optimal) chooses the better one.
-
-        What makes this tick is that once we commit to including $i$, or to not including $i$, we compute/use the \textbf{*optimum*} solution for the resulting subproblem. \textbf{This is the key property for DP:} Any optimal soution must contain optimal solutions to the subproblems contained in it. We have to define the subproblems to that this is true, in order to be able to apply DP.
+\subsection*{Running Time}
+\begin{proof}[Running Time]{Analyze the algorithm running time}
+    	\renewcommand{\qedsymbol}{}
+    	From line 12 to 19, setting variables and assignment takes $\mathcal{O}(1)$. From line 20 to 23, this takes $\mathcal{O}(n)$ for looping n element and $\mathcal{O}(1)$ assignment. From line 24 to 29, it takes $\mathcal{O}(1)$ for looping six elements and $\mathcal{O}(1)$ assignments. From line 31 to 56, it takes $\mathcal{O}(n)$ for looping n-6 elements and $\mathcal{O}(1)$ assignment inside (line 35 to 40 simply find the smallest predecessor and corresponding index, it takes $\mathcal{O}(1)$ for six elements).
+    	
+    	Thus the running time $T(n)$ will be \[T(n)=2\mathcal{O}(n)+2\mathcal{O}(1)=\mathcal{O}(n)\]
 \end{proof}
 
-\section*{Solution}
-\begin{solution*}
-    \textbf{Subproblems:} optimal alignment of the first i characters of x (for 0 $\leq$ i $\leq$ n) and the first j characters of y (for 0 $\leq$ j $\leq$ m).
+\section*{Problem 2}
 
-    Define OPT(i,j) to be the minimum total cost for aligning x[1..i] with y[1..j].
 
-    \textbf{Recurrence Relation:}
-    
-    OPT(i,j) = min(OPT(i-1,j-1) + B*[1 if x[i] != y[j]; 0 if x[i] = y[j]],OPT(i-1,j) + A, OPT(i,j-1) + A)
 
-    \textbf{Base cases:}
-    
-OPT(i,0) = A*i [ turn length-i string into empty string]
-OPT(0,j) = A*j [ turn empty string into length-j string]
 
-    \textbf{Implementation:}
-
-    \qquad \texttt{for (i = 0; i <= n; i++) a[i][0] = i*A;}
-
-\qquad \texttt{for (j = 0; j <= m; j++) a[0][j] = j*A;}
-
-\qquad \texttt{for (i = 1; i <= n; i ++)}
-
-\qquad \qquad \texttt{for (j = 1; j <= m; j++)}
-
-\qquad \qquad \qquad \texttt{if(x[i] == y[j]) a[i][j] = min(a[i-1][j-1], a[i-1][j] + A, a[i][j-1] + A);}
-
-\qquad \qquad \qquad \texttt{else a[i][j] = min(a[i-1][j-1] + B, a[i-1][j] + A, a[i][j-1] + A);}
-
-\qquad \texttt{return a[n][m];}
-\end{solution*}
-
-\begin{proof}{}{}
-\textbf{To prove: a[n][m] = OPT(n,m)}
-
-We will prove along the way: $\forall$ i, j: a[i][j] = OPT(i,j)
-
-Proof by (strong) induction on \textbf{i+j}.
-
-\textbf{Base case:} i+j = 0 => i = j = 0. a[0][0] = 0 = OPT(0,0).
-
-\textbf{Induction Step:}
-
-\textbf{Induction Hypothesis:} whenever i'+j' < i+j, a[i'][j'] = OPT(i',j')
-
-\qquad \textbf{Case 1:} x[i] = y[j]:
-
-Algorithm writes:\\ a[i][j] = min(a[i-1][j-1], a[i-1][j] + A, a[i][j-1] + A)\\= min (OPT(i-1,j-1), OPT(i-1,j) + A, OPT(i,j-1) + A)
-[ by IH, because (i-1) + (j-1) < i+j, (i-1)+j < i+j, i+(j-1) < i+j ] = OPT(i,j) [ by recurrence relation ]
-
-\qquad \textbf{Case 2:} x[i] != y[j], and i > 0 and j > 0
-
-The algorithm writes:\\a[i][j] = min(a[i-1][j-1] + B, a[i-1][j] + A, a[i][j-1] + A) \\= min(OPT(i-1,j-1) + B, OPT(i-1,j) + A, OPT(i,j-1) + A) [ by IH ]
-= OPT(i,j) [ by recurrence relation ]
-
-\qquad \textbf{Case 3:} i = 0. The algorithm writes a[0][j] = A * j = OPT(0,j).
-
-\qquad \textbf{Case 4:} j = 0. The algorithm writes a[i][0] = A * i = OPT(i,0).
-
-\end{proof}
-    
-% \begin{proof}[Problem Insight]{}
-% \renewcommand{\qedsymbol}{}
-%         what do we know for sure about the opt solution set S, and on particular interval?
-
-        
-% \end{proof}
 
 % END MAIN Doc
 \end{document}
