@@ -259,89 +259,65 @@
 
 
 \subsection*{Problem1}
-\begin{proof}[Algorithm]{}{An Algorithm to calculate the sequence of die rolls gets to winning square as quickly as possible.}
 
-    \renewcommand{\qedsymbol}{} % hide the QED square
 
-    % \texttt{bool hasNext(int[] dp, int index)}\\
-    % \qquad \texttt{}
-
-    \texttt{/** \\ If i is a ladder, d[i] = a square later in the board > i.\\If i is a chute, d[i] = undefined because you die. \\If i is a normal square, d[i] = i.}
-
-    \qquad \texttt{i is a chute:}
-
-    \texttt{1. we won't reach i by rolling in [i-6:i-1], i >= 7}
-    
-    \texttt{2. if we reached i through ladder before, we have updated when we found the ladder}
-    
-    \texttt{3. if we never reached i, it is initialized to INT\_MAX, no further consideration}
-
-    \qquad \texttt{i is a normal square or a ladder}
-
-    \texttt{1. either get i from rolling once from [i-6:i-1] i >= 7\\2. or we have reached i before \\ **/}
-    
-    \texttt{int[] helper(int[] d) \{//d[] is the map information array}
-    
-    \qquad \texttt{int dp[n+1]; dp[0] = 0; //i $ \in$[0,n], dp[] needs n+1 plots}
-
-    \qquad \texttt{for(int i = 1; i <= n; ++i) \{}
-
-    \qquad \qquad \texttt{if(i<=6 \&\& i >=1) dp[i] = 1;}
-    
-    \qquad \qquad \texttt{else dp[i] = INT\_MAX;}
-    
-    \qquad \texttt{\}}
-
-    \qquad \texttt{for(int i = 1; i <= 6; ++i) \{}
-
-    \qquad \qquad \texttt{if(d[i]>i) dp[d[i]] = 1; //d[i] is the locations of the ladder}
-
-    \qquad \texttt{\}}
-    
-    \qquad \texttt{for(int i = 7; i <= n; ++i)\{}
- 
-    \qquad \qquad \texttt{if(d[i] == undefined) continue;}
-
-    
-    \qquad \qquad \texttt{dp[i] = min(dp[i-1]+1,dp[i-2]+1,dp[i-3]+1,dp[i-4]+1,}
-    
-    \qquad \qquad \qquad \qquad \texttt{dp[i-5]+1,dp[i-6]+1,dp[i]);}
-
-    \qquad \qquad \texttt{if(d[i]>i) dp[d[i]] = dp[i]; //update ladder termination steps}
-    
-    \qquad \texttt{\}}
-
-    \qquad \texttt{return dp; //we use dp[] to find the sequence in the main function}
-
-    \texttt{\}}
-
-    \texttt{vector<int> findSeq(int[] d)\{ //d[] is the map info array}
-
-    \qquad \texttt{int[] dp = helper(d);}
-
-    \qquad \texttt{if(dp[n] == INT\_MAX) return \{\}; //can't find a path}
-
-    \qquad \texttt{else \{}
-
-    \qquad \texttt{vector<int> res;}
-
-    \qquad \qquad \texttt{for(int i=n; i>=0; ++i)\{}
-
-    \qquad \qquad \texttt{}
-
-    \qquad \qquad \texttt{\}}
-    
-    \qquad \texttt{\}}
-
-    \texttt{\}}
+\begin{proof}[Algorithm]{}
+		\renewcommand{\qedsymbol}{}
+		An Algorithm to calculate the sequence of die rolls gets to winning square as quickly as possible.
+		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
+vector<int> findSeq( int[] d )
+{
+    // here we denote the size of d[] as n
+    // Will explain the variables used in algorithm later
+    // if i is a ladder, d[i] = j, j>i (j is the termination of i)
+    // if i is a chute, d[i] = undefined
+    // if i is a normal square, d[i] = i
+    if(n <= 6) return {d[n]}; //trivially solved by rolling once
+    int dp[n+1]; int seq[n+1]; dp[0] = 0; seq[0] = -1;
+    for(int i = 1; i <= n; ++i) {
+        if( i>=1 && i<=6 && d[i] != undefined ) dp[i] = 1;
+        else dp[i] = ; //don't consider overflow situation for convenience
+    }
+    for(int i = 1; i <= 6; ++i) {
+        if(d[i]>i) { dp[d[i]] = 1; seq[d[i]] = i; }
+    }
+    for(int i = 7; i <= n; ++i) {
+        if(d[i] == undefined) continue;
+        int min_predecessor = min(dp[i-1],dp[i-2],dp[i-3],dp[i-4],dp[i-5],dp[i-6]);
+        //it is trivial to find index for min_predecessor by simply comparison, denote it as j for convenience
+        int min_pred_index = j; //dp[j] is the min from dp[i-6:k-1]
+        dp[i] = min(min_predecessor+1, dp[i]);
+        //notice that whenever we reach i, we either roll a dice from its 6 predecessor
+        //or we have reached i through a ladder k < i. if we reached i before, seq[i] = k, dp[i] != \infty
+        seq[i] = dp[i] < dp[j] + 1 ? k : j;
+        if(d[i] > i) {
+            dp[d[i]] = min(dp[j] + 1, dp[d[i]]);
+            seq[d[i]] = dp[j]+1 < dp[d[i]] ? j : seq[d[i]];
+        }
+    }
+    vector<int> res; int index = n;
+    while(index > 0) {
+        res.push_back(seq[index]);
+        index = seq[index];
+    }
+    return res.reverse();
+}
+		\end{lstlisting} 
 \end{proof}
 
 
 
-
-\begin{proof}[Analysis]{}
+\begin{proof}[Explanation]{}
 		\renewcommand{\qedsymbol}{} % hide the QED square
-        Greedy gives us suboptimal solution. \textbf{No greedy rule will work}
+        I'll explain some variable used in pseudo-code above here
+
+        \textbf{int[] d:} this is an input array that the problem provides, d[i] stores the information for each square, as explained from line 3 to 7
+
+        \textbf{int[] dp:} dp[] needs n+1 elements since the map ranges from 0 to n (Don't consider the '/' char here since it's a pseudo-code). i $\in$ [0 , n], dp[i] is the least times of rolling a dice to get i. Notice that, for every i$\in$[0,n], if i is a chute, dp[i] stays INT\_MAX since we will never roll a dice to reach. For the first 6 squares, we initialize them to 1 if they are not chutes since we can roll from 1-6 from starting point 0 if they are not chute. For the [7:n] squares, we initialize them to $\infty$ since we haven't reach them, it takes infinite steps to reach.
+
+        \textbf{int[] seq:} seq[] also needs n+1 elements since the map ranges from 0 to n (Don't consider '/' char). i $\in$ [0 , n], seq[i] = j, 0 <= j < i, j is the predecessor of square i on the sequence that takes least rolls to arrive i.
+
+        \textbf{vector<int> res:} res is the returned sequence that we find in the algorithm.
 \end{proof}
 
 \begin{theorem*}{}
