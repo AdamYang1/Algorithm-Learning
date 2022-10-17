@@ -265,64 +265,44 @@
 		\renewcommand{\qedsymbol}{}
 		An Algorithm to calculate the sequence of die rolls gets to winning square as quickly as possible.
 		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
-// this is a pseudo-code, for convenience we define add_square() for vector<T> similar to push_back() in C++. It returns an original list added with a new square at the end and won't impact original list
+// this is a pseudo-code, for convenience we define add_roll() for vector<T> similar to push_back() in C++. It returns an original list added with a new square at the end and won't impact original list
 // push_back() is simply C++ push_back() method for vector<T>
-vector<int> findSeq( int[] d )
+
+vector<int> findSeq( int[] d ) //d[] is the input array of information
 {
     // define infinity as the largest number we can get
+    // define {infinity}.size() = infinity
     // won't use INT_MAX for convenience (overflowing issue)
     // here we denote the size of d[] as n
-    // Will explain the variables used in algorithm later
     // if i is a ladder, d[i] = j, j>i (j is the termination of i)
-    // if i is a chute, d[i] = undefined
+    // if i is a chute, d[i] = infinity
     // if i is a normal square, d[i] = i
-    if(n <= 6) return {0, d[n]}; //trivially solved by rolling once
-    struct square {
-        int count; // count of times of rolls
-        vector<int> seq; // quickest sequence to reach square i
-    }
-    // initialization
-    vector<square> dp;
-    dp.push_back( {0, {}} );
-    for(int i = 1; i <= n; ++i) {
-        if(i>=1 && i<=6 && d[i] != undefined) dp.push_back( {1, {i} } ) // roll once, sequence = {i}
-        else dp.push_back( {infinity, {} } );
-    }
-    for(int i = 1; i <= 6; ++i) {
-        if(d[i]>i) {
-            dp[d[i]].count = 1;
-            dp[d[i]].seq = dp[i].seq; // climb to d[i]
-        }
+    // Will explain the code later
+    if(n <= 6) return {n}; //trivially solved by rolling once to n
+    vector<vector<int>> dp({}, n+1);
+    //initialization
+    for(int i = n-1; i >= n-6; --i){
+        dp[i] = {n-i};
     }
     // start finding sequence
-    for(int i = 7; i <= n; ++i) {
-        if(d[i] == undefined) continue;
-        int min_predecessor_count = dp[i-6].count;
-        int min_predecessor_index = i-6;
-        for(int s = i-5; s <= i-1; ++s){
-            if(dp[s].count < min_predecessor_count){ //find min count & index
-                min_predecessor_count = dp[s].count
-                min_predecessor_index = s;
+    for(int i = n-7; i >= 0; --i) {
+        int min_index = -1;
+        vector<int> min_seq = {infinity};
+        // for some i, if d[i] = infinity, dp[infinity] = {infinity}
+        // OPT(i) = min( 1 + OPT(d[i+r]) ), r = 1,2,...,6
+        for(int s = i+1; s <= i+6; ++s){
+            if(dp[d[s]].size() < min_seq.size()){
+                min_index = s;
+                min_seq = dp[d[s]];
             }
         }
-        dp[i].count = min(min_predecessor+1, dp[i]);
-        //notice that whenever we reach i, we either roll a dice from its 6 predecessor
-        //or we have reached i through a ladder 1 <= k < i. if we reached i before, seq[i] = k, dp[i] != infinity. Denote i's predecessor's index as k if i has one. We can also simply find k by looking at the last element of dp[i].seq.back()
-        if(dp[i].count < dp[min_predecessor_index].count + 1){ //it is cheaper to reach i through k
-            //we do nothing since it has had a quickest sequence
+        if(min_index == -1) {   //i+1:i+6 are all chute
+            dp[i] = {infinity}
         } else {
-            dp[i].seq = dp[min_predecessor_index].seq.add_square(i); //add i since need to roll to i
-        }
-        
-        if(d[i] > i) { // i is ladder
-            dp[d[i]].count = min(dp[min_predecessor_index].count + 1, dp[d[i]].count);
-            if(dp[min_predecessor_index].count+1 < dp[d[i]].count) { // we roll to i once from min_predecessor_index
-                dp[d[i]].seq = dp[min_predecessor_index].seq; //don't need to add d[i] since we climb there
-            }
+            dp[i] = min_seq.add_roll(min_index - i) // sequence is reverse now, will reverse later
         }
     }
-    
-    return dp[n].seq; //if dp[n].count == infinity or dp[n].seq.size() == 0, can't reach n
+    return dp[0].reverse(); //if dp[n].size() == infinity, we can't reach n
 }
 		\end{lstlisting} 
 \end{proof}
@@ -334,99 +314,68 @@ vector<int> findSeq( int[] d )
         I'll explain some variable used in pseudo-code above here
 
         \textbf{int[] d:} this is an input array that the problem provides, d[i] stores the information for each square, as explained from line 3 to 7
-
-        \textbf{struct square:} this is a collection of information for each square i, i$\in$[0,n]. \textbf{square.count} stores the how many times to get to i, \textbf{square.seq} stores the sequence of roll to get i. Notice that if we get i by climbing a ladder, we won't need to record i into the sequence since we only need the sequence of rolling dice.
         
-        \textbf{vector<Square> dp:} dp[] needs n+1 elements since the map ranges from 0 to n (Don't consider the '/' char here since it's a pseudo-code). i $\in$ [0 , n], dp[i] stores two information through \texttt{struct square}. dp[i].count is the fewest times of rolling a dice to get i, dp[i].seq is the sequence of rolling a dice to get i. Notice that, for every i$\in$[0,n], if i is a chute, we simply skip them in the loop since we will never roll a dice to get to a chute and if we get to this chute through a ladder before, its information has been updated when we found the ladder, we will prove this later.
+        \textbf{vector<vector<int>> dp:} this array needs n+1 elements since the map ranges from 0 to n. i $\in$ [0 , n], dp[i] stores the sequence with fewest times of rolls to reach n starting from i. (Prove later)
         
-        \textit{Initialization:} \textbf{dp[0] = \{0,\{\}\}} because we start at 0. \textbf{For i=1,2,3,4,5,and 6,} we initialize dp[i].count = 1, dp[i].seq = \{i\} if they are not chutes since we can roll from 1-6 from starting point 0 and get to i and it takes indeed fewest step for i. \textbf{For the i$\in$[7:n],} we initialize dp[i].count = $\infty$ and dp[i].seq = \{\} since we haven't reach them before we start finding them. Then we look back to i=1,2,3,4,5,6, if i is a ladder, we also update dp[d[i]].count = 1 where d[i] is the destination of ladder i because they only take one roll to arrive i and then to d[i], dp[d[i]].seq = dp[i].seq because we only need to roll once to get to i and then d[i].
+        \textbf{vector<T>.add\_roll():} this method add the new roll to the original vector. Return value and its general implementation is discussed in line 1.
+        
+        \textbf{return dp[0].reverse()} Since we always add a new roll to the end of the vector on line 30, we need to reverse to return a correct-order sequence
+        
+        \textit{Initialization:} \textbf{dp[n] = \{\}} because it takes no effort to reach n from n. \textbf{For i=n-6, n-5,..., n-1} we initialize dp[i] = \{n-i\} since we can reach n from i by rolling n-i = 1,2,...,6 once.
 
        
 \end{proof}
 
 \subsection*{Proof}
 \begin{proof}[Correctness]{}
-    For notation, count = $\infty$ and seq = \{\} are dummy values to denote a square has never been reached. For each square, it stores information about the count and seq that corresponds to each other. Saying the information for a square i is optimal simply means dp[i].seq is the sequence that takes fewest times of roll and dp[i].count stores the times of roll. First, let's prove some properties in the algorithm that we'll use in proof.
-\subsubsection*{Property 1}
-    For i$\in$[7,n], if we have reached some ladder k before, 1$\leq$k$<$i S.T. d[k] = i, dp[d[k]] = dp[i] will store some "count" of rolls and "seq" that take temporarily fewest rolls before we do comparison with i's 6 predecessor (count != $\infty$, seq != \{\}).
-    \begin{proof}{Property 1}
-         Observing the algorithm on line 35-37, 51-53, whenever we found a ladder k, we always take a look at its destination square, denoted as i, d[k] = i. There are two ways to reach i: (1) We have already reached i through some ladder k' before, 1$\leq$k'$<$i (2) We roll a dice from [k-6:k-1] to arrive i and climb to d[i]. This takes us min(dp[k-6:k-1].count) rolls plus another roll to i. Then, we do a comparison between (1) and (2) and update dp[i].count and dp[i].seq with the sequence that takes fewer times of roll. If it's the first time we reach i, dp[i].count = $\infty$ > min(dp[k-6:k-1].count)+1, dp[i] has stored the information that is temporarily optimal before we loop to i and check. If it's not the first time, we either replace square information with sequence taking fewer steps or and don't change the original information since it's better. Notice that in this case, dp[i].seq won't include i itself because we didn't roll to reach i.
-         
-         Since d[k] = i > k, whenever we loop to check i, we have already check k before (for loop property). Since we update the dp[d[k]] if k is a ladder, we have stored the optimal information for dp[d[k]] when we loop to d[k] before checking with d[k]'s 6 predecessor.
-    \end{proof}
+    For convenience, saying a sequence S is better than S' for square i means S takes less times of rolls to reach n than S' takes (|S| < |S'|). Optimal sequence of i means this sequence takes fewest times of rolls to reach n starting from i (i could be anything and won't matter since we start from i)
+    
+\textbf{Goal:} Find the optimum sequence of roll to reach n starting from 0.
 
-\subsubsection*{Property 2}
-    For i$\in$[7,n], when we loop to check square i (starting from line 31), dp[i] will always store the information for the sequence with less times of roll when finishing checking.
-    \begin{proof}
-        Notice that we only have two ways to reach a square: roll a dice from its 6 predecessor or through some ladder 0 $\leq$ k $<$ i.
-        (1) If i is a chute, the algorithm simply skip it since we will never roll a dice to reach a chute. Therefore, either we have reached i before through ladder k and the information for i has been updated when we reach k (Property 1), or we have never reached i and will never reach i and dp[i].count = $\infty$ dp.seq = \{\}.
-        (2) If i is a ladder or a normal square, the algorithm compares its current reaching sequence rolling times with min(dp[i-6:i-1].count) + 1 and stores the better information on line 35 - 41. If we reach i through rolling once from its one of its 6 predecessors, the sequence will add i.
-    \end{proof}
+\textbf{Explanation:} Starting from i, we can roll once to reach i+s, s=1,2,...,6. Denotes (i+s)'s destination by d[i+s], d[i+s]$\geq$i+s>i. Incur the sequence of (i+s) and d[i+s] to be *optimal*. The optimum does the best of six.
+    
+\textbf{Subproblem:}
+    Starting from i, find the optimal sequence to reach n.
+    
+\textbf{Define:} Opt(i) to be the least times of roll to reach n starting from i. Define Opt($\infty$) := $\infty$ since there is no way to reach n.
+    
+\textbf{Recurrence Relation:}
+    \texttt{Opt(i) = $\min_{s=1,2,...,6}$(1 + Opt( d[i+s] ) )}
+    Notice that it is Opt(d[i+s]) instead of Opt(i+s). This is because i+s may be a chute, a ladder, or a normal square and d[i+s] can take their properties into consideration. If it is a chute, d[i+s] = $\infty$ > countable integer, meaning we won't choose to roll to a chute. If for some i$\in$[0,n-7], $\forall s = 1,2,...,6: $d[i+s] = $\infty$, there is no way i could be a start point to reach n, thus Opt(i) = $\infty$. If it is not, we will find the smallest of the Opt(d[i+s]) and add an additional roll to reach (i+s).
+    
+\textbf{Base Case:}
+    \texttt{Opt(n) = 0, Opt(n-s) = 1, s = 1,2,...,6}
+    
+\textbf{Correctness Proof:}
 
-\subsubsection*{Property 3}
-    For i$\in$[1,n], dp[i].count and dp[i].seq always correspond to each other.
-    \begin{proof}
-        Notice that the algorithm updates dp[i].seq and dp[i].count at the same time only when dp[i].count can become smaller. Therefore, even though there might be different sequences to reach a same square i, dp[i].seq and dp[i].count are always paired.
-    \end{proof}
-
-\subsubsection*{Property 4}
-    The algorithm terminates.
-    \begin{proof}
-        Since the algorithm only use for loop on local variable i and s, all of which only have ++i or ++s operation on its value, the algorithm always terminates.
-    \end{proof}
-\subsubsection*{Lemma}
-    For i$\in$[7,n], when we finish checking i-1 square, dp[i].seq always store the optimal sequence information that takes fewest times of rolls
-    \begin{proof}
-        According to Property 1, whenever we reach a ladder 1$\leq$k$<$i S.T. d[k] = i, dp[d[k]] = dp[i] will store a temporarily optimal information about the sequence for reaching i. We prove this by induction on k.
-        
-        \textbf{Base Case:} k=1, if k is a ladder and reach i, dp[i] has been updated in the initialization. if not, we still not yet find a way to i and dp[i].count stays $\infty$ and dp[i].seq = \{\}.
-        
-        \textbf{Inductive Hypothesis:} the claim holds true for  1$\leq$k$<$i-2.
-        
-        \textbf{Inductive Step:} When we start checking i-1, if d[i-1]=i, the algorithm compare this sequence to the one d[i] has already have. By Property 1, if i-1 is a ladder that leads to i, we always keep the temporarily best result. We compare the temporarily best sequence to reach i from 1 to i-2 (by strong IH) with the one from i-1. Since the algorithm always pick the better one, dp[i].seq stores the best possible sequence to arrive itself through a ladder after we checking(comparing) i-1.
-        
-        When we finish checking i-1 square, we have finished checking every possible ladder for i. In each iteration, we will pick a better sequence if there is one if we can get i through ladder k with fewer rolls, we pick the one with the fewest times of rolls when we finish checking i-1 square.
-        
-        This completes the inductive step and thus the proof.
-    \end{proof}
-\subsubsection*{Correctness}
-Now, let's start proving the correctness with the properties and lemma.
-For a optimal solution to reach a square i, either (1) we reach their by rolling a dice once from its 6 predecessor or (2) we reach their by climbing a ladder before.
-
-We know that the optimum way of getting q involves one of the following two:
-
-1. roll a dice once from q-6 or q-5 or ... or q-1 and reach q, incur the sequences to  q-6, q-5, ..., q-1 are *optimal*
-
-2. we reach q through some ladder 1$\leq$k$<$i, incur the sequences to k is *optimal*
-
-The optimum does the best of the two.
-
-\textbf{Subproblems:} find the sequence of roll to get square q with fewest times of rolls for q = 0, ..., n.
-
-Define \texttt{\\OPT(q) := times of roll of the sequence to reach q with fewest times of roll \\OPT$_{temp}$(q) := times of rolls of the sequence to reach q through a ladder after checking q-1}
-
-\textbf{Recurrence Relation:} \texttt{\\OPT(q) = min( min( OPT(q-1), OPT(q-2), OPT(q-3), OPT(q-4), OPT(q-5), OPT(q-6) ) + 1, OPT$_{temp}$(q) )}
-
-\textbf{Base Case:} OPT(0)=0, OPT(1)= OPT(2) = OPT(3) = OPT(4) = OPT(5) = OPT(6) = 1
-
-By Property 3, dp[q].count and dp[q].seq are always paired. Therefore, finding the min times of roll means finding the best sequence. To prove: dp[n].count = OPT(n), dp[n].seq is the optimal
-
-\textbf{Base case:} i = 0, dp[0].count = 0, i = 1,2,...,6 dp[i].count = 1 = OPT(i).
-
-\textbf{Induction Hypothesis:} algorithm finds the best sequence (fewest times of rolls) to reach i for 0$\leq$i$\leq$n-1.
-
-\textbf{Inductive Step:} The algorithm assigns dp[n].count with \texttt{min( min(dp[n-6:n-1].count) + 1, dp[n])} and dp[n].seq with corresponding sequence by property 3. By Lemma, when we finish checking n-1, dp[n].count = OPT${_temp}$(n) is indeed the best sequence to reach n through a ladder. By strong IH, \texttt{min(dp[n-6:n-1].count) = min( OPT(n-6), OPT(n-5), ..., OPT(n-1) )}, therefore, \texttt{dp[n].count = min( min(OPT(n-6), OPT(n-5), ..., OPT(n-1))+1, OPT$_{temp}$(n) )} = OPT(n) [by recurrence relation]. By Property 3, dp[n].count and dp[n].seq always correspond. Therefore, dp[n].seq is the optimal since dp[n].count = OPT(n)
-
-This completes the inductive step and thus the proof.
+    \textbf{To Prove:} dp[0].size() = Opt(0)
+    
+    We'll prove by strong induction of n-k, k = n, n-1, n-2, ..., 0, n-k = 0,1,2,...,n
+    
+    \textbf{Base Case:} dp[n].size() = Opt(n) = 0; dp[n-1].size() = dp[n-2].size() = ... = dp[n-6].size() = Opt(n-1) = Opt(n-2) = ... = Opt(n-6)
+    
+    \textbf{Inductive Hypothesis:} for n-k $\leq$ n-1, dp[k] = Opt(k), 0<k$\leq$n-1
+    
+    \textbf{Inductive Step:} when n-k = n $\Rightarrow$ k = 0, the algorithm leads to (Although the algorithm assigns vector sequence to find the sequence, since the times of rolls can be easily find through *.size()* method, finding the min times of rolls equals finding the optimal sequence)
+    \begin{center}
+        \texttt{dp[0].size() = min$_{s=1,2,...,6}$( 1+ dp[ d[0+s] ].size() ) = min$_{s=1,2,...,6}$( 1+ Opt( d[0+s] ) )}
+    \end{center}
+    [by IH, because s=1,2,...,6: n-(k+s) $\leq$ n-1 when k = 0]
+    Therefore,
+    \begin{center}
+        \texttt{dp[0].size() = Opt(0)} [by Recurrence Relation]
+    \end{center}
+    
+    So we find the min times of rolls to reach n from 0, and therefore the optimal sequence. If min times is $\infty$, we can't reach n. This completes the proof.
 
 \end{proof}
 
 \subsection*{Running Time}
 \begin{proof}[Running Time]{Analyze the algorithm running time}
     	\renewcommand{\qedsymbol}{}
-    	From line 12 to 19, setting variables and assignment takes $\mathcal{O}(1)$. From line 20 to 23, this takes $\mathcal{O}(n)$ for looping n element and $\mathcal{O}(1)$ assignment. From line 24 to 29, it takes $\mathcal{O}(1)$ for looping six elements and $\mathcal{O}(1)$ assignments. From line 31 to 56, it takes $\mathcal{O}(n)$ for looping n-6 elements and $\mathcal{O}(1)$ assignment inside (line 35 to 40 simply find the smallest predecessor and corresponding index, it takes $\mathcal{O}(1)$ for six elements).
+    	From line 14-19, setting variables and assignment takes $\mathcal{O}(n)$ for the vector. From line 21 to 37, it takes $\mathcal{O}(n)$ for looping n-6 elements and $\mathcal{O}(1)$ assignment inside (line 26 to 31 simply find the smallest times of rolls among six elements, it takes $\mathcal{O}(1)$ for six elements).
     	
-    	Thus the running time $T(n)$ will be \[T(n)=2\mathcal{O}(n)+2\mathcal{O}(1)=\mathcal{O}(n)\]
+    	Thus the running time $T(n)$ will be \[T(n)=2\mathcal{O}(n)=\mathcal{O}(n)\]
 \end{proof}
 
 \section*{Problem 2}
