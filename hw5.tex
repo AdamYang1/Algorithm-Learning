@@ -403,19 +403,19 @@ vector<operation> findSeq( string x, string y, int n, int m, int A, int c, int B
     operation dp_op[n+1][m+1];
     //initialization
     dp[0][0] = 0; dp_op[0][0] = *doing nothing*;
-    for(int i = 0; i < n; ++i){
+    for(int i = 0; i <= n; ++i){
         dp[i][0] = min( A*i, A*c(i-1) );
         if( A*i < A*c(i-1) ) dp_op[i][0] = *turn length-i string into empty by deleting one by one*;
         else dp_op[i][0] = *turn length-i string into empty by deleting all i at the same time*;
     }
-    for(int j = 0; j < m; ++i){
+    for(int j = 0; j <= m; ++i){
         dp[0][j] = min( A*j, A*c(j-1) );
         if( A*i < A*c(j-1) ) dp_op[0][j] = * turn empty string into length-j string by inserting one by one *;
         else dp_op[0][j] = * turn empty string into length-j string by inserting all j at the same time *;
     }
     //start finding
     for(int i = 1; i <= n; ++i){
-        for(int j = 1; j <= n; ++j){
+        for(int j = 1; j <= m; ++j){
             int min1 = infinity; int min2 = infinity;
             operation op1, op2, op3;
             // min dp[i-k,j]+A+c(k-1), k = 1,2,...,i
@@ -492,21 +492,21 @@ vector<operation> findSeq( string x, string y, int n, int m, int A, int c, int B
     
     1. x[n] is aligned with y[m]; incur cost B if x[n] != y[m]. x[1..n-1] with y[1..m-1] are aligned *optimally*.
     
-    2. x[n] is aligned against a k1-length blank: incur cost A+c(k1-1). x[1..n-k1] and y[1..m] are aligned *optimally*.
+    2. x[n] is aligned against a k$_1$-length blank: incur cost A+c(k$_1$-1). x[1..n-k$_1$] and y[1..m] are aligned *optimally*.
     
-        \qquad 2.1 k1=1, incur cost A. x[1...n-1] and y[1...m] are aligned *optimally*
+        \qquad 2.1 k$_1$=1, incur cost A. x[1...n-1] and y[1...m] are aligned *optimally*
         
         \qquad \vdots
         
-        \qquad 2.n k1 = n, incur cost A + c(n-1). x[0] and y[1...m] are aligned *optimally*
+        \qquad 2.n k$_1$ = n, incur cost A + c(n-1). x[0] and y[1...m] are aligned *optimally*
     
-3. y[m] is aligned against a k2-length blank: incur cost A+c(k2-1). x[1..n] and y[1..m-k2] are aligned *optimally*.
+3. y[m] is aligned against a k$_2$-length blank: incur cost A+c(k$_2$-1). x[1..n] and y[1..m-k$_2$] are aligned *optimally*.
 
-        \qquad 3.1 k2=1, incur cost A. x[1...n] and y[1...m01] are aligned *optimally*
+        \qquad 3.1 k$_2$=1, incur cost A. x[1...n] and y[1...m01] are aligned *optimally*
         
         \qquad \vdots
         
-        \qquad 3.n k1 = n, incur cost A + c(m-1). x[1...n] and y[0] are aligned *optimally*
+        \qquad 3.n k$_1$ = n, incur cost A + c(m-1). x[1...n] and y[0] are aligned *optimally*
 
 The optimum does the best of the 1+n+m.
 
@@ -517,16 +517,35 @@ The optimum does the best of the 1+n+m.
     \textbf{Recurrence Relation:} 
     \begin{center}
         \texttt{Opt(i,j) = min(  Opt(i-1,j-1) + B*( 1 if x[i]!=y[j] else 0 ),\\
-        min$_{k_1=1,...,i}$( Opt(i-k$_1$,j) + A + c(k$_1$-1 ),\\
-        min$_{k_2=1,...,j}$( Opt(i,j-k$_2$) + A + c(k$_2$-1 )  )}
+        min$_{k_1=1,...,i}$( Opt(i-k$_1$,j) + A + c(k$_1$-1) ),\\
+        min$_{k_2=1,...,j}$( Opt(i,j-k$_2$) + A + c(k$_2$-1) )  )}
     \end{center}
+    
+    (1) when x[i] aligns with y[j] and x[i] == y[j], we don't need to do anything, thus Opt(i,j) = Opt(i-1,j-1)
+    
+    (2) when x[i] aligns with y[j] and x[i] != y[j], we need to replace the last character, thus Opt(i,j) = Opt(i-1,j-1) + B
+    
+    (3) here comes the complicated part. when x[i] is aligned with k$_1$ blanks, we need to delete all k$_1$ blanks starting from x[i-k$_1$], thus Opt(i,j) = Opt(i-k$_1$,j)+A+c(k$_1$-1), k$_1\in$[1,i]. Since we need to find the lowest cost one, we take the minimum from all k$_1$=1,...,j situation
+    
+    (4) when y[j] is aligned with k$_2$ blanks, we need to insert all k$_2$ characters starting from y[j-k$_2$], thus Opt(i,j) = Opt(i,j-k$_2$)+A+c(k$_2$-1), k$_2\in$[1,j]. Since we need to find the lowest cost one, we take the minimum from all k$_2$=1,...,j situation
+    
+    Since we take the cheapest, we take the minimum from above situations.
     
    \textbf{Base cases:}
    \begin{center}
         \texttt{OPT(i,0) = min( A*i, A+c(i-1) ) [ turn length-i string into empty string]}
         
         \texttt{OPT(0,j) = min( A*j, A+c(j-1) ) [ turn empty string into length-j string]}
+        
    \end{center}
+   
+        Notice that we either delete/insert one by one or everything as a whole. Lets prove why it is the case. WLOG, let's look a deletion, turn length-i string into empty string. In order to delete all i, we need kA + k'c cost in total, k$\in$[1,i], k'$\in$[0,i-1]. Notice that k+k' always equal i because we delete i-length string. 
+        
+        When A*i < A+c(i-1), A < c$\frac{i-1}{i-1} \Rightarrow A < c \Rightarrow$ A*i $\leq$ A*(i-c$_1$)+c(c$_1$), c$_1 \in$[1,n-1]. Thus A*i is still the cheapest.
+        
+        When A*i $\geq$ A+c(i-1), A $\geq$ c $\Rightarrow$ Ac$_2$ + c(i-c$_2$) $\geq$ A+c(i-1). Thus A+c(i-1) is still the cheapest. Therefore, either delete one by one or delete as a whole is cheapest. QED
+        
+        For insertion, it is simply the symmetric of deletion. Thus, either inserting one by one or inserting as a whole is cheapest. QED
 
     \textbf{Correctness Proof:}
     
@@ -543,14 +562,14 @@ The optimum does the best of the 1+n+m.
     \textbf{Inductive Case 1:}  x[i] == y[j], and i > 0 and j > 0:
     Algorithm writes 
     \begin{center}
-        \texttt{dp[i][j] = min( dp[i-1][j-1], min$_{k_1=1,...,i}$( dp[i-k1][j] + A + c*(k$_1$-1) ),\\min$_{k_2=1,...,j}$( dp[i][j-1] + A + c*(k$_2$-1) ) )\\
+        \texttt{dp[i][j] = min( dp[i-1][j-1], min$_{k_1=1,...,i}$( dp[i-k$_1$][j] + A + c*(k$_1$-1) ),\\min$_{k_2=1,...,j}$( dp[i][j-1] + A + c*(k$_2$-1) ) )\\
         = min ( OPT(i-1,j-1), min$_{k_1=1,...,i}$( OPT(i-$k_1$,j) + A + c(k$_1$-1) ), \\( by IH, because (i-1) + (j-1) < i+j, (i-k$_1$)+j < i+j, i+(j-k$-2$) < i+j, k$_1$$\in$[1,i], k$_2$$\in$[1,j] ) \\min$_{k_2=1,...,j}$( OPT(i,j-k$_2$) + A + c*(k$_2$-1) ) ) = Opt(i,j) \\( by recurrence relation )}
     \end{center}
 
     \textbf{Inductive Case 2:}  x[i] != y[j], and i > 0 and j > 0:
     Algorithm writes 
     \begin{center}
-        \texttt{dp[i][j] = min( dp[i-1][j-1] + B, min$_{k_1=1,...,i}$( dp[i-k1][j] + A + c*(k$_1$-1) ),\\min$_{k_2=1,...,j}$( dp[i][j-1] + A + c*(k$_2$-1) ) ) \\( by IH, because (i-1) + (j-1) < i+j, (i-k$_1$)+j < i+j, i+(j-k$-2$) < i+j, k$_1$$\in$[1,i], k$_2$$\in$[1,j] )\\
+        \texttt{dp[i][j] = min( dp[i-1][j-1] + B, min$_{k_1=1,...,i}$( dp[i-k$_1$][j] + A + c*(k$_1$-1) ),\\min$_{k_2=1,...,j}$( dp[i][j-1] + A + c*(k$_2$-1) ) ) \\( by IH, because (i-1) + (j-1) < i+j, (i-k$_1$)+j < i+j, i+(j-k$-2$) < i+j, k$_1$$\in$[1,i], k$_2$$\in$[1,j] )\\
 = min ( OPT(i-1,j-1), min$_{k_1=1,...,i}$( OPT(i-$k_1$,j) + A + c(k$_1$-1) ), \\min$_{k_2=1,...,j}$( OPT(i,j-k$_2$) + A + c*(k$_2$-1) ) ) = Opt(i,j) \\( by recurrence relation ) }
     \end{center}
 
@@ -565,9 +584,24 @@ The optimum does the best of the 1+n+m.
     \end{center}
     
     So we completed the induction step, and thus the proof.
+    
+    As discussed above, dp\_op[][] stores information correspond to dp[][], proving dp[i][j] stores the minimum cost to align x[1...i] and y[1...j], dp\_op[i][j] stores the last step of the cheapest sequence for alignment. By tracing backward from dp[n][m], we can find a correct path.
 \end{proof}
 
-
-
+\subsection*{Running Time}
+\begin{proof}[Running Time]{Analyze the algorithm running time}
+    	\renewcommand{\qedsymbol}{}
+    	
+    	We denote n' = max(n,m).
+    	
+    	From line 10 to 23, it takes $\mathcal{O}(n')$ since there are two for-loop checks n+1 and m+1 elements separately and some $\mathcal{O}(1)$ assignment. Here comes the complicated part. From 25 to 54, we analyze from the inner for loop. There are two inner for loop, lets denote s = max(i, j) in each iteration. Line 51 and 52 and $\mathcal{O}(1)$ assignment and comparison. Therefore, from line 30 to 42, it takes $\mathcal{O}(s)$ for checking i and j elements. Then, line 26 checks m elements. Thus the inner two for loop takes
+    	\[\sum_{j=1}^{m}\sum_{s=1}^{s}\mathcal{O}(1) = \mathcal{O}(1+2+...+m) = \mathcal{O}((n')^2), m\leq n'\]
+    	
+    	Since line 25 checks n elements, the running time from line 25 to 54 will be \[\sum_{i=1}^{n}\mathcal{O}((n')^2) = \mathcal{O}(n*(n')^2)=\mathcal{O}((n')^3), n\leq n'\]
+    	
+    	From line 58 to 70, the worse case will be handling character one by one and thus $\mathcal{O}(n')$.
+    	
+    	Thus the running time $T(n)$ will be \[T(n)=2\mathcal{O}(n')+\mathcal{O}(n'^3)=\mathcal{O}(n'^3) = \mathcal{n^3}\]
+\end{proof}
 % END MAIN Doc
 \end{document}
