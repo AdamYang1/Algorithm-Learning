@@ -268,12 +268,12 @@
 // this is a pseudo-code, for convenience we define add_roll() for vector<T> similar to push_back() in C++. It returns an original list added with a new square at the end and won't impact original list
 // push_back() is simply C++ push_back() method for vector<T>
 
-vector<int> findSeq( int[] d ) //d[] is the input array of information
+vector<int> findSeq( int[] d, int n ) //d[] is the input array of information, |d| = n+1, n is the last termination index
 {
     // define infinity as the largest number we can get
     // define {infinity}.size() = infinity
     // won't use INT_MAX for convenience (overflowing issue)
-    // here we denote the size of d[] as n
+    // here we denote the termination index of d[] as n
     // if i is a ladder, d[i] = j, j>i (j is the termination of i)
     // if i is a chute, d[i] = infinity
     // if i is a normal square, d[i] = i
@@ -299,7 +299,8 @@ vector<int> findSeq( int[] d ) //d[] is the input array of information
         if(min_index == -1) {   //i+1:i+6 are all chute
             dp[i] = {infinity}
         } else {
-            dp[i] = min_seq.add_roll(min_index - i) // sequence is reverse now, will reverse later
+            // min_index - i is the number we need to roll to get min_index, notice in this block min_index = 1,2,...,6
+            dp[i] = min_seq.add_roll(min_index - i) // sequence is reverse order now, will reverse later
         }
     }
     return dp[0].reverse(); //if dp[n].size() == infinity, we can't reach n
@@ -328,20 +329,20 @@ vector<int> findSeq( int[] d ) //d[] is the input array of information
 
 \subsection*{Proof}
 \begin{proof}[Correctness]{}
-    For convenience, saying a sequence S is better than S' for square i means S takes less times of rolls to reach n than S' takes (|S| < |S'|). Optimal sequence of i means this sequence takes fewest times of rolls to reach n starting from i (i could be anything and won't matter since we start from i)
+    For convenience, saying a sequence S is better than S' for square i means S takes less times of rolls to reach n than S' takes (|S| < |S'|). Optimal sequence S* for square i means S* takes fewest times of rolls to reach n starting from i than other sequence starting from i (i could be anything and won't matter since we start from i). We fix the size of input array d[] with size of n+1 and indexed from 0 to n.
     
 \textbf{Goal:} Find the optimum sequence of roll to reach n starting from 0.
 
-\textbf{Explanation:} Starting from i, we can roll once to reach i+s, s=1,2,...,6. Denotes (i+s)'s destination by d[i+s], d[i+s]$\geq$i+s>i. Incur the sequence of (i+s) and d[i+s] to be *optimal*. The optimum does the best of six.
+\textbf{Explanation:} Starting from i, we can roll once to reach i+s, s=1,2,...,6. Denotes (i+s)'s destination by d[i+s], d[i+s]$\geq$i+s>i. Incur the times of roll from i to i+s 1.The sequence of (i+s) and d[i+s] to be *optimal*. The optimum does the best of six.
     
 \textbf{Subproblem:}
     Starting from i, find the optimal sequence to reach n.
     
-\textbf{Define:} Opt(i) to be the least times of roll to reach n starting from i. Define Opt($\infty$) := $\infty$ since there is no way to reach n.
+\textbf{Define:} Opt(i) to be the least times of roll to reach n starting from i. Opt($\infty$) := $\infty$ since there is no way to reach n.
     
 \textbf{Recurrence Relation:}
     \texttt{Opt(i) = $\min_{s=1,2,...,6}$(1 + Opt( d[i+s] ) )}
-    Notice that it is Opt(d[i+s]) instead of Opt(i+s). This is because i+s may be a chute, a ladder, or a normal square and d[i+s] can take their properties into consideration. If it is a chute, d[i+s] = $\infty$ > countable integer, meaning we won't choose to roll to a chute. If for some i$\in$[0,n-7], $\forall s = 1,2,...,6: $d[i+s] = $\infty$, there is no way i could be a start point to reach n, thus Opt(i) = $\infty$. If it is not, we will find the smallest of the Opt(d[i+s]) and add an additional roll to reach (i+s).
+    Notice that it is Opt(d[i+s]) instead of Opt(i+s). This is because i+s may be a chute, a ladder, or a normal square and d[i+s] can take their destination into consideration. If (i+s) is a chute, d[i+s] = $\infty$ > countable integer, meaning we won't choose to roll to a chute. If for some i$\in$[0,n-7], $\forall s = 1,2,...,6: $d[i+s] = $\infty$, there is no way square i could be a start point to reach n, thus Opt(i) = $\infty$. If (i+s) is not a chute, we will find the smallest of the Opt(d[i+s]) and add an additional roll to reach (i+s) as the sequence from d[i+s]>i to n to be optimal.
     
 \textbf{Base Case:}
     \texttt{Opt(n) = 0, Opt(n-s) = 1, s = 1,2,...,6}
@@ -356,23 +357,27 @@ vector<int> findSeq( int[] d ) //d[] is the input array of information
     
     \textbf{Inductive Hypothesis:} for n-k $\leq$ n-1, dp[k] = Opt(k), 0<k$\leq$n-1
     
-    \textbf{Inductive Step:} when n-k = n $\Rightarrow$ k = 0, the algorithm leads to (Although the algorithm assigns vector sequence to find the sequence, since the times of rolls can be easily find through *.size()* method, finding the min times of rolls equals finding the optimal sequence)
+    \textbf{Inductive Step:} when n-k = n $\Rightarrow$ k = 0, the algorithm leads to
     \begin{center}
         \texttt{dp[0].size() = min$_{s=1,2,...,6}$( 1+ dp[ d[0+s] ].size() ) = min$_{s=1,2,...,6}$( 1+ Opt( d[0+s] ) )}
     \end{center}
     [by IH, because s=1,2,...,6: n-(k+s) $\leq$ n-1 when k = 0]
+
+    (Although the algorithm assigns vector sequence to find the optimal sequence, since the times of rolls can be easily find through *.size()* method, finding the min times of rolls from i to n result in finding the optimal sequence from i to n)
+    
     Therefore,
     \begin{center}
         \texttt{dp[0].size() = Opt(0)} [by Recurrence Relation]
     \end{center}
     
-    So we find the min times of rolls to reach n from 0, and therefore the optimal sequence. If min times is $\infty$, we can't reach n. This completes the proof.
+    So we find the fewest times of rolls to reach n from 0, and therefore find the optimal sequence by return dp[0].reverse(). If min times is $\infty$, we can't reach n. This completes the proof.
 
 \end{proof}
 
 \subsection*{Running Time}
 \begin{proof}[Running Time]{Analyze the algorithm running time}
     	\renewcommand{\qedsymbol}{}
+    	
     	From line 14-19, setting variables and assignment takes $\mathcal{O}(n)$ for the vector. From line 21 to 37, it takes $\mathcal{O}(n)$ for looping n-6 elements and $\mathcal{O}(1)$ assignment inside (line 26 to 31 simply find the smallest times of rolls among six elements, it takes $\mathcal{O}(1)$ for six elements).
     	
     	Thus the running time $T(n)$ will be \[T(n)=2\mathcal{O}(n)=\mathcal{O}(n)\]
@@ -380,7 +385,187 @@ vector<int> findSeq( int[] d ) //d[] is the input array of information
 
 \section*{Problem 2}
 
+\subsection*{Algorithm}
+\begin{proof}[Algorithm]{}
+		\renewcommand{\qedsymbol}{}
+		An Algorithm to calculate the sequence of die rolls gets to winning square as quickly as possible.
+		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
+// this is a pseudo-code written to C++ like form for convenience
 
+// string x,y are two words to compare, n = size of x, m = size of y
+// A and c is the constant cost for insertion/deletion, B is the cost for replacement
+vector<operation> findSeq( string x, string y, int n, int m, int A, int c, int B )
+{
+    define *operation* as a type that stores
+    1. the type of operation and 2. the length of characters handles
+    
+    int dp[n+1][m+1]; // extra space of 0 base cases
+    operation dp_op[n+1][m+1];
+    //initialization
+    dp[0][0] = 0; dp_op[0][0] = *doing nothing*;
+    for(int i = 0; i < n; ++i){
+        dp[i][0] = min( A*i, A*c(i-1) );
+        if( A*i < A*c(i-1) ) dp_op[i][0] = *turn length-i string into empty by deleting one by one*;
+        else dp_op[i][0] = *turn length-i string into empty by deleting all i at the same time*;
+    }
+    for(int j = 0; j < m; ++i){
+        dp[0][j] = min( A*j, A*c(j-1) );
+        if( A*i < A*c(j-1) ) dp_op[0][j] = * turn empty string into length-j string by inserting one by one *;
+        else dp_op[0][j] = * turn empty string into length-j string by inserting all j at the same time *;
+    }
+    //start finding
+    for(int i = 1; i <= n; ++i){
+        for(int j = 1; j <= n; ++j){
+            int min1 = infinity; int min2 = infinity;
+            operation op1, op2, op3;
+            // min dp[i-k,j]+A+c(k-1), k = 1,2,...,i
+            for(int k1 = 1; k1 <= i; ++k){
+                if( dp[i-k1][j] + A + c*(k-1) < min1 ){
+                    min1 = dp[i-k1][j] + A + c*(k-1);
+                    op1 = * x[i] is aligned with k1 empty blanks and delete k1 characters from x *
+                }
+            }
+            // min dp[i,j-k]+A+c(k-1), k = 1,2,...,j
+            for(int k2 = 1; k2 <= j; ++k){
+                if( dp[i][j-k2] + A + c*(k-1) < min2 ){
+                    min2 = dp[i][j-k2] + A + c*(k-1);
+                    op2 = * y[j] is aligned with k2 empty blanks and insert k2 characters into x *
+                }
+            }
+            // dp[i-1][j-1] + B (1 if x[i] != x[j] else 0)
+            if(x[i]==y[j]){
+                min3 = dp[i-1][j-1];
+                op3 = { x[i] is aligned with y[j], they are the same we do nothing }
+            } else {
+                min3 = dp[i-1][j-1] + B;
+                op3 = { x[i] is aligned with y[j], replace x[i] to y[j] or y[j] to x[i] }
+            }
+            dp[i][j] = min( min1, min2, min3 );
+            dp_op[i][j] = op1 if min1 is smallest, op2 if min2 is smallest, op3 if min3 is smallest
+        }
+    }
+    //finding the sequence of operation
+    vector<operation> res;
+    int i = n; int j = m;
+    while(i != 0 || j !=0){
+        operation temp = dp_op[i][j];
+        res.push_back(temp);
+        if(temp does nothing or only replace one character){ --i; --j; }
+        else{
+            // we get dp[i][j] from dp[i-k1][j]
+            if( temp deletes k1 characters from x[i] ) i -= k1;
+            // we get dp[i][j] from dp[i][j-k2]
+            else j -= k2; //temp inserts k2 characters from y[j] to x
+        }
+    }
+    
+    return res.reverse();
+}
+		\end{lstlisting} 
+\end{proof}
+
+\begin{proof}[Explanation]{}
+		\renewcommand{\qedsymbol}{} % hide the QED square
+        I'll explain some variable used in pseudo-code above here. i$\in$[0,n], j$\in$[0,m]
+
+        \textbf{inputs:} Input parameters have been discussed in the code above
+        
+        \textbf{int[][] dp:} this is a 2d array with (n+1)*(m+1) for extra 0 base cases. dp[i][j] stores the minimum cost for aligning x[1,...,i], y[1,...,j]. Prove later.
+        
+        \textbf{operation[][] dp\_op} this is a 2d array with (n+1)*(m+1) for extra 0 base cases. dp\_op[i][j] stores the last operation in the cheapest sequence of operations to align x[1,...,i], y[1,...,j]. If dp[i][j] indeed stores the min cost for alignment, dp\_op[i][j] stores the last operation in the optimal sequence operation since dp\_op[i][j] is updated with dp[i][j], based on information of operation. Will prove dp[i][j]'s optimality later.
+        
+        \textbf{int min1, min2:} these are temporary values to help finding the cheapest operation from dp[i-k][j] or dp[i][j-k] + the cost for deleting k = 1 to k = i or j.
+        
+        \textbf{int min3:} this is a temporary value for finding the cost of operation for aligning x[i] and y[j]
+        
+        \textbf{vector<operation> res:} this is a the result sequence to return. Since we add the operation from back to front using push\_back(), we need to reverse the order when we return
+       
+\end{proof}
+
+\subsection*{Proof}
+\begin{proof}{Correctness}
+    We denote the size of string x as n, that of y as m. The cost of replacement B, the cost of inserting/deleting k characters A + c(k-1) where A and c are constants
+
+    \textbf{Goal:} find the optimum way to insert blanks into both strings to minimize the alignment cost.
+    
+    \textbf{Explanation:} aligning x[1..n] with y[1..m] involves following 1+n+m cases:
+    
+    1. x[n] is aligned with y[m]; incur cost B if x[n] != y[m]. x[1..n-1] with y[1..m-1] are aligned *optimally*.
+    
+    2. x[n] is aligned against a k1-length blank: incur cost A+c(k1-1). x[1..n-k1] and y[1..m] are aligned *optimally*.
+    
+        \qquad 2.1 k1=1, incur cost A. x[1...n-1] and y[1...m] are aligned *optimally*
+        
+        \qquad \vdots
+        
+        \qquad 2.n k1 = n, incur cost A + c(n-1). x[0] and y[1...m] are aligned *optimally*
+    
+3. y[m] is aligned against a k2-length blank: incur cost A+c(k2-1). x[1..n] and y[1..m-k2] are aligned *optimally*.
+
+        \qquad 3.1 k2=1, incur cost A. x[1...n] and y[1...m01] are aligned *optimally*
+        
+        \qquad \vdots
+        
+        \qquad 3.n k1 = n, incur cost A + c(m-1). x[1...n] and y[0] are aligned *optimally*
+
+The optimum does the best of the 1+n+m.
+
+    \textbf{Subproblems:} optimal alignment of the first i characters of x (for 0 $leq$ i $\leq$ n) and the first j characters of y (for 0 $\leq$ j $\leq$ m).
+    
+    \textbf{Define:} OPT(i,j) := to be the minimum total cost for aligning x[1..i] with y[1..j].
+    
+    \textbf{Recurrence Relation:} 
+    \begin{center}
+        \texttt{Opt(i,j) = min(  Opt(i-1,j-1) + B*( 1 if x[i]!=y[j] else 0 ),\\
+        min$_{k_1=1,...,i}$( Opt(i-k$_1$,j) + A + c(k$_1$-1 ),\\
+        min$_{k_2=1,...,j}$( Opt(i,j-k$_2$) + A + c(k$_2$-1 )  )}
+    \end{center}
+    
+   \textbf{Base cases:}
+   \begin{center}
+        \texttt{OPT(i,0) = min( A*i, A+c(i-1) ) [ turn length-i string into empty string]}
+        
+        \texttt{OPT(0,j) = min( A*j, A+c(j-1) ) [ turn empty string into length-j string]}
+   \end{center}
+
+    \textbf{Correctness Proof:}
+    
+    \textbf{To prove:} dp[n][m] = OPT(n,m)
+    
+    We will prove by induction on i+j, i$\in$[0,n], j$\in$[0,m].
+    
+    \textbf{Base Case:} i+j = 0 $\Rightarrow$ i = j = 0. dp[0][0] = 0 = Opt(0,0)
+    
+    \textbf{Inductive Hypothesis:} whenever i'+j' < i+j, dp[i'][j'] = OPT(i',j')
+    
+    \textbf{Inductive Step:}
+    
+    \textbf{Inductive Case 1:}  x[i] == y[j], and i > 0 and j > 0:
+    Algorithm writes 
+    \begin{center}
+        \texttt{dp[i][j] = min( dp[i-1][j-1], min$_{k_1=1,...,i}$( dp[i-k1][j] + A + c*(k$_1$-1) ),\\min$_{k_2=1,...,j}$( dp[i][j-1] + A + c*(k$_2$-1) ) )\\
+        = min ( OPT(i-1,j-1), min$_{k_1=1,...,i}$( OPT(i-$k_1$,j) + A + c(k$_1$-1) ), \\( by IH, because (i-1) + (j-1) < i+j, (i-k$_1$)+j < i+j, i+(j-k$-2$) < i+j, k$_1$$\in$[1,i], k$_2$$\in$[1,j] ) \\min$_{k_2=1,...,j}$( OPT(i,j-k$_2$) + A + c*(k$_2$-1) ) ) = Opt(i,j) \\( by recurrence relation )}
+    \end{center}
+
+    \textbf{Inductive Case 2:}  x[i] != y[j], and i > 0 and j > 0:
+    Algorithm writes 
+    \begin{center}
+        \texttt{dp[i][j] = min( dp[i-1][j-1] + B, min$_{k_1=1,...,i}$( dp[i-k1][j] + A + c*(k$_1$-1) ),\\min$_{k_2=1,...,j}$( dp[i][j-1] + A + c*(k$_2$-1) ) ) \\( by IH, because (i-1) + (j-1) < i+j, (i-k$_1$)+j < i+j, i+(j-k$-2$) < i+j, k$_1$$\in$[1,i], k$_2$$\in$[1,j] )\\
+= min ( OPT(i-1,j-1), min$_{k_1=1,...,i}$( OPT(i-$k_1$,j) + A + c(k$_1$-1) ), \\min$_{k_2=1,...,j}$( OPT(i,j-k$_2$) + A + c*(k$_2$-1) ) ) = Opt(i,j) \\( by recurrence relation ) }
+    \end{center}
+
+    \textbf{Inductive Case 3:} i = 0. The algorithm writes 
+    \begin{center}
+        \texttt{dp[0][j] = min( A*j, A+c(j-1) ) = OPT(0,j) } (by recurrence relation)
+    \end{center}
+    
+     \textbf{Inductive Case 4:} j = 0. The algorithm writes 
+    \begin{center}
+        \texttt{dp[i][0] = min( A*i, A+c(i-1) ) = OPT(i,0) } (by recurrence relation)
+    \end{center}
+    
+    So we completed the induction step, and thus the proof.
+\end{proof}
 
 
 
