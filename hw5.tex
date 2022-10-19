@@ -50,8 +50,8 @@
 \fancyhf{}
 \renewcommand{\sectionmark}[1]{\markright{\arabic{section} - #1}}
 \cfoot{\thepage}
-\lhead{Algo Learning}
-\chead{Dynamic Programming}
+\lhead{CS270}
+\chead{HW5}
 \rhead{Adam Yang}
 \renewcommand{\headrulewidth}{1pt}
 
@@ -250,7 +250,7 @@
 % MAIN DOC
 \begin{document}
 
-\title{Dynamic Programming}
+\title{HW 5}
 \author{Adam Yang}
 % \date{\today}
 \maketitle
@@ -267,13 +267,13 @@
 		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
 // this is a pseudo-code, for convenience we define add_roll() for vector<T> similar to push_back() in C++. It returns an original list added with a new square at the end and won't impact original list
 // push_back() is simply C++ push_back() method for vector<T>
-
+// reverse() is C++ STL one for vector, it takes O(n)
 vector<int> findSeq( int[] d, int n ) //d[] is the input array of information, |d| = n+1, n is the last termination index
 {
     // define infinity as the largest number we can get
     // define {infinity}.size() = infinity
     // won't use INT_MAX for convenience (overflowing issue)
-    // here we denote the termination index of d[] as n
+    // here we denote the termination(last) index of d[] as n
     // if i is a ladder, d[i] = j, j>i (j is the termination of i)
     // if i is a chute, d[i] = infinity
     // if i is a normal square, d[i] = i
@@ -320,7 +320,9 @@ vector<int> findSeq( int[] d, int n ) //d[] is the input array of information, |
         
         \textbf{vector<T>.add\_roll():} this method add the new roll to the original vector. Return value and its general implementation is discussed in line 1.
         
-        \textbf{return dp[0].reverse()} Since we always add a new roll to the end of the vector on line 30, we need to reverse to return a correct-order sequence
+        \textbf{return dp[0].reverse():} Since we always add a new roll to the end of the vector on line 30, we need to reverse to return a correct-order sequence
+        
+        \textbf{int min\_index, vector<int> min\_seq:} These are for finding and storing the sequence that takes least steps. From line 26 to 36, if there exists the sequence that takes minimum times of rolls out of 6, we update the sequence of roll for dp[i] with additional roll to min\_index (min\_index - i), else (all six chutes) we store \{$\infty$\} to denote it can't reach n as a starting point.
         
         \textit{Initialization:} \textbf{dp[n] = \{\}} because it takes no effort to reach n from n. \textbf{For i=n-6, n-5,..., n-1} we initialize dp[i] = \{n-i\} since we can reach n from i by rolling n-i = 1,2,...,6 once.
 
@@ -333,7 +335,7 @@ vector<int> findSeq( int[] d, int n ) //d[] is the input array of information, |
     
 \textbf{Goal:} Find the optimum sequence of roll to reach n starting from 0.
 
-\textbf{Explanation:} Starting from i, we can roll once to reach i+s, s=1,2,...,6. Denotes (i+s)'s destination by d[i+s], d[i+s]$\geq$i+s>i. Incur the times of roll from i to i+s 1.The sequence of (i+s) and d[i+s] to be *optimal*. The optimum does the best of six.
+\textbf{Analysis:} Starting from i, we can roll once to reach i+s, s=1,2,...,6. Denotes (i+s)'s destination by d[i+s], d[i+s]$\geq$i+s>i. Rolling a dice to (i+s) will bring us to d[i+s], ($\infty$ if chute, i+s if normal square, i+s < k $\leq$ n if a ladder. Incur the times of roll from i to i+s 1. The sequence starting from d[i+s] to n to be *optimal*. The optimum does the best of six.
     
 \textbf{Subproblem:}
     Starting from i, find the optimal sequence to reach n.
@@ -342,7 +344,7 @@ vector<int> findSeq( int[] d, int n ) //d[] is the input array of information, |
     
 \textbf{Recurrence Relation:}
     \texttt{Opt(i) = $\min_{s=1,2,...,6}$(1 + Opt( d[i+s] ) )}
-    Notice that it is Opt(d[i+s]) instead of Opt(i+s). This is because i+s may be a chute, a ladder, or a normal square and d[i+s] can take their destination into consideration. If (i+s) is a chute, d[i+s] = $\infty$ > countable integer, meaning we won't choose to roll to a chute. If for some i$\in$[0,n-7], $\forall s = 1,2,...,6: $d[i+s] = $\infty$, there is no way square i could be a start point to reach n, thus Opt(i) = $\infty$. If (i+s) is not a chute, we will find the smallest of the Opt(d[i+s]) and add an additional roll to reach (i+s) as the sequence from d[i+s]>i to n to be optimal.
+    Notice that it is Opt(d[i+s]) instead of Opt(i+s). This is because whenever we roll a dice to a new square, it may lead us into three different situations. i+s could be a chute, a ladder, or a normal square and thus Opt(d[i+s]) can take their destination into consideration. If (i+s) is a chute, d[i+s] = $\infty$ > countable integer, meaning we won't choose to roll to a chute. If for some i$\in$[0,n-7], $\forall s = 1,2,...,6: $d[i+s] = $\infty$, there is no way square i could be a start point to reach n, thus Opt(i) = $\infty$. If (i+s) is not a chute, we will find the smallest of the Opt(d[i+s]) and add an additional roll to reach (i+s) as the sequence from d[i+s]>i to n to be optimal.
     
 \textbf{Base Case:}
     \texttt{Opt(n) = 0, Opt(n-s) = 1, s = 1,2,...,6}
@@ -351,11 +353,11 @@ vector<int> findSeq( int[] d, int n ) //d[] is the input array of information, |
 
     \textbf{To Prove:} dp[0].size() = Opt(0)
     
-    We'll prove by strong induction of n-k, k = n, n-1, n-2, ..., 0, n-k = 0,1,2,...,n
+    We'll prove by strong induction on n-k
     
     \textbf{Base Case:} dp[n].size() = Opt(n) = 0; dp[n-1].size() = dp[n-2].size() = ... = dp[n-6].size() = Opt(n-1) = Opt(n-2) = ... = Opt(n-6)
     
-    \textbf{Inductive Hypothesis:} for n-k $\leq$ n-1, dp[k] = Opt(k), 0<k$\leq$n-1
+    \textbf{Inductive Hypothesis:} for n-k $\leq$ n-1, dp[k] = Opt(k), 0<k$\leq$n-1, n-k$\leq$n-1
     
     \textbf{Inductive Step:} when n-k = n $\Rightarrow$ k = 0, the algorithm leads to
     \begin{center}
@@ -373,14 +375,17 @@ vector<int> findSeq( int[] d, int n ) //d[] is the input array of information, |
     So we find the fewest times of rolls to reach n from 0, and therefore find the optimal sequence by return dp[0].reverse(). If min times is $\infty$, we can't reach n. This completes the proof.
 
 \end{proof}
+\begin{proof}{Termination}
+    Every for loop has a condition that is based of boundary upon a temporary variable. Notice that for all such temporary variables, there is no other assignment except for strictly increasing or decreasing based on the boundary. Therefore, the algorithm always terminates.
+\end{proof}
 
 \subsection*{Running Time}
 \begin{proof}[Running Time]{Analyze the algorithm running time}
     	\renewcommand{\qedsymbol}{}
     	
-    	From line 14-19, setting variables and assignment takes $\mathcal{O}(n)$ for the vector. From line 21 to 37, it takes $\mathcal{O}(n)$ for looping n-6 elements and $\mathcal{O}(1)$ assignment inside (line 26 to 31 simply find the smallest times of rolls among six elements, it takes $\mathcal{O}(1)$ for six elements).
+    	From line 14-19, setting variables and assignment takes $\mathcal{O}(n)$ for the vector. From line 21 to 37, it takes $\mathcal{O}(n)$ for looping n-6 elements and $\mathcal{O}(1)$ assignment inside (line 26 to 31 simply find the smallest times of rolls among six elements, it takes $\mathcal{O}(1)$ for six elements). For the final reverse, it takes $\mathcal{O}(n)$
     	
-    	Thus the running time $T(n)$ will be \[T(n)=2\mathcal{O}(n)=\mathcal{O}(n)\]
+    	Thus the running time $T(n)$ will be \[T(n)=3\mathcal{O}(n)=\mathcal{O}(n)\]
 \end{proof}
 
 \section*{Problem 2}
@@ -391,7 +396,7 @@ vector<int> findSeq( int[] d, int n ) //d[] is the input array of information, |
 		An Algorithm to calculate the sequence of die rolls gets to winning square as quickly as possible.
 		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
 // this is a pseudo-code written to C++ like form for convenience
-
+// push_back() and reverse() are C++ STL operation. reverse() takes O(n), push_back() takes O(1)
 // string x,y are two words to compare, n = size of x, m = size of y
 // A and c is the constant cost for insertion/deletion, B is the cost for replacement
 vector<operation> findSeq( string x, string y, int n, int m, int A, int c, int B )
@@ -405,8 +410,8 @@ vector<operation> findSeq( string x, string y, int n, int m, int A, int c, int B
     dp[0][0] = 0; dp_op[0][0] = *doing nothing*;
     for(int i = 0; i <= n; ++i){
         dp[i][0] = min( A*i, A*c(i-1) );
-        if( A*i < A*c(i-1) ) dp_op[i][0] = *turn length-i string into empty by deleting one by one*;
-        else dp_op[i][0] = *turn length-i string into empty by deleting all i at the same time*;
+        if( A*i < A*c(i-1) ) dp_op[i][0] = * turn length-i string into empty by deleting one by one *;
+        else dp_op[i][0] = * turn length-i string into empty by deleting all i at the same time *;
     }
     for(int j = 0; j <= m; ++i){
         dp[0][j] = min( A*j, A*c(j-1) );
@@ -470,20 +475,29 @@ vector<operation> findSeq( string x, string y, int n, int m, int A, int c, int B
 
         \textbf{inputs:} Input parameters have been discussed in the code above
         
-        \textbf{int[][] dp:} this is a 2d array with (n+1)*(m+1) for extra 0 base cases. dp[i][j] stores the minimum cost for aligning x[1,...,i], y[1,...,j]. Prove later.
+        \textbf{int[][] dp:} this is a 2d array with (n+1)*(m+1) for extra 0 base cases. dp[i][j] stores the minimum cost for aligning x[1,...,i], y[1,...,j].  Prove later.
         
-        \textbf{operation[][] dp\_op} this is a 2d array with (n+1)*(m+1) for extra 0 base cases. dp\_op[i][j] stores the last operation in the cheapest sequence of operations to align x[1,...,i], y[1,...,j]. If dp[i][j] indeed stores the min cost for alignment, dp\_op[i][j] stores the last operation in the optimal sequence operation since dp\_op[i][j] is updated with dp[i][j], based on information of operation. Will prove dp[i][j]'s optimality later.
+        \textbf{operation[][] dp\_op} this is a 2d array with (n+1)*(m+1) for extra 0 base cases. dp\_op[i][j] stores the last operation in the cheapest sequence of operations to align x[1,...,i], y[1,...,j]. If dp[i][j] indeed stores the min cost for alignment, dp\_op[i][j] stores the last operation in the optimal sequence operation since dp\_op[i][j] is updated with dp[i][j], based on information of operation. The process of finding dp[i][j] is checking all the possible sequence of operations from dp[i'][j'], i'+j' < i+j. Therefore, as long as dp[i][j] finds the lowest cost for alignment $\Rightarrow$ dp[i][j] finds the best sequence $\Rightarrow$ dp\_op[i][j] stores the last operation from the best sequence. Will prove dp[i][j]'s optimality later.
         
-        \textbf{int min1, min2:} these are temporary values to help finding the cheapest operation from dp[i-k][j] or dp[i][j-k] + the cost for deleting k = 1 to k = i or j.
+        \textbf{int min1, min2:} these are temporary values to help finding the cheapest operation from dp[i-k][j] or dp[i][j-k] + the cost for deleting k = 1 to k = i or j. Let's prove such a for loop indeed find the cheapest. WLOG, let's look at finding min1. The for loop from line 30 to 35 ends when k1 > i.
         
+        \textbf{Prove: The for loop finds the min value}
+                \textbf{Loop Invariant:} At the end of iteration  k  of the loop, the variable min1 should contain the min of the values from dp[i-1][j]+A to dp[i-k][j]+A+c(k-1).
+        
+        \qquad \textbf{Initialization:} At the end of the loop the loop invariant states: 'At the end of the first iteration of the loop, the variable answer should contain the min of the values from dp[i-1][j]+A to dp[i-1][j]+A. The min of the values is dp[i-1][j]+A and this is what answer has been set to.
+        
+        \qquad \textbf{Maintenance:} Assume that the loop invariant holds at the end of iteration k' = k-1. Then it must be that answer contains the sum of values from dp[i-1][j]+A to dp[i-k+1][j]+A+c(k-2). In the body of the loop we assign dp[i-k''][j]+A+c, k'' $\leq$ k', to min1 if it's smaller than current min1. Thus at the end of iteration  k'+1=k, answer will contain the sum of value from dp[i-1][j]+A to dp[i-k][j]+A+c(k-1) by comparison, which is what we needed to prove.
+        
+        \qquad \textbf{Termination:} When the for-loop terminates  k'=k-1+1=k . Now the loop invariant gives: The variable answer contains the minimum of all values checked. This is exactly the value that the for loop should output, and which it then outputs. Therefore the for-loop is correct. Same for min2 and min3. $\square$
+
         \textbf{int min3:} this is a temporary value for finding the cost of operation for aligning x[i] and y[j]
         
-        \textbf{vector<operation> res:} this is a the result sequence to return. Since we add the operation from back to front using push\_back(), we need to reverse the order when we return
+        \textbf{vector<operation> res:} this is a the vector that stores the best sequence of operation in reverse order (we add the operation from back to front using push\_back()). Therefore, we need to reverse the order when we return
        
 \end{proof}
 
 \subsection*{Proof}
-\begin{proof}{Correctness}
+\begin{proof}[Correctness]{}
     We denote the size of string x as n, that of y as m. The cost of replacement B, the cost of inserting/deleting k characters A + c(k-1) where A and c are constants
 
     \textbf{Goal:} find the optimum way to insert blanks into both strings to minimize the alignment cost.
@@ -585,23 +599,27 @@ The optimum does the best of the 1+n+m.
     
     So we completed the induction step, and thus the proof.
     
-    As discussed above, dp\_op[][] stores information correspond to dp[][], proving dp[i][j] stores the minimum cost to align x[1...i] and y[1...j], dp\_op[i][j] stores the last step of the cheapest sequence for alignment. By tracing backward from dp[n][m], we can find a correct path.
+    As discussed above, dp\_op[][] stores information correspond to dp[][]. Proving dp[i][j] stores the minimum cost to align x[1...i] and y[1...j] $\Rightarrow$ dp\_op[i][j] stores the last step of the cheapest sequence for alignment. By tracing backward from dp[n][m], we can find a correct path.
+    
+\end{proof}
+\begin{proof}{Termination}
+        The algorithm terminates. For the for loop before line 55, they vacuously end because the temporary variables strictly get closer to the boundary for ending the for-loops. From lines 58 to 68, as proven above, dp\_op[i][j] stores the best way to align x[1...i] and y[1...j] from x[1...i'] and y[1...j'] (i'+j'<i+j). Therefore, in each iteration, either i or j will decrease (if i is 0, j will decrease; if j is 0, i will decrease) because we get dp\_op[i][j] from shorter alignment. Once i or j reach 0, it won't decrease since a string is at least 0-length. Therefore, i and j will finally become 0 and thus terminates.
 \end{proof}
 
 \subsection*{Running Time}
 \begin{proof}[Running Time]{Analyze the algorithm running time}
     	\renewcommand{\qedsymbol}{}
     	
-    	We denote n' = max(n,m).
+    	WLOG, assume $n > m$.
     	
-    	From line 10 to 23, it takes $\mathcal{O}(n')$ since there are two for-loop checks n+1 and m+1 elements separately and some $\mathcal{O}(1)$ assignment. Here comes the complicated part. From 25 to 54, we analyze from the inner for loop. There are two inner for loop, lets denote s = max(i, j) in each iteration. Line 51 and 52 and $\mathcal{O}(1)$ assignment and comparison. Therefore, from line 30 to 42, it takes $\mathcal{O}(s)$ for checking i and j elements. Then, line 26 checks m elements. Thus the inner two for loop takes
-    	\[\sum_{j=1}^{m}\sum_{s=1}^{s}\mathcal{O}(1) = \mathcal{O}(1+2+...+m) = \mathcal{O}((n')^2), m\leq n'\]
+    	From line 10 to 23, it takes $\mathcal{O}(n)$ since there are two for-loop checks n+1 and m+1 elements separately and some $\mathcal{O}(1)$ assignment. Here comes the complicated part. From 25 to 54, we analyze from the inner for loop. There are two inner for loop, lets denote s = max(i, j) in each iteration. Line 51 and 52 and $\mathcal{O}(1)$ assignment and comparison. Therefore, from line 30 to 42, it takes $\mathcal{O}(s)$ for checking i and j elements. Then, line 26 checks m elements. Thus the inner two for loop takes
+    	\[\sum_{s=1}^{m}\mathcal{O}(s) = \mathcal{O}(1+2+...+m) = \mathcal{O}(m^2) = \mathcal{O}(n^2), m\leq n\]
     	
-    	Since line 25 checks n elements, the running time from line 25 to 54 will be \[\sum_{i=1}^{n}\mathcal{O}((n')^2) = \mathcal{O}(n*(n')^2)=\mathcal{O}((n')^3), n\leq n'\]
+    	Since line 25 checks n elements, the running time from line 25 to 54 will be \[\sum_{i=1}^{n}\mathcal{O}(n^2) = \mathcal{O}(n*n^2)=\mathcal{O}(n^3)\]
     	
-    	From line 58 to 70, the worse case will be handling character one by one and thus $\mathcal{O}(n')$.
+    	From line 58 to 70, the worse case will be handling character one by one and thus $\mathcal{O}(n)$. And the reverse takes $\mathcal{O}(n)$.
     	
-    	Thus the running time $T(n)$ will be \[T(n)=2\mathcal{O}(n')+\mathcal{O}(n'^3)=\mathcal{O}(n'^3) = \mathcal{n^3}\]
+    	Thus the running time $T(n)$ will be \[T(n)=3\mathcal{O}(n)+\mathcal{O}(n)^3)=\mathcal{O}(n^3)\]
 \end{proof}
 % END MAIN Doc
 \end{document}
