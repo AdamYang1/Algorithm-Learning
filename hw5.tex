@@ -281,11 +281,11 @@ vector<int> findSeq( int[] d, int n ) //d[] is the input array of information, |
     if(n <= 6) return {n}; //trivially solved by rolling once to n
     vector<vector<int>> dp({}, n+1);
     //initialization
-    for(int i = n-1; i >= n-6; --i){
+    for(int i = 1; n-i >= n-6; ++i){
         dp[i] = {n-i};
     }
     // start finding sequence
-    for(int i = n-7; i >= 0; --i) {
+    for(int i = 7; n - i >= 0; ++i) {
         int min_index = -1;
         vector<int> min_seq = {infinity};
         // for some i, if d[i] = infinity, dp[infinity] = {infinity}
@@ -303,7 +303,7 @@ vector<int> findSeq( int[] d, int n ) //d[] is the input array of information, |
             dp[i] = min_seq.add_roll(min_index - i) // sequence is reverse order now, will reverse later
         }
     }
-    return dp[0].reverse(); //if dp[n].size() == infinity, we can't reach n
+    return dp[0].reverse(); //if dp[0].size() == infinity, we can't reach n from n
 }
 		\end{lstlisting} 
 \end{proof}
@@ -353,13 +353,13 @@ vector<int> findSeq( int[] d, int n ) //d[] is the input array of information, |
 
     \textbf{To Prove:} dp[0].size() = Opt(0)
     
-    We'll prove by strong induction on n-k
+    We'll prove by strong induction on k
     
     \textbf{Base Case:} dp[n].size() = Opt(n) = 0; dp[n-1].size() = dp[n-2].size() = ... = dp[n-6].size() = Opt(n-1) = Opt(n-2) = ... = Opt(n-6)
     
-    \textbf{Inductive Hypothesis:} for n-k $\leq$ n-1, dp[k] = Opt(k), 0<k$\leq$n-1, n-k$\leq$n-1
+    \textbf{Inductive Hypothesis:} for k=0,1,...,n-1, dp[n-k].size() = Opt(n-k). (n-k = n,n-1,...,1)
     
-    \textbf{Inductive Step:} when n-k = n $\Rightarrow$ k = 0, the algorithm leads to
+    \textbf{Inductive Step:} when k = n $\Rightarrow$ n-k = 0, the algorithm leads to
     \begin{center}
         \texttt{dp[0].size() = min$_{s=1,2,...,6}$( 1+ dp[ d[0+s] ].size() ) = min$_{s=1,2,...,6}$( 1+ Opt( d[0+s] ) )}
     \end{center}
@@ -392,8 +392,11 @@ vector<int> findSeq( int[] d, int n ) //d[] is the input array of information, |
 
 \subsection*{Algorithm}
 \begin{proof}[Algorithm]{}
+	An Algorithm to calculate the sequence of die rolls gets to winning square as quickly as possible.
+
+I will use some ideas introduce in lecture, specifically edit distance. Denote size of string x as n, size of string y as m. Inserting k-length blanks to y is the same as k-length deletion in x ($1 \leq k \leq n $). Inserting k-length blanks to x is the same as k-length insertion in x ($1 \leq k \leq n $). Aligning two different characters means replacement. Notice that in this question, we can either insert/delete one blank at a time or insert/delete multiple blanks at a time.
 		\renewcommand{\qedsymbol}{}
-		An Algorithm to calculate the sequence of die rolls gets to winning square as quickly as possible.
+	
 		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
 // this is a pseudo-code written to C++ like form for convenience
 // push_back() and reverse() are C++ STL operation. reverse() takes O(n), push_back() takes O(1)
@@ -427,14 +430,14 @@ vector<operation> findSeq( string x, string y, int n, int m, int A, int c, int B
             for(int k1 = 1; k1 <= i; ++k){
                 if( dp[i-k1][j] + A + c*(k-1) < min1 ){
                     min1 = dp[i-k1][j] + A + c*(k-1);
-                    op1 = * x[i] is aligned with k1 empty blanks and delete k1 characters from x *
+                    op1 = * x[i-k1+1:i] is aligned with k1 empty blanks insert k1 blanks to the end of y[j] *
                 }
             }
             // min dp[i,j-k]+A+c(k-1), k = 1,2,...,j
             for(int k2 = 1; k2 <= j; ++k){
                 if( dp[i][j-k2] + A + c*(k-1) < min2 ){
                     min2 = dp[i][j-k2] + A + c*(k-1);
-                    op2 = * y[j] is aligned with k2 empty blanks and insert k2 characters into x *
+                    op2 = * y[j-k2+1:j] is aligned with k2 empty blanks and insert k2 blanks to the end of x[i] *
                 }
             }
             // dp[i-1][j-1] + B (1 if x[i] != x[j] else 0)
@@ -458,9 +461,9 @@ vector<operation> findSeq( string x, string y, int n, int m, int A, int c, int B
         if(temp does nothing or only replace one character){ --i; --j; }
         else{
             // we get dp[i][j] from dp[i-k1][j]
-            if( temp deletes k1 characters from x[i] ) i -= k1;
+            if( temp operation inserts k1 blanks to y[j] ) i -= k1;
             // we get dp[i][j] from dp[i][j-k2]
-            else j -= k2; //temp inserts k2 characters from y[j] to x
+            else j -= k2; //temp inserts k2 blanks to x[i]
         }
     }
     
@@ -477,18 +480,20 @@ vector<operation> findSeq( string x, string y, int n, int m, int A, int c, int B
         
         \textbf{int[][] dp:} this is a 2d array with (n+1)*(m+1) for extra 0 base cases. dp[i][j] stores the minimum cost for aligning x[1,...,i], y[1,...,j].  Prove later.
         
-        \textbf{operation[][] dp\_op} this is a 2d array with (n+1)*(m+1) for extra 0 base cases. dp\_op[i][j] stores the last operation in the cheapest sequence of operations to align x[1,...,i], y[1,...,j]. If dp[i][j] indeed stores the min cost for alignment, dp\_op[i][j] stores the last operation in the optimal sequence operation since dp\_op[i][j] is updated with dp[i][j], based on information of operation. The process of finding dp[i][j] is checking all the possible sequence of operations from dp[i'][j'], i'+j' < i+j. Therefore, as long as dp[i][j] finds the lowest cost for alignment $\Rightarrow$ dp[i][j] finds the best sequence $\Rightarrow$ dp\_op[i][j] stores the last operation from the best sequence. Will prove dp[i][j]'s optimality later.
+        \textbf{operation[][] dp\_op} this is a 2d array with (n+1)*(m+1) for extra 0 base cases. dp\_op[i][j] stores the last operation in the cheapest sequence of operations to align x[1,...,i], y[1,...,j], $i,j\in[0,n]$. Since dp[i][j] is achieved from dp[i'][j'], i'+j' < i+j, the algorithm lead to dp\_op[i][j] storing the operation from aligning x[1...i'] and y[1...j'] to aligning x[1...i] and y[1...j]. If dp[i][j] indeed stores the min cost for alignment, dp\_op[i][j] stores the last operation in the optimal sequence operation. Therefore, as long as dp[i][j] finds the lowest cost for alignment $\Rightarrow$ dp[i][j] finds the best sequence of operations $\Rightarrow$ dp\_op[i][j] stores the last operation from the best sequence. Will prove dp[i][j]'s optimality later.
         
         \textbf{int min1, min2:} these are temporary values to help finding the cheapest operation from dp[i-k][j] or dp[i][j-k] + the cost for deleting k = 1 to k = i or j. Let's prove such a for loop indeed find the cheapest. WLOG, let's look at finding min1. The for loop from line 30 to 35 ends when k1 > i.
         
         \textbf{Prove: The for loop finds the min value}
-                \textbf{Loop Invariant:} At the end of iteration  k  of the loop, the variable min1 should contain the min of the values from dp[i-1][j]+A to dp[i-k][j]+A+c(k-1).
+        \begin{enumerate}
+            \item[] \textbf{Loop Invariant:} At the end of iteration  k  of the loop, the variable min1 should contain the min of the values from dp[i-1][j]+A to dp[i-k][j]+A+c(k-1).
         
-        \qquad \textbf{Initialization:} At the end of the loop the loop invariant states: 'At the end of the first iteration of the loop, the variable answer should contain the min of the values from dp[i-1][j]+A to dp[i-1][j]+A. The min of the values is dp[i-1][j]+A and this is what answer has been set to.
+        \item[] \textbf{Initialization:} At the end of the loop the loop invariant states: 'At the end of the first iteration of the loop, the variable answer should contain the min of the values from dp[i-1][j]+A to dp[i-1][j]+A. The min of the values is dp[i-1][j]+A and this is what answer has been set to.
         
-        \qquad \textbf{Maintenance:} Assume that the loop invariant holds at the end of iteration k' = k-1. Then it must be that answer contains the sum of values from dp[i-1][j]+A to dp[i-k+1][j]+A+c(k-2). In the body of the loop we assign dp[i-k''][j]+A+c, k'' $\leq$ k', to min1 if it's smaller than current min1. Thus at the end of iteration  k'+1=k, answer will contain the sum of value from dp[i-1][j]+A to dp[i-k][j]+A+c(k-1) by comparison, which is what we needed to prove.
+        \item[] \textbf{Maintenance:} Assume that the loop invariant holds at the end of iteration k' = k-1. Then it must be that answer contains the sum of values from dp[i-1][j]+A to dp[i-k+1][j]+A+c(k-2). In the body of the loop we assign dp[i-k''][j]+A+c, k'' $\leq$ k', to min1 if it's smaller than current min1. Thus at the end of iteration  k'+1=k, answer will contain the sum of value from dp[i-1][j]+A to dp[i-k][j]+A+c(k-1) by comparison, which is what we needed to prove.
         
-        \qquad \textbf{Termination:} When the for-loop terminates  k'=k-1+1=k . Now the loop invariant gives: The variable answer contains the minimum of all values checked. This is exactly the value that the for loop should output, and which it then outputs. Therefore the for-loop is correct. Same for min2 and min3. $\square$
+        \item[] \textbf{Termination:} When the for-loop terminates  k'=k-1+1=k . Now the loop invariant gives: The variable answer contains the minimum of all values checked. This is exactly the value that the for loop should output, and which it then outputs. Therefore the for-loop is correct. Same for min2 and min3. $\square$
+        \end{enumerate}
 
         \textbf{int min3:} this is a temporary value for finding the cost of operation for aligning x[i] and y[j]
         
@@ -502,31 +507,31 @@ vector<operation> findSeq( string x, string y, int n, int m, int A, int c, int B
 
     \textbf{Goal:} find the optimum way to insert blanks into both strings to minimize the alignment cost.
     
-    \textbf{Explanation:} aligning x[1..n] with y[1..m] involves following 1+n+m cases:
+    \textbf{Explanation:} aligning x[$1...n$] with y[$1...m$] involves following $1+n+m$ cases:
     
-    1. x[n] is aligned with y[m]; incur cost B if x[n] != y[m]. x[1..n-1] with y[1..m-1] are aligned *optimally*.
+    1. x[$n$] is aligned with y[$m$]; incur cost B * 1 if x[$n$] != y[$m$] else 0. x[$1...n-1$] with y[$1...m-1$] are aligned *optimally*.
     
-    2. x[n] is aligned against a k$_1$-length blank: incur cost A+c(k$_1$-1). x[1..n-k$_1$] and y[1..m] are aligned *optimally*.
+    2. x[n-k$_1$+1:n] is aligned against a k$_1$-length blank: incur cost A+c(k$_1$-1). x[1..n-k$_1$] and y[1..m] are aligned *optimally*.
     
-        \qquad 2.1 k$_1$=1, incur cost A. x[1...n-1] and y[1...m] are aligned *optimally*
+        \qquad 2.1 k$_1$=1, incur cost A. x[$1...n-1$] and y[$1...m$] are aligned *optimally*
         
         \qquad \vdots
         
-        \qquad 2.n k$_1$ = n, incur cost A + c(n-1). x[0] and y[1...m] are aligned *optimally*
+        \qquad 2.n k$_1$ = $n$, incur cost A + c(n-1). x[0] and y[$1...m$] are aligned *optimally*
     
-3. y[m] is aligned against a k$_2$-length blank: incur cost A+c(k$_2$-1). x[1..n] and y[1..m-k$_2$] are aligned *optimally*.
+3. y[m-k$_2$+1:m] is aligned against a k$_2$-length blank: incur cost A+c(k$_2$-1). x[1..n] and y[1..m-k$_2$] are aligned *optimally*.
 
-        \qquad 3.1 k$_2$=1, incur cost A. x[1...n] and y[1...m01] are aligned *optimally*
+        \qquad 3.1 k$_2$=1, incur cost A. x[$1...n$] and y[$1...m-1$] are aligned *optimally*
         
         \qquad \vdots
         
-        \qquad 3.n k$_1$ = n, incur cost A + c(m-1). x[1...n] and y[0] are aligned *optimally*
+        \qquad 3.n k$_1$ = $n$, incur cost A + c(m-1). x[$1...n$] and y[0] are aligned *optimally*
 
-The optimum does the best of the 1+n+m.
+The optimum does the best of the $1+n+m$.
 
-    \textbf{Subproblems:} optimal alignment of the first i characters of x (for 0 $leq$ i $\leq$ n) and the first j characters of y (for 0 $\leq$ j $\leq$ m).
+    \textbf{Subproblems:} optimal alignment of the first i characters of x ($0 \leq i \leq n$) and the first j characters of y ($0 \leq j \leq m$).
     
-    \textbf{Define:} OPT(i,j) := to be the minimum total cost for aligning x[1..i] with y[1..j].
+    \textbf{Define:} OPT(i,j) := to be the minimum total cost for aligning x[$1...i$] with y[$1...j$].
     
     \textbf{Recurrence Relation:} 
     \begin{center}
@@ -569,9 +574,9 @@ The optimum does the best of the 1+n+m.
     
     \textbf{Base Case:} i+j = 0 $\Rightarrow$ i = j = 0. dp[0][0] = 0 = Opt(0,0)
     
-    \textbf{Inductive Hypothesis:} whenever i'+j' < i+j, dp[i'][j'] = OPT(i',j')
+    \textbf{Inductive Hypothesis:} whenever 0 $\leq$ i'+j' < i+j, dp[i'][j'] = OPT(i',j'), i $\geq$ i', j $\geq$ j' $\geq$ 0
     
-    \textbf{Inductive Step:}
+    \textbf{Inductive Step:} i'+j' = i+j (dp[i][j])
     
     \textbf{Inductive Case 1:}  x[i] == y[j], and i > 0 and j > 0:
     Algorithm writes 
@@ -606,7 +611,8 @@ The optimum does the best of the 1+n+m.
         The algorithm terminates. For the for loop before line 55, they vacuously end because the temporary variables strictly get closer to the boundary for ending the for-loops. From lines 58 to 68, as proven above, dp\_op[i][j] stores the best way to align x[1...i] and y[1...j] from x[1...i'] and y[1...j'] (i'+j'<i+j). Therefore, in each iteration, either i or j will decrease (if i is 0, j will decrease; if j is 0, i will decrease) because we get dp\_op[i][j] from shorter alignment. Once i or j reach 0, it won't decrease since a string is at least 0-length. Therefore, i and j will finally become 0 and thus terminates.
 \end{proof}
 
-\subsection*{Running Time}
+\textbf{Running Time}
+
 \begin{proof}[Running Time]{Analyze the algorithm running time}
     	\renewcommand{\qedsymbol}{}
     	
