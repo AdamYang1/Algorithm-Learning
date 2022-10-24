@@ -514,5 +514,93 @@ The algorithm writes:\\a[i][j] = min(a[i-1][j-1] + B, a[i-1][j] + A, a[i][j-1] +
         
 % \end{proof}
 
+
+\section*{Problem}
+\begin{problem*}{Integral Knapsack}
+    Given n items. Item i has weight w(i) > 0 and value v(i) >= 0
+    
+    You have a weight limit of W on the total weight, and want to select a set S of weight at most W maximizing the total value from your set
+    
+\end{problem*}
+\begin{proof}[Insight]{}
+\renewcommand{\qedsymbol}{}
+    In Fractional Knapsack, you can take a fraction of an item (and get the corresponding fraction of the value). In this version (Integral Knapsack), you can take the item or not take it, but there is no way to take it fractionally.
+    
+    Greedy (sort by v(i)/w(i)) works for fractional Knapsack, but not for integral Knapsack
+    
+    So, we will try to use Dynamic Programming.
+\end{proof}
+\begin{proof}[Sub-problem]{}
+\renewcommand{\qedsymbol}{}
+    Define subproblem i to be items \{1...i\}
+    
+    The optimum solution for items 1,...,i either includes item i or does not include item i.
+    
+    *Notice that a weight limit w is important*  w:=remaining available weight
+    
+    OPT(i,w) := maximum value we can get from items \{1...i\} with total weight at most w.
+    \begin{enumerate}
+        \item If it does not include item i, then OPT(i,w) = OPT(i-1,w), because if i is not selected, it is as if it didn't exist, and OPT picks the best possible item from 1,...,i-1
+        \item If it does include item i, then OPT(i,w) = v(i) + OPT(i-1, w-w(i)). OPT get value if w >= w(i)
+    \end{enumerate}
+    OPT picks the best from the two above ( if w < w(i) then OPT(i,w) = OPT(i-1, w) )
+    
+    \textbf{Base case:} OPT(0,w) = 0
+\end{proof}
+
+\section*{Solution}
+\begin{solution*}{}
+    Implementation
+    
+    \qquad \texttt{for(w = 0; w <= W, w++) a[0][w] = 0;}
+    
+    \qquad \texttt{for(int i = 1; i <= n; i++)\{ }
+    
+    \qquad    \qquad \texttt{for(w = 0; w<=W; w++)\{ }
+    
+      \qquad \qquad  \qquad  \texttt{if(w >= w[i]) a[i][w] = max(a[i-1][w], v[i] + a[i-1][w-w[i]);}
+      
+       \qquad \qquad    \qquad \texttt{else a[i][w] = a[i-1][w];}
+       
+       \qquad \qquad \texttt{ \} }
+       
+   \qquad \texttt{ \} }
+    
+    return a[n][W];
+    
+    \begin{proof}{}
+        Correctness statement: a[n][W] = OPT(n,W)
+        
+        Intermediate statement: a[i][w] = OPT(i,w) for all i ,w
+        
+        Proof by induction i (Notice that we don't need i+w since only i each time we look up values, they are for i-1. Also this means that weak induction is enough)
+        
+        Induction step use the assignment by the algorithm, then the induction hypothesis for a[i-1][w] and a[i-1][w-w[i]] and the recurrence relation.
+    \end{proof}
+    
+    \begin{proof}[Running Time]{}
+        \renewcommand{\qedsymbol}{}
+        $\mathcal{O}(nW)$
+        
+    \end{proof}
+            The running time of O(nW) looks polynomial, but is actually not.
+        
+        Polynomial running time would mean polynomial in the input size.
+        
+        But writing down the number W only takes O(log W) bits/characters
+        
+        So the running time of W is W = 2$^{log_2(W)}$, which is exponential in $log_2(W)$
+        
+        $\Rightarrow$ This is not polynomial
+        
+        We want a meaningful way to distinguish this type of exponential runtime from the 2$^m$ runtime of exhaustive search. Intuitively, we want to say "If the numbers w$_i$ and W are all "small", then the algorithm is good"
+        
+        \textbf{Definition:} An algorithm A runs in pseudo-polynomial time if for every input, if all the numbers in the input were written in unary, the algorithm would run in polynomial time in the input size.
+        
+        Unary: 8 = 11111111
+        
+        \textbf{Note:} we would not expect a genuinely polynomial-time algorithm for Knapsack, because - as we will see - Knapsack is NP-hard
+\end{solution*}
+
 % END MAIN Doc
 \end{document}
