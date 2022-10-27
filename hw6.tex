@@ -260,15 +260,41 @@
 
 \section*{Problem1}
 
-In the following anwer, denote $n$ as total days to detect, $k$ as total target days of drought, $i\in [0,n]$ as $i$-th day, $p_i\in [0,1]$ as the probability of rain in $i$-th day. 
+In the following answer, denote $n$ as total days to detect, $k$ as total target days of drought, $i\in [0,n]$ as $i$-th day, $p_i\in [0,1]$ as the probability of rain in $i$-th day $\Rightarrow (1-p_i)$ is the probability of drought on $i$-th day. All $p_i$ are independent. We will focus on number of drought days in the following discussion.
 
 \subsection*{Algorithm}
 \begin{proof}[Algorithm]{}
 		\renewcommand{\qedsymbol}{}
 		An Algorithm to calculate the sequence of die rolls gets to winning square as quickly as possible. For the input of function, we have a list \texttt{p[]} size of $n+1$ (extra $0$ for day $0$ case, indexed from 0 to $n$) storing for the each day 
 		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
-        
-        int[][] 
+		/**
+		* p[] is the input probability list, p[i] stores probability p_i of raining in i-th day, index from 0 to n, p[0] = 0
+		* n is the observing days
+		* k is the targeting days
+		* in the following code, dp[i][j] stores the probability that i days have j days drought
+		**/
+		float findProb(float[] p, int n, int k){
+    		float[][] dp = new dp[n+1][n+1]; // +1 for extra 0 bases
+            set (n+1)*(k+1) all entry in dp[][] to 0;
+            dp[0][0] = 0;
+            dp[1][0] = p[1]; // 1 day AND 0 day drought = p_1
+            dp[1][1] = 1-p[1]; // 1 day AND 1 day drought = 1-p_1
+            // initialization
+            for(int i = 2; i <= n; ++i){
+                dp[i][0] = dp[i-1][0] * p[i];
+                dp[i][i] = dp[i-1][i-1] * (1-p[i]);
+            }
+            // start finding
+            for(int i = 1; i <= n; ++i){
+                for(int j = 1; j < i; ++j){ // never reach dp[i][i], which has been initialized
+                    dp[i][j] = dp[i-1][j]*p[i] + dp[i-1][j-1]*(1-p[i]);
+                }
+            }
+            float res;
+            for(int i = k+1; i <= n; i++) res += dp[n][i];
+            return res;
+		}
+
         
 		\end{lstlisting} 
 \end{proof}
