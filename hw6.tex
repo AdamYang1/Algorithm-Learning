@@ -51,7 +51,7 @@
 \renewcommand{\sectionmark}[1]{\markright{\arabic{section} - #1}}
 \cfoot{\thepage}
 \lhead{CS270}
-\chead{HW5}
+\chead{HW6}
 \rhead{Adam Yang}
 \renewcommand{\headrulewidth}{1pt}
 
@@ -299,74 +299,118 @@ float findProb(float[] p, int n, int k){
 		\end{lstlisting} 
 \end{proof}
 
-
-
-\begin{proof}[Explanation]{}
-		\renewcommand{\qedsymbol}{} % hide the QED square
-       
-\end{proof}
-
 \subsection*{Proof}
 \begin{proof}[Correctness]{}
-    
-    
-\textbf{Goal:} 
+The goal is to find the probability of more than $k$ days are drought in n days.
 
-\textbf{Analysis:} 
-    
-\textbf{Subproblem:}
+\textbf{Analysis:} Let $X$ be the number of drought days, $P_n(X=i)$ be the probability of there are $i$ days drought in $n$ day, $R$ be the event of raining, $D$ be the event of drought. Notice that $R_i=D_i^c$.
 
+Since the raining and drought in each day is independent \[P_n(k<X\leq n) = P_n(X=k+1, X=k+2, ..., X= n)\] \[= P_n(X=k+1) + ... + P_n(X=n) = \sum_{j=k+1}^{n}P_n(X=j), k \leq n\]
+
+Notice that it is impossible to have k days drought in n days if $k>n$, therefore $P_n(X\leq n < k) = 0$ Since this is vacuously true to say the probability is zero, the following discussion will only focus on $k\leq n$ scenario.
+
+\textbf{Sub-problem:} Define the sub-problem $j$ to be finding the probability that there are exactly $j$ drought days in n days, $i\in[0,n]$.
     
-\textbf{Recurrence Relation:}
+\textbf{Recurrence Relation:} Define the probability of $j$ days drought in $i$ days,  $0\leq j<i\leq n$ as $P_i(X=j)$.
+
+1. If $i$-th day is raining, then there have been $j$ days drought already in previous $i-1$ days.
+
+2. If $i$-th day is drought, then there have been $j-1$ days drought already in previous $i-1$ days.
+
+Thus, the probability that there are exactly $j$ drought days in $i$-th day is \[P_i(X=j) = P_{i-1}(X=j|R_i) + P_{i-1}(X=j-1|D_i)\]
+\[=p_i P_{i-1}(X=j) + (1-p_i)P_{i-1}(X=j-1)\]
+
+Therefore, the probability that exactly $i$ days are drought in $n$ days has the recurrence relation:
+\[P_n(X=i) = p_n P_{n-1}{X=i} + (1-p_n)P_{i-1}{X=i-1}, i\leq n\]
     
     
-\textbf{Base Case:}
+\textbf{Base Cases:}
+
+1. There is zero drought day in zero day. $P_0(X=0)=0$
+
+2. There is zero drought day in one day. $P_1(X=0)=p_1$
+
+3. There is one drought day in one day. $P_1(X=1)=1-p_1$
+
+4. There is zero drought day in $i$ day, $i\in[1,n]$, $P_i(X=0)=p_i P_{i-1}(X=0)$
+
+5. There is $i$ day drought in $i$ day, $i\in[2,n]$,
+$P_i(X=i)=(1-p_i)P_{i-1}(X=i-1)$
     
-    
+\textbf{Edge Case}:
+
+1. There are $j$ drought days in $i$ days, $i<j$. $P_i(X=j) = 0$
+
 \textbf{Correctness Proof:}
 
-    
+Correctness statement: $\sum_{j=k+1}^{n}$dp[$n$][$j$] = $P_n(k<X\leq n)$
   
+We will prove along the way: dp[$i$][$j$] = $P_i(X=j)$ for all $ 0 \leq j < i \leq n$
 
+\textbf{Proof by induction on $i+j$:}
+
+\textbf{Inductive Hypothesis:} For all $0 \leq i'+j'<i+j,0 \leq j < i \leq n$, dp[$i'$][$j'$] = $P_{i'}(X=j')$
+
+\textbf{Base Cases:}
+
+1. dp[0][0] = 0 = $P_0(X=0)$
+
+2. dp[1][0] = $p_1$ = $P_1(X=0)$
+
+3. dp[1][1] = $1-p_1$ = $P_1(X=1)$
+
+\textbf{Inductive Cases:}
+
+1. dp[i][j] = $p_i \times$ dp[i-1][j] + $(1-p_i) \times$ dp[i-1][j-1] \textit{*by Assignment*} \\= $p_i P_{i-1}(X=j) + (1-p_i)P_{i-1}(X=j-1)$ \textit{*by Inductive Hypothesis, $i-1+i < i+j, i+j-2 < i+j$*}
+\\= $P_i(X=j)$ \textit{*by Recurrence Relation*}
+
+2. dp[i][0] = $p_i \times$ dp[i-1][0] \textit{*by Assignment*}\\=  $p_i P_{i-1}(X=0)$ \textit{*by Inductive Hypothesis, $i-1 < n+k$*}\\= $P_i(X=0)$  \textit{*by Recurrence Relation*} for $2\leq i \leq n$ 
+
+3. dp[i][i] = $(1-p_i) \times$ dp[i-1][i-1] \textit{*by Assignment*} \\= $p_i P_{i-1}(X=i-1)$ \textit{*by Inductive Hypothesis, $2i-2 < n+k$*} \\=   $P_i(X=i)$ \textit{*by Recurrence Relation*} for $2\leq i \leq n$
+
+4. Edge Case ($i>j$), dp[i][j] = 0 \textit{*By Assignment*} = $P_j(X=i)$ \textit{*By IH and Recurrence*}
 \end{proof}
 \begin{proof}[Termination]{}
-
+    All for loop algorithm, vacuously true. It terminates.
 \end{proof}
 
 \subsection*{Running Time}
 
 
 
-
 \section*{Problem2}
 
 \subsection*{Algorithm}
-In the following answer, $G = (V,E)$ is the graph we will discuss and $x=x_1x_2\cdots x_T$ as the string to compute. Denote $|V|$ as $n$, $|E|$ as $m$, size of $x$ as $T$, starting node as $s$. We store a 2D array \texttt{a[][]}. For convenience, all nodes have corresponding index to store in a[v][k], $v\in V, k\in [0, T]$. For each node $v\in V$, v stores array q[] for the likelihood of outputting 'a-z' and p[] for the likelihood of picking an out-going edge to another node: v.q[$x_i$] is the probability of node $v$ writing down $x_i, i\in [1...T]$; v.p[$u$] is the probability of node v goes to $u \neq v \in V$ through an out-going edge $e(v,u)$. 
+In the following answer, $G = (V,E)$ is the directed graph we will discuss and $x=x_1x_2\cdots x_T$ is the string to compute. Denote $|V|$ as $n$, $|E|$ as $m$, size of $x$ as $T$, starting node as $s$, $e(u,v)$ as an edge $u \rightarrow v$, $u,v\in V$. We store a 2D array \texttt{a[][]}. For convenience, all nodes have a unique corresponding index to store in a[v][k], $v\in V, k\in [0, T]$.
+
+For each node $v\in V$, v stores array q[] for the likelihood of outputting a letter from 'a' to 'z'; and p[] for the likelihood of picking an out-going edge to another node: v.q[$x_i$] is the probability of node $v$ output $x_i, i\in [1...T], x_i\in \{'a','b', \cdots, 'z'\}$; v.p[u] is the probability of node v goes to $u \neq v, u \in V$ through an out-going edge $e(v,u)$, if no such $e$ then probability is 0. 
 
 \begin{proof}[Algorithm]{}
 		\renewcommand{\qedsymbol}{}
 		An Algorithm to find the maximum likelihood of any vertex sequence for the given string
 		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
 Define Graph G = (V,E) where V is the node set and E is the edge set;
+
+// it is C++ like pseudo-code, max_element and push_back() are functions for vector<T> in STL
 /**
-* for each node v in V, we have two arrays
-* 1. v.q[] to store the likelihood of writing down 'a-z'
-* 2. v.p[] to store the likelihood of picking an edge to another node
-*
+* Graph G is the input G=(V,E)
+* x is the input string to compute
 * x indexed from 1 to T
 **/
 
-float findProb2(Graph G, String str){
+float findProb2(Graph G, String x){
     n := size of V;
     m := size of E;
-    T := size of str;
+    T := size of x;
     initialize a 2D array a[n][T], set each place to 0;
-    a[s][0] = s.q[str[0]];
-    for(int k = 1; k <= T; k++){
+    a[s][1] = s.q[x[1]];
+    for(int k = 2; k <= T; k++){
         for(all node v in V){
-            for(all node u that has an incident on v){
-                a[s][k] = a[u][k-1] * u.p[s] * s.q[str[k]];
+            vector<float> temp; // help find max item
+            for(all node u S.T e(u,v) exists){
+                temp.push_back(a[u][k-1] * u.p[v] * s.q[x[k]]);
             }
+            a[v][k] = max_element(temp.begin(), temp.end())
         }
     }
     float res = 0;
