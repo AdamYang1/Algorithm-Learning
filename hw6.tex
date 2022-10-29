@@ -277,7 +277,7 @@ float findProb(float[] p, int n, int k){
     if(k>n) return 0; // edge case
 	 float[][] dp = new dp[n+1][n+1]; // +1 for extra 0 bases
     set (n+1)*(k+1) all entry in dp[][] to 0;
-    dp[0][0] = 0;
+    dp[0][0] = 1;
     dp[1][0] = p[1]; // 1 day AND 0 day drought = p_1
     dp[1][1] = 1-p[1]; // 1 day AND 1 day drought = 1-p_1
     // initialization
@@ -319,24 +319,24 @@ Notice that it is impossible to have k days drought in n days if $k>n$, therefor
 2. If $i$-th day is drought, then there have been $j-1$ days drought already in previous $i-1$ days.
 
 Thus, the probability that there are exactly $j$ drought days in $i$-th day is \[P_i(X=j) = P_{i-1}(X=j|R_i) + P_{i-1}(X=j-1|D_i)\]
-\[=p_i P_{i-1}(X=j) + (1-p_i)P_{i-1}(X=j-1)\]
+\[=p_i\cdot P_{i-1}(X=j) + (1-p_i)\cdot P_{i-1}(X=j-1)\]
 
-Therefore, the probability that exactly $i$ days are drought in $n$ days has the recurrence relation:
-\[P_n(X=i) = p_n P_{n-1}{X=i} + (1-p_n)P_{i-1}{X=i-1}, i\leq n\]
+Therefore, the probability that exactly $k$ days are drought in $n$ days has the recurrence relation:
+\[P_n(X=k) = p_n\cdot P_{n-1}{X=k} + (1-p_n)\cdot P_{i-1}{X=k-1}, i\leq n\]
     
     
 \textbf{Base Cases:}
 
-1. There is zero drought day in zero day. $P_0(X=0)=0$
+1. There is zero drought day in zero day. $P_0(X=0)=1$
 
 2. There is zero drought day in one day. $P_1(X=0)=p_1$
 
 3. There is one drought day in one day. $P_1(X=1)=1-p_1$
 
-4. There is zero drought day in $i$ day, $i\in[1,n]$, $P_i(X=0)=p_i P_{i-1}(X=0)$
+4. There is zero drought day in $i$ day, $i\in[1,n]$, $P_i(X=0)=p_i\cdot P_{i-1}(X=0) = \prod_{k=1}^{i}p_k$ by independence
 
 5. There is $i$ day drought in $i$ day, $i\in[2,n]$,
-$P_i(X=i)=(1-p_i)P_{i-1}(X=i-1)$
+$P_i(X=i)=(1-p_i)\cdot P_{i-1}(X=i-1) = \prod_{k=1}^{i}(1-p_k)$ by independence
     
 \textbf{Edge Case}:
 
@@ -350,11 +350,11 @@ We will prove along the way: dp[$i$][$j$] = $P_i(X=j)$ for all $ 0 \leq j < i \l
 
 \textbf{Proof by induction on $i+j$:}
 
-\textbf{Inductive Hypothesis:} For all $0 \leq i'+j'<i+j,0 \leq j < i \leq n$, dp[$i'$][$j'$] = $P_{i'}(X=j')$
+\textbf{Inductive Hypothesis:} For all $0 \leq i'+j'<i+j,0 \leq j \leq i \leq n$, dp[$i'$][$j'$] = $P_{i'}(X=j')$
 
 \textbf{Base Cases:}
 
-1. dp[0][0] = 0 = $P_0(X=0)$
+1. dp[0][0] = 1 = $P_0(X=0)$
 
 2. dp[1][0] = $p_1$ = $P_1(X=0)$
 
@@ -362,41 +362,40 @@ We will prove along the way: dp[$i$][$j$] = $P_i(X=j)$ for all $ 0 \leq j < i \l
 
 \textbf{Inductive Cases:}
 
-1. \texttt{dp[i][j]} = $p_i \times$ dp[i-1][j] + $(1-p_i) \times$ dp[i-1][j-1] \textit{*by Assignment*} \\= $p_i P_{i-1}(X=j) + (1-p_i)P_{i-1}(X=j-1)$ \textit{*by Inductive Hypothesis, $i-1+i < i+j, i+j-2 < i+j$*}
-\\= $P_i(X=j)$ \textit{*by Recurrence Relation*}
+1. $i$ days have $j$ drought days ($i>j$): \\ \texttt{dp[i][j]} = $p_i \cdot$ dp[i-1][j] + $(1-p_i) \cdot$ dp[i-1][j-1] \textbf{\textit{*by Assignment*}} \\= $p_i\cdot P_{i-1}(X=j) + (1-p_i)\cdot P_{i-1}(X=j-1)$ \textbf{\textit{*by Inductive Hypothesis, $i+j-1 < i+j, i+j-2 < i+j$*}}
+\\= $P_i(X=j)$ \textbf{\textit{*by Recurrence Relation*}}
 
-2. \texttt{dp[i][0]} = $p_i \times$ dp[i-1][0] \textit{*by Assignment*}\\=  $p_i P_{i-1}(X=0)$ \textit{*by Inductive Hypothesis, $i-1 < n+k$*}\\= $P_i(X=0)$ for $2\leq i \leq n$ \textit{*by Recurrence Relation*}
+2. $i$ days have 0 drought days: \texttt{dp[i][0]} = $p_i \cdot$ dp[i-1][0] =  $p_i\cdot P_{i-1}(X=0)$ = $P_i(X=0)$ for $2\leq i \leq n$ (no drought day) \textbf{\textit{*by IH and Recurrence relation, $i-1 < i+j$*}}
 
-3. \texttt{dp[i][i]} = $(1-p_i) \times$ dp[i-1][i-1] \textit{*by Assignment*} \\= $p_i P_{i-1}(X=i-1)$ \textit{*by Inductive Hypothesis, $2i-2 < n+k$*} \\=   $P_i(X=i)$ for $2\leq i \leq n$ \textit{*by Recurrence Relation*}
+3. $i$ days have $j=i$ drought days: \texttt{dp[i][i]} = $(1-p_i) \cdot$ dp[i-1][i-1]  = $p_i\cdot P_{i-1}(X=i-1)$ =   $P_i(X=i)$ for $2\leq i \leq n$  (all drought day) \textbf{\textit{*by IH and Recurrence relation, $i+j-2 < i+j$ *}}
 
-4. Edge Case ($i>j$), \texttt{dp[i][j]} = 0 \textit{*By Assignment*} = $P_j(X=i)$ \textit{*By IH and Recurrence*}
+4. $i$ days have $j$ drought days ($i>j$): \texttt{dp[i][j]} = 0 = $P_j(X=i)$
 
-Thus, \texttt{dp[i][j]} = $P_i(X=j)$. Therefore, for $0 \leq j \leq i \leq n, k \leq n$ 
+Thus, \texttt{dp[i][j]} = $P_i(X=j)$. for $0 \leq j \leq i \leq n, k \leq n$. Therefore, in the last for loop where we get the result to return,
 \begin{center}
     \texttt{res =} $\sum_{i=k+1}^{n}$\texttt{dp[n][i]} = $\sum_{i=k+1}^{n}P_n(X=i) = P_n(k<X\leq n)$
 \end{center}
 
-Therefore, this concludes the proof since the algorithm return the probability that k days are drought in n days.
+This concludes the proof since the algorithm correctly return the probability that there are more than k drought days in n days.
 
 \end{proof}
 \begin{proof}[Termination]{}
-    All-for-loop algorithm, vacuously true. It terminates.
+    All-for-loop algorithm with finite repetition, vacuously true. It terminates.
 \end{proof}
 
 \subsection*{Running Time}
 In this algorithm, all elementary calculation and assignment are considered $\mathcal{O}(1)$.
 
-Line 8 - 13 (except 10) take $\mathcal{O}(1)$ declaration and assignment. Line 10 take $\mathcal{O}(n^2)$ initialization for a $n\times n$ matrix. Line 15-18 take $\mathcal{O}(n)$ for looping through $\{2,3,...,n\}$. Line 21 - 23 (inner for loop) take $\mathcal{O}(i)$. Line 20 - 24 take $\sum_{i=1}^{n}\mathcal{O}(i) = \mathcal{O}(n^2)$. Line 25 - 27 take $\mathcal{O}(n)$ for looping from $\{k+1,...,n\}$. Therefore, the running time of algorithm is
+Line 8 - 13 (except 10) take $\mathcal{O}(1)$ declaration and assignment. Line 10 take $\mathcal{O}(n^2)$ initialization for a $n\times n$ matrix. Line 15-18 take $\mathcal{O}(n)$ for looping through $\{2,3,...,n\}$. Line 21 - 23 (inner for loop) take $\mathcal{O}(i)$. Line 20 - 24 take $\sum_{i=1}^{n}\mathcal{O}(i) = \mathcal{O}(n^2)$. Line 25 - 27 take $\mathcal{O}(n)$ for looping from $\{k+1,...,n\}$. Thus, the running time of algorithm is
 \[T(n) = 3\mathcal{O}(n) + 2\mathcal{O}(n^2) = \mathcal{O}(n^2)\]
 
 
 \section*{Problem2}
 
-\subsection*{Algorithm}
-In the following answer, $G = (V,E)$ is the directed graph we will discuss and $x=x_1x_2\cdots x_T$ is the string to compute. Denote $|V|$ as $n$, $|E|$ as $m$, size of $x$ as $T$, starting node as $s$, $e(u,v)$ as an edge $u \rightarrow v$, $u,v\in V$. We store a 2D array \texttt{a[][]}. For convenience, all nodes have a unique corresponding index to refer back to a[$v$][$t$], $v\in V, t\in [0, T]$. a[$v$][$t$] stores the maximum likelihood of the sequence that starts with $s$ and end with $v$ for outputting $x_1\cdots x_t$. In this problem, we fix node $s$ as the starting point of the sequence $v_1$.
+In the following answer, $G = (V,E)$ is the directed graph we will discuss and $x=x_1x_2\cdots x_T$ is the string to compute. Denote $|V|$ as $n$, $|E|$ as $m$, size of $x$ as $T$, starting node as $s$, $e(u,v)$ as an edge $u \rightarrow v$, $u,v\in V$. We store a 2D array \texttt{a[][]}. For convenience, all nodes have a unique corresponding index to refer back to a[$v$][$t$], $v\in V, t\in [0, T]$ (This can be easily achieved through assigning into an array in real implementation). Define a[$v$][$t$] stores the maximum likelihood of the sequence that starts with $s$ and end with $v$ for outputting $x_1\cdots x_t$. In this problem, we fix node $s$ as the starting point of the sequence $v_1$.
 
 For each node $v\in V$, $v$ stores an array q[] for the likelihood of outputting a letter from 'a' to 'z'; and an p[] for the likelihood of picking an out-going edge to another node: $v$.q[$x$] is the probability of node $v$ output $x, x \in \{'a','b', \cdots, 'z'\}$; $v$.p[$u$] is the probability of node v goes to $u \neq v, u \in V$ through an out-going edge $e(v,u)$, if no such $e$ then $v$.p[$u$] = 0. 
-
+\subsection*{Algorithm}
 \begin{proof}[Algorithm]{}
 		\renewcommand{\qedsymbol}{}
 		An Algorithm to find the maximum likelihood of any vertex sequence for the given string
@@ -464,12 +463,25 @@ Define the sub-sub-problem $L(v_t,t)$ for finding Opt($t$) as finding the likeli
 \[= L(\langle v_1,v_2,...,v_{t-1} \rangle)\cdot q_{v_t,x_t} \cdot p_{v_{t-1},(v_{t-1},v_t)} \]
 \[= L(v_{t-1}, t-1) \cdot q_{v_t,x_t} \cdot p_{v_{t-1},(v_{t-1},v_t)}  \]
 
-Therefore, the maximum likelihood of any vertex sequence of $x_1\cdots x_t$ by fixing vertex $v_t$ as the last vertex in the sequence have the following recurrence relation
-\[Opt(v_t,t) = \mathop{\max} L(v_t,t)
-= \mathop{\max} \Bigg[ L(\langle v_1,v_2,...,v_{t} \rangle) \Bigg]  \]
-\[= \mathop{\max} \Bigg[ L(\langle v_1,v_2,...,v_{t-1} \rangle) \cdot q_{v_t,x_t} \cdot p_{v_{t-1},(v_{t-1},v_t)} \Bigg] \]
 
-From the equation above, we show the recurrence relation for sub-sub-problem $L(v_t,t)$ using mathematical relation. Incur the probability of going from $v_{t-1}$ to $v_t$ and then output $x_t$ in $v_t$ as $p_{v_{t-1}, (v_{t-1},v_t)} \cdot q_{v_t,x_t}$ and $L(v_{t-1},t-1)$ is the probability of $\langle v1,...,v_{t-1} \rangle$ for $x_1\cdots x_{t-1}$, $v_{t-1}, v_t \in V$. Since there are many possible way to output $x_1\cdots x_t$ and ends with $v_t$, Opt($v_t,t$) choose the maximum probability from all possible $L(v_t, t)$.
+From the equation above, we show the recurrence relation for sub-sub-problem $L(v_t,t)$ using mathematical relation. That is, the probability of building a $t$-length vertex sequence to output $x_1\cdots x_t$ depends on
+
+1. $L(v_{t-1},t-1)$, the likelihood of $t-1$ length sequence
+
+2. $q_{v_t, x_t}$, the likelihood of $v_t$ output $x_t$
+
+3. $p_{v_{t-1}, (v_{t-1}, v_t)}$, the likelihood of $v_{t-1}$ goes to $v_t$
+
+
+Since there are many ways to form a vertex sequence that ends with $v_t$ for $x_1\cdots x_t$, we need to take care of all possible $L(v_{t-1},t-1)$. For any $v_{t-1} \in V$, incur the probability of going from $v_{t-1}$ to $v_t$ and then output $x_t$ in $v_t$ as $p_{v_{t-1}, (v_{t-1},v_t)} \cdot q_{v_t,x_t}$; and $L(v_{t-1},t-1)$ (the probability of $\langle v1,...,v_{t-1} \rangle$ for $x_1\cdots x_{t-1}$, $v_{t-1})$ to be maximum (optimal). From all possible ways to output $x_1\cdots x_t$ and ends with $v_t$, Opt($v_t,t$) choose the maximum probability from all possible $L(v_t, t)$.
+
+Therefore, the maximum likelihood of any vertex sequence of $x_1\cdots x_t$ by fixing vertex $v_t$ as the last vertex in the sequence have the following recurrence relation
+\[Opt(v_t,t) = \mathop{\max}_{v_t\in V} \Bigg[ L(v_t,t) \Bigg]
+= \mathop{\max}_{v_t\in V} \Bigg[ L(\langle v_1,...,v_{t} \rangle) \Bigg]  \]
+
+\[= \mathop{\max}_{v_{t-1}\in V} \Bigg[ Opt(v_{t-1},t-1) \cdot q_{v_t,x_t} \cdot p_{v_{t-1},(v_{t-1},v_t)} \Bigg]\]
+
+
 
 
 \textbf{Base Case:}
@@ -485,6 +497,9 @@ The recurrence relation is implemented from line 22 to 25 for finding the maximu
 \subsection*{Running Time}
 Line 12-16 are $\mathcal{O}(nT)$ declaration and assignment. Line line 22-25, $\mathcal{O}(|V|) = \mathcal{O}(n)$ comparisons are required for finding the maximum one from all possible $L(v_{t-1},t-1)$. From line 18 to 26, the middle for-loop repeats $\mathcal{O}(n)$ times for looping through all the node and thus take $\mathcal{O}(n^2)$. From line 17 to 27, the outer for-loop repeats $\mathcal{O}(T)$ times and thus take $\mathcal{O}(Tn^2)$. From 29 to 32, it takes $\mathcal{O}(n)$ for checking all the node. Thus, the running time is:
 \[T(n) = \mathcal{O}(1) + \mathcal{O}(n)+ \mathcal{O}(Tn^2) = \mathcal{O}(Tn^2)\]
-For $G=(V,E)$, $|E|=m=\mathcal{O}(n^2)$ (all node are connected to each other). $T(n)$ can also written as $\mathcal{O}(Tm)$
 
+From line 22-25, we can also say that we only need $\mathcal{O}(deg_{in}(v))$, and therefore from line 18 to 26 takes $\sum_{v\in V} \mathcal{O}(deg_{in}v) = \mathcal{O}(\frac{m}{2}) = \mathcal{O}(m)$. Therefore, from line 17 to 27 the run time is $\mathcal{O}(Tm)$. Therefore, the running time can also be
+\[T(n) = \mathcal{O}(1) + \mathcal{O}(n)+ \mathcal{O}(Tm) = \mathcal{O}(Tm)\]
+
+Notice that for $G=(V,E)$, $|E|=m=\mathcal{O}(n^2)$ (all node are connected to each other). Thus, $\mathcal{O}(Tm) = \mathcal{O}(Tn^2)$
 \end{document}
