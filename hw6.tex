@@ -393,7 +393,7 @@ Line 8 - 13 (except 10) take $\mathcal{O}(1)$ declaration and assignment. Line 1
 \section*{Problem2}
 
 \subsection*{Algorithm}
-In the following answer, $G = (V,E)$ is the directed graph we will discuss and $x=x_1x_2\cdots x_T$ is the string to compute. Denote $|V|$ as $n$, $|E|$ as $m$, size of $x$ as $T$, starting node as $s$, $e(u,v)$ as an edge $u \rightarrow v$, $u,v\in V$. We store a 2D array \texttt{a[][]}. For convenience, all nodes have a unique corresponding index to refer back to a[$v$][$t$], $v\in V, t\in [0, T]$.
+In the following answer, $G = (V,E)$ is the directed graph we will discuss and $x=x_1x_2\cdots x_T$ is the string to compute. Denote $|V|$ as $n$, $|E|$ as $m$, size of $x$ as $T$, starting node as $s$, $e(u,v)$ as an edge $u \rightarrow v$, $u,v\in V$. We store a 2D array \texttt{a[][]}. For convenience, all nodes have a unique corresponding index to refer back to a[$v$][$t$], $v\in V, t\in [0, T]$. a[$v$][$t$] stores the maximum likelihood of the sequence that starts with $s$ and end with $v$ for outputting $x_1\cdots x_t$. In this problem, we fix node $s$ as the starting point of the sequence $v_1$.
 
 For each node $v\in V$, $v$ stores an array q[] for the likelihood of outputting a letter from 'a' to 'z'; and an p[] for the likelihood of picking an out-going edge to another node: $v$.q[$x$] is the probability of node $v$ output $x, x \in \{'a','b', \cdots, 'z'\}$; $v$.p[$u$] is the probability of node v goes to $u \neq v, u \in V$ through an out-going edge $e(v,u)$, if no such $e$ then $v$.p[$u$] = 0. 
 
@@ -411,6 +411,7 @@ Define Graph G = (V,E) where V is the node set and E is the edge set;
 **/
 
 float findProb2(Graph G, String x){
+    if(x.size() == 0) return 0; // zero possibility of no sequence
     n := size of V;
     m := size of E;
     T := size of x;
@@ -441,41 +442,49 @@ float findProb2(Graph G, String x){
 \subsection*{Proof}
 \begin{proof}[Correctness]{} The goal is to find the maximum likelihood of any vertex sequence for the given string.
 
-\textbf{Definition:} In the algorithm above,  $\forall v,u\in V, v\neq u$ we use $v$.p[$u$] to represent the probability that node $v$ goes to next node $u$. In the discussion below, we will use $p_{v_t,(v_t,v_{t+1})}$ to represent the likelihood of node $v_t$ going to next node $v_{t+1}$, $ t=\{1,2,...,T-1\}$. Similarly, we use $q_{v_t,x_t}$ replace $v.$q[x[t]] and represent the probability of node $v_t$ writing down $x_t$. 
+\textbf{Definition:} 
+Define node $v_t$ as the ending vertex for the sequence that output $x_1\cdots x_t$. Since the system fix $s$ as the starting node $v_1$, we will only discus $t\geq 2$ below. For any node $v_t, t\geq 2$, $v_{t-1}$ is any node S.T. an edge $e(v_{t-1}, v_{t})$ exists; $v_{t+1}$ is any node S.T. an edge $e(v_t, v_{t+1})$ exists.
+
+In the algorithm above, $\forall v,u\in V, v\neq u:$  we use $v$.p[$u$] to represent the probability that node $v$ goes to next node $u$. In the discussion below, we will use $p_{v_t,(v_t,v_{t+1})}$ to represent the likelihood of node $v_t$ going to next node $v_{t+1}$, $ t=\{1,2,...,T-1\}$. Similarly, we use $q_{v_t,x_t}$ replace $v.$q[x[t]] and represent the probability of node $v_t$ writing down $x_t$. 
+
 By definition, the likelihood of a sequence $\langle v_1,v_2,...,v_T \rangle$ to output $x=x_1x_2\cdots x_T$
 \[L(\langle v_1,v_2,...,v_T \rangle) = \prod_{t=1}^{T}q_{v_t,x_t} \cdot \prod_{t=1}^{T-1}p_{v_t,(v_t,v_{t+1})}  \]
-In this system, we fix the starting vertex $v_1$ as $s$.
     
-\textbf{Sub-problem:} Define the sub-problem $t$ as finding the maximum likelihood of any vertex sequence for the given string $x_1x_2\cdots x_t$.
-    
-\textbf{Recurrence Relation:} Focusing on the likelihood of any vertex sequence for $x_1\cdots x_t$:
+\textbf{Sub-problem:} Define the sub-problem Opt($v_t, t$) as finding the maximum likelihood of the vertex sequence for the given string $x_1x_2\cdots x_t$ that end with $v_t$.
 
-\[L(\langle v_1,v_2,...,v_t \rangle)=
+Define the sub-sub-problem $L(v_t,t)$ for finding Opt($t$) as finding the likelihood of the sequence where we fix $v_t\in V$ as the last vertex in the sequence for $x_1 \cdots x_t$.
+    
+\textbf{Recurrence Relation:} Focusing on the likelihood of any vertex sequence $L(v_t,t)$ for $x_1\cdots x_t$, we have
+
+\[L(v_t,t)=L(\langle v_1,v_2,...,v_t \rangle)=
 \prod_{t=1}^{t}q_{v_i,x_i} \cdot \prod_{t=1}^{t-1}p_{v_i,(v_i,v_{i+1})}\]
 \[=q_{v_1,x_1}\cdot q_{v_2,x_2} \cdot ... \cdot q_{x_t, x_t} \cdot p_{v_1,(v_1, v_2)} \cdot ...\cdot p_{v_{t-1},(v_{t-1}, v_{t})}=\prod_{t=1}^{t-1}q_{v_i,x_i} \cdot \prod_{t=1}^{t-2}p_{v_i,(v_i,v_{i+1})} \cdot q_{v_t,x_t} \cdot p_{v_{t-1},(v_{t-1},v_t)}\]
 
+
 \[= L(\langle v_1,v_2,...,v_{t-1} \rangle)\cdot q_{v_t,x_t} \cdot p_{v_{t-1},(v_{t-1},v_t)} \]
+\[= L(v_{t-1}, t-1) \cdot q_{v_t,x_t} \cdot p_{v_{t-1},(v_{t-1},v_t)}  \]
 
-Therefore, the maximum likelihood of any vertex sequence of $x_1\cdots x_t$ by fixing vertex $v_t$ as the last vertex in the sequence is
+Therefore, the maximum likelihood of any vertex sequence of $x_1\cdots x_t$ by fixing vertex $v_t$ as the last vertex in the sequence have the following recurrence relation
+\[Opt(v_t,t) = \mathop{\max} L(v_t,t)
+= \mathop{\max} \Bigg[ L(\langle v_1,v_2,...,v_{t} \rangle) \Bigg]  \]
+\[= \mathop{\max} \Bigg[ L(\langle v_1,v_2,...,v_{t-1} \rangle) \cdot q_{v_t,x_t} \cdot p_{v_{t-1},(v_{t-1},v_t)} \Bigg] \]
 
-\[\mathop{\max}_{v_t\in V} \Bigg[ L(\langle v_1,v_2,...,v_{t} \rangle) \Bigg] = \mathop{\max}_{v_{t-1},v_t\in V} \Bigg[ L(\langle v_1,v_2,...,v_{t-1} \rangle) \cdot q_{v_t,x_t} \cdot p_{v_{t-1},(v_{t-1},v_t)} \Bigg] \]
+From the equation above, we show the recurrence relation for sub-sub-problem $L(v_t,t)$ using mathematical relation. Incur the probability of going from $v_{t-1}$ to $v_t$ and then output $x_t$ in $v_t$ as $p_{v_{t-1}, (v_{t-1},v_t)} \cdot q_{v_t,x_t}$ and $L(v_{t-1},t-1)$ is the probability of $\langle v1,...,v_{t-1} \rangle$ for $x_1\cdots x_{t-1}$, $v_{t-1}, v_t \in V$. Since there are many possible way to output $x_1\cdots x_t$ and ends with $v_t$, Opt($v_t,t$) choose the maximum probability from all possible $L(v_t, t)$.
 
 
 \textbf{Base Case:}
-    
+$t = 1$: Since the system fix node $s$ as the starting vertex $v_1$ in the sequence
+\[Opt(s,1) = L(s,1) = q_{s,x_1}\]
     
 \textbf{Correctness Proof:}
+Base case, we assign \texttt{a[s][1]} as \texttt{s.q[x[1]]} = $q_{s,x_1} = Opt(s,1)$
 
-    
-  
-
-\end{proof}
-\begin{proof}[Termination]{}
-
+The recurrence relation is implemented from line 22 to 25 for finding the maximum likelihood of the vertex sequence ending at time $t$ on $v$. Since this is algorithm will terminate since all for-loop are finite, a[v][t] indeed stores the $Opt(v,t)$. In order to find the maximum probability for outputting $x_1x_2\cdots x_T$, we only need to the maximum from all possible $Opt(v,t)$ and return. Therefore it is correct.
 \end{proof}
 
 \subsection*{Running Time}
-
-
+Line 12-16 are $\mathcal{O}(nT)$ declaration and assignment. Line line 22-25, $\mathcal{O}(|V|) = \mathcal{O}(n)$ comparisons are required for finding the maximum one from all possible $L(v_{t-1},t-1)$. From line 18 to 26, the middle for-loop repeats $\mathcal{O}(n)$ times for looping through all the node and thus take $\mathcal{O}(n^2)$. From line 17 to 27, the outer for-loop repeats $\mathcal{O}(T)$ times and thus take $\mathcal{O}(Tn^2)$. From 29 to 32, it takes $\mathcal{O}(n)$ for checking all the node. Thus, the running time is:
+\[T(n) = \mathcal{O}(1) + \mathcal{O}(n)+ \mathcal{O}(Tn^2) = \mathcal{O}(Tn^2)\]
+For $G=(V,E)$, $|E|=m=\mathcal{O}(n^2)$ (all node are connected to each other). $T(n)$ can also written as $\mathcal{O}(Tm)$
 
 \end{document}
