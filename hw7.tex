@@ -331,21 +331,53 @@ Define $|E| = m$, $|V| = n$.
 Notice that we at least delete one edge to remove one cycle in each iteration, and we only have finite amount of cycles in $G$, the iteration at most repeats $\mathcal{O}(m)$ times. 
 
 \section*{Problem2}
-In Problem 2, $m$ denotes the number of drivers, $n$ denotes the number of consumers. For each consumer $i$, we have their location $L_i$, the location of 
+In Problem 2, $m$ denotes the number of drivers, $n$ denotes the number of consumers. For each consumer $i$, we have their location $L_i$, the location of restaurant where they order $R_i$, and the time that they are willing to wait $t_i$. For each drive $j$, we have their locations $D_j$.
+
+Notice that we are able to find out the time for a driver $j$ to arrive consumer $i$'s address by calculating the time by adding the total commuting time taken from $D_j -> R_i -> L_i $ with $1$ minute of waiting. Therefore, for each driver $j$, we are able to filter out all the customer that they will arrive late. Denote the time running from one place to another place as $t(S,T)$, where $S$ is the starting location and $T$ is the ending location.
 \subsection*{Algorithm}
 \begin{proof}[Algorithm]{}
 		\renewcommand{\qedsymbol}{}
-		An Algorithm to ...
+		An Algorithm to output both the profit and the assignment of drivers to orders that gives that profit
 		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
+~$t(S,T)$~ := the time it takes to get ~$T$~ from ~$S$~ ~$\forall$~ driver
+~$G(V,E)$~ := a directed graph, ~$V$~ contains all ~$m$~ drivers and ~$n$~ customers, a source node ~$s$~, and a sank node ~$t$~, each driver and each customer is a unique node
+~$d_j$~ := driver ~$j$~ node in ~$G$~
+~$c_i$~ := customer ~$i$~ node in ~$G$~
 
+~$\forall d_j$~ build an edge from ~$s$~ to ~$d_j$~ with capacity of 1
+~$\forall c_i$~, build an edge from ~$c_i$~ to ~$t$~ with capacity of 1
 
+~$M$~ := the matching that we want to output, it contains all the drivers and all customers nodes
+
+for each driver ~$d_j$~:
+    for each customer ~$c_i$~:
+        if ~$t(D_j, R_i) + t(R_i, L_i) + 1 \leq t_i$~
+            build an edge from driver ~$d_j$~ to customer ~$c_i$~ with capacity of ~$\infty$~
+
+Implement Edmond-Karp algorithm on ~$G$~ and find the max flow ~$f$~
+
+// to get the assignment
+for each driver ~$d_j$~:
+    for each customer ~$c_i$~:
+        if ~$f(e(d_j, c_i)) == 1$~
+            build an edge from $d_j$ to $c_i$ in ~$M$~
+            
+return ~$\nu(f)$~ and ~$M$~
         
 		\end{lstlisting} 
 \end{proof}
 
+In the algorithm, we build a graph $G$ like the following, $c(e(s,d_j)) = 1, j=1,2,...,m$; $c(e(c_i,t)) = 1, i = 1,2,...,n$; and $\exists e(d_j, c_i), c(e(d_j,c_i)) = \infty$ if $t(D_j,R_i)+t(R_i,L_i)+1 \leq t_i$
+\begin{figure}[htp]
+    \centering
+    \includegraphics[width=8cm]{1.png}
+    \caption{G=(V,E)}
+    \label{fig:galaxy}
+\end{figure}
+
 \subsection*{Proof}
 \begin{proof}[Correctness]{}
-
+    Since Edmond-Karp can always finds the max-cardinality for a bipartite graph, we need to show that we can reduce our problem into a bipartite matching problem.
 \end{proof}
 
 \subsection*{Running Time}
