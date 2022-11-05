@@ -268,15 +268,46 @@ In Problem 1, we are given a graph $G=(V,E)$, each node $e\in E$ has non-negativ
 		\renewcommand{\qedsymbol}{}
 		An Algorithm to output a new flow $f'$ with $f'_e \leq f_e$ for all edges $e$, of the same value $\nu(f') = \nu(f)$, and such that $f'$ is acyclic.
 		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
+/**
+* This is a helper function similar to DFS to help find the cycle in graph
+* it takes input graph G and a start node s
+* this algorithm is mostly similar to the one in cs104 slides, using white to denote unexplored node, gray to denote the node that are still waiting to explore, and black to denote the node that has been fully explored (every outflow path from that node has been explored)
+* parent attribute is for finding cycle path
+**/
+def helper(graph G, Node s): // start from s because s is not in any cycle
+    s.color = GRAY
+    for each outflow vertex v in Adj(s) do // Adj(s) returns a list of adjacent nodes for s
+        List<Node> res;
+        if v.color == WHITE then
+            v.parent = s
+            res = helper(G, v)
+            if res != null then return res // stop recursing once we find a cycle
+            // if res is still null, this means there is no cycle on s to current v path, then switch to next v to find cycle
+        else if v.color == GRAY then // we find a cycle! since v has been reached 
+            Node temp = s
+            res.append(v)
+            while temp != v do //backtrace to find the cycle path
+                res.append(temp)
+                temp = temp.parent
+            return res;
+        else return NULL; //color == BLACK
+    s.color = BLACK // either current node s has no more outflow edges or all the outflow path from s don't contain a cycle, we set it to BLACK to denote fully explored
+    return res; // if we reach here, it means any outflow path from s contains no cycle and res stays NULL
+    
+/**
+* with the helper defined above, we can find the cycle on any outflow path from s if there is one
+* now start our algorithm
+**/
 ~$f':=$~ the new flow that we will output
 ~$f' = f$~ at the beginning
-while ~$G$~ contains a cycle:
-    do BFS to find a cycle ~$C$~ in ~$G$~
+initialize all nodes in graph to WHITE // for dfs helper
+while helper(G, s) != null:
+    do DFS-similar to find a cycle ~$C$~ in ~$G$~ // write above
     define any cycle found as ~$C \subseteq E_{exists}$~:
         let ~$\varepsilon = \mathbf{\min}(f(e))$~, ~$\forall e\in C$~
         subtract ~$\varepsilon$~ from the flow of all edge in ~$C$~ on instance ~$f'$~
         ~$\forall e$~ in ~$C:$~ ~$f'(e)=0$~, delete e from the graph
-
+    set all nodes in graph to WHITE // for next iteration helper
 return new flow ~$f'$~
 		\end{lstlisting} 
 \end{proof}
@@ -331,7 +362,7 @@ Define $|E| = m$, $|V| = n$.
 Notice that we at least delete one edge to remove one cycle in each iteration, and we only have finite amount of cycles in $G$, the iteration at most repeats $\mathcal{O}(m)$ times. 
 
 \section*{Problem2}
-In Problem 2, $m$ denotes the number of drivers, $n$ denotes the number of consumers. For each consumer $i$, we have their location $L_i$, the location of restaurant where they order $R_i$, and the time that they are willing to wait $t_i$. For each drive $j$, we have their locations $D_j$.
+In Problem 2, $m$ denotes the number of drivers, $n$ denotes the number of consumers. For each consumer $i$, we have their location $L_i$, the location of restaurant where they order $R_i$, and the time that they are willing to wait $t_i$. For each drive $j$, we have their locations $D_j$. For the whole problem, $i \in \{1,2,...,n\}$ and $j \in \{1,2,...,m\}$
 
 Notice that we are able to find out the time for a driver $j$ to arrive consumer $i$'s address by calculating the time by adding the total commuting time taken from $D_j -> R_i -> L_i $ with $1$ minute of waiting. Therefore, for each driver $j$, we are able to filter out all the customer that they will arrive late. Denote the time running from one place to another place as $t(S,T)$, where $S$ is the starting location and $T$ is the ending location.
 \subsection*{Algorithm}
@@ -361,8 +392,8 @@ for each driver ~$d_j$~:
     for each customer ~$c_i$~:
         if ~$f(e(d_j, c_i)) == 1$~
             build an edge from $d_j$ to $c_i$ in ~$M$~
-            
-return ~$\nu(f)$~ and ~$M$~
+// *10 because each on-time delivery we get 10 $
+return ~$\nu(f)$~*10 and ~$M$~
         
 		\end{lstlisting} 
 \end{proof}
@@ -377,10 +408,15 @@ In the algorithm, we build a graph $G$ like the following, $c(e(s,d_j)) = 1, j=1
 
 \subsection*{Proof}
 \begin{proof}[Correctness]{}
-    Since Edmond-Karp can always finds the max-cardinality for a bipartite graph, we need to show that we can reduce our problem into a bipartite matching problem.
+    Since Edmond-Karp can always finds the max-cardinality for a bipartite graph, we need to show that we can reduce our problem into a bipartite matching problem. 
+
+    First, let's prove that the algorithm is finding max-flow on a valid bipartite graph. Let's take a look at drivers and customers only, ignoring $s$ and $t$ and out-flow edges from $s$ and in-flow edges to $t$, each driver $d_j$ only has edges goes to customers. For any two drivers $d_{j_1}, d_{j_2}, j_1 \neq j_2$, $e(d_{j_1}, d_{j_2})$ and $e(d_{j_2}, d_{j_1})$ don't exist. Similarly, for any two customers $c_{i_1}, c_{i_2}, i_1 \neq i_2$, $e(c_{i_1}, c_{i_2})$ and $e(c_{i_2}, c_{i_1})$ don't exist. Therefore, the graph $G$ ignoring $s$ and $t$ and the edges that out-flow from $s$ and in-flow to $t$ is a valid bipartite graph. Now we consider source $s$ and sank $t$ and related edges, our algorithm uses Edmond-Karp to find the max bipartite matching between drivers and customers as discussed in lecture.
+
+    Second, let's prove that we can reduce our problem to a bipartite maximum matching problem. Observing the algorithm, we only add an edge from a drive $d_j$ to a $c_i$ when the time for $d_j$ to drive from their current location $D_j$ to the restaurant $R_i$, wait for one minute to pick up, and drive from $R_i$ to $L_i$ is no more than $t_i$. This means that each $e(d_j, c_i)$ is a valid edge that can bring the company \$10 profit. In order to maximize the profit, we want to send as many drivers to send a valid delivery as possible. According to the prompt, we can at most assign a driver with 1 order, we can say each driver is at most matched with one consumer in the assignment. Therefore, the more can match driver to customer, the more profits the company gains. This means that our problem now becomes the max bipartite matching where we find the maximum matching for the $G$ excluding $s$, $t$ and relevant edges. By setting all the outflow edges from $s$ with capacity 1, all the inflow edges to $t$ with capacity 1, and all profitable edges from $d_j$ to $c_i$ with capacity, we have the same setup as solving maximum bipartite matching as discussed in lecture. \textbf{As proved in lecture,} Edmond-karp is able to find the max flow for a graph for $G$ and thus find a max flow $f$. This helps us build a max bipartite matching $M$ if we only picks $d_j -> c_i$ where $f(e(d_j,c_i) = 1$, where $|M| = \nu(f).$ By multiplying $\nu(f)$ with 10, we have correct maximum profits. By picking $e(d_j,c_i)$ S.T. $f(e(d_j,c_i) = 1$, excludes $s$, $t$, and outflow edges from $s$ and inflow edges to $t$, we return a correct assignment that output $f$ and maximizes the profit.
 \end{proof}
 
 \subsection*{Running Time}
-
+From line 1 to line 7, the assignment is all $\mathcal{O}(1)$. On line 9, it takes $\mathcal{O}(+n+1+1)$ to build the basic $M$. From line 11 to 14, we loop through all $m$ drivers and $n$ customers, and construct an edge in $\mathcal{O}(1)$, thus line 11 to 14 we have $\sum_{j=1}^{j=m}\sum_{i=1}^{i=n}\mathcal{O}(1) = \mathcal{O}(mn)$. As discussed in lecture, Edmond-Karp has run-time $\mathcal{O}(mn(m+n))$. Therefore, the total runtime is
+\[T(n) = \mathcal{O}(m+n) + \mathcal{O}(mn) + \mathcal{O}(mn(m+n)) = \mathcal{O}(m^2n+n^2m)\]
 
 \end{document}
