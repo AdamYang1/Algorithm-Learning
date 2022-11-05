@@ -301,9 +301,10 @@ def helper(graph G, Node s): // start from s because s is not in any cycle
 ~$f':=$~ the new flow that we will output
 ~$f' = f$~ at the beginning
 initialize all nodes in graph to WHITE // for dfs helper
-while helper(G, s) != null:
-    do DFS-similar to find a cycle ~$C$~ in ~$G$~ // write above
-    define any cycle found as ~$C \subseteq E_{exists}$~:
+List<Node> cycle = helper(G,s)
+while cycle == NULL:
+    define any cycle found as ~$C \subseteq E_{exists}$~
+    for all edges ~$e$~ included in cycle: //we store list of Node but the edge can be easily found in O(1)
         let ~$\varepsilon = \mathbf{\min}(f(e))$~, ~$\forall e\in C$~
         subtract ~$\varepsilon$~ from the flow of all edge in ~$C$~ on instance ~$f'$~
         ~$\forall e$~ in ~$C:$~ ~$f'(e)=0$~, delete e from the graph
@@ -319,8 +320,9 @@ return new flow ~$f'$~
 2. $f$ is a valid flow that satisfies Conservation, Capacity, Non-negativity properties
 
 \subsection*{Proof}
-\begin{proof}[1]{To prove that $f'$ is a valid flow}
-(a) Conservation
+Let's first assume the helper function actually works, we will prove its correctness later. We now prove the algorithm returns a correct result if helper function works. In the following proof, we focus on a single cycle $C$ which could be any cycles, $\varepsilon$ is the smallest flow in the cycle, $E_{exists}$ is the existing or "non-deleted" edges.
+
+\begin{proof}[1]{To prove that $f'$ is a valid flow:} Conservation
 
 Focus on a cycle $C \subseteq E_{exists}$, $C$ has a set of node $\{v_1, v_2, ..., v_k\}, 1 < k \leq n$. Define the $e_{i,in} \in C$ for $v_i$ as the in-flow edge, $e_{i,out} \in C$ as the out-flow edge in the cycle. Define $s_{i,in} \notin C$ as the in-flow edge for $v_i$ that is not in cycle and $s_{i,out} \notin C$ as the out-flow edge for $v_i$ that is not in cycle. Define $f_{in}(v_i)$ and $f_{out}(v_i)$ as the total in-flow and out-flow for $v_i$.
 
@@ -353,13 +355,36 @@ Therefore, $f'$ is a valid flow. Since $s$ and $t$ are not included in any cycle
 \begin{proof}[4]{To the algorithm terminates and output an acyclic graph}
 
 Because in each iteration, we strictly "delete" at least an edge to remove a cycle. Meanwhile, $G$ only has finite amount of cycle. Therefore, we at most delete all the edge in the graph and will finally remove all the cycle, which leads to the end of termination.
-    
+
+
 \end{proof}
+
+Now, let's prove the correctness of helper function using contradiction.
+\begin{proof}[5]{To prove the helper function actually works}
+
+Correct statement: if there is still a cycle, we return it in a list. if no more cycle, then we return null
+
+Observing the algorithm, we detect a cycle whenever a node $u$ visit a GRAY node $v$, $u\neq v, u,v \in V$. This means that $v$ has already been encountered once during helper function recursion before and $u->v$ will lead us back to $v$ at some point. Thus, a cycle is detected and we can say that $v$ it the start node of the cycle, $u$ is the last node of the cycle. Now, we will start finding the cycle through backtracing. We are currently on node $u$ and add $u$ to the list. By going back to $u$.parent until we reach $v$, we capture the whole cycle as the graph show.
+
+Although it is possible for a node to have multiple parents in a graph, we will update the parent of a node for a specific path. So it won't impact the helper function.
+
+\end{proof}
+\begin{figure}[htp]
+    \centering
+    \includegraphics[width=6cm]{WX20221104-180416@2x.png}
+    \caption{G=(V,E)}
+    \label{fig:galaxy}
+\end{figure}
+Now that the helper is correct and our algorithm also outputs a correct $f'$, this concludes the proof. $\square$
 
 \subsection*{Running Time}
 Define $|E| = m$, $|V| = n$.
 
-Notice that we at least delete one edge to remove one cycle in each iteration, and we only have finite amount of cycles in $G$, the iteration at most repeats $\mathcal{O}(m)$ times. 
+First let's take a look at the helper function. Since it's a DFS-like function, and indeed it at most visit all the edge and all the nodes. Since the length of cycle is also at most $m$, it takes $\mathcal{O}(m+n)$.
+
+Notice that we at least delete one edge to remove one cycle in each iteration, and we only have finite amount of cycles in $G$, the iteration at most repeats $\mathcal{O}(m)$ times. Since each helper is $\mathcal{O}(m+n)$ and subtracting $\varepsilon$ takes up to $\mathcal{O}(m)$ and set all node back to WHITE takes at most $\mathcal{O}(n)$, line 35 to 41 takes $\sum_{m\in E}\mathcal{O}(m+n) = \mathcal{O}(m(m+n))$.
+Therefore, the total running time is 
+\[T(n) = \mathcal{O}(m^2+mn)\]
 
 \section*{Problem2}
 In Problem 2, $m$ denotes the number of drivers, $n$ denotes the number of consumers. For each consumer $i$, we have their location $L_i$, the location of restaurant where they order $R_i$, and the time that they are willing to wait $t_i$. For each drive $j$, we have their locations $D_j$. For the whole problem, $i \in \{1,2,...,n\}$ and $j \in \{1,2,...,m\}$
@@ -401,7 +426,7 @@ return ~$\nu(f)$~*10 and ~$M$~
 In the algorithm, we build a graph $G$ like the following, $c(e(s,d_j)) = 1, j=1,2,...,m$; $c(e(c_i,t)) = 1, i = 1,2,...,n$; and $\exists e(d_j, c_i), c(e(d_j,c_i)) = \infty$ if $t(D_j,R_i)+t(R_i,L_i)+1 \leq t_i$
 \begin{figure}[htp]
     \centering
-    \includegraphics[width=8cm]{1.png}
+    \includegraphics[width=10cm]{1.png}
     \caption{G=(V,E)}
     \label{fig:galaxy}
 \end{figure}
