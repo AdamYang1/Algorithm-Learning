@@ -1,0 +1,363 @@
+\documentclass[openany]{article}
+
+%Typesetting and language
+\usepackage[american]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{charter}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+%Symbols
+\usepackage{amssymb, amsmath, amsthm, bm}
+\usepackage{mathrsfs}
+\usepackage{mathtools}
+\usepackage{marvosym}
+\usepackage{MnSymbol}
+
+%Colors & graphics
+\usepackage[dvipsnames]{xcolor}
+\usepackage{pgfplots}
+\usepackage[numbered,framed]{matlab-prettifier}
+\usepackage{pgfplots}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usepackage[object=vectorian]{pgfornament}
+\usepackage{wrapfig}
+\usepackage{varwidth}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{geometry}
+\usepackage{ulem}
+\usepackage[most]{tcolorbox}
+\usepackage{array}
+
+\setlength{\parindent}{0pt}
+
+\makeatletter
+\g@addto@macro\bfseries{\boldmath}
+\makeatother
+
+
+\renewcommand{\Re}{\mathfrak{Re}}
+\renewcommand{\Im}{\mathfrak{Im}}
+
+\geometry{left=2cm,right=2cm,bottom=2cm,top=2cm}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\sectionmark}[1]{\markright{\arabic{section} - #1}}
+\cfoot{\thepage}
+\lhead{CS270}
+\chead{HW8}
+\rhead{Adam Yang}
+\renewcommand{\headrulewidth}{1pt}
+
+
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\im}{im}
+\DeclareMathOperator{\var}{var}
+\DeclareMathOperator{\Orb}{Orb}
+\DeclareMathOperator{\Fix}{Fix}
+\DeclareMathOperator{\Stab}{Stab}
+\DeclareMathOperator{\cov}{cov}
+\DeclareMathOperator*{\esssup}{ess\,sup}
+\DeclareMathOperator{\corr}{corr}
+\DeclareMathOperator{\lik}{lik}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+
+\newcommand{\niceline}[2]{%
+		\nointerlineskip \vspace{.5\baselineskip}\hspace{\fill}
+		{\color{#1}
+				\resizebox{0.5\linewidth}{2ex}
+				{{%
+								{\begin{tikzpicture}
+										\node  (C) at (0,0) {};
+										\node (D) at (9,0) {};
+										\path (C) to [ornament=#2] (D);
+										\end{tikzpicture}}}}}%
+		\hspace{\fill}
+		\par\nointerlineskip \vspace{.5\baselineskip}
+}
+
+\definecolor{darkViolet}{HTML}{9400D3}
+\newcommand{\sweetline}{%
+		\noindent
+		\begin{center}
+				{\color{darkViolet}
+						\resizebox{0.5\linewidth}{1ex}
+						{{%
+										{\begin{tikzpicture}
+												\node  (C) at (0,0) {};
+												\node (D) at (9,0) {};
+												\path (C) to [ornament=85] (D);
+												\end{tikzpicture}}}}}%
+		\end{center}
+}
+
+\definecolor{remarkPurple}{HTML}{8346FF}
+\definecolor{defBlue}{HTML}{0673FF}
+\definecolor{exPurple}{HTML}{FF8710}
+
+%THEOREM
+\newtcbtheorem[auto counter,number within=section]{theorem}{Theorem}%
+{enhanced,colback=white, breakable,frame empty,interior empty,colframe=cyan!50!white, top=8mm,
+				coltitle=black,fonttitle=\bfseries,colbacktitle=cyan!15!white,
+				borderline={0.5mm}{0mm}{cyan!15!white},
+				borderline={0.5mm}{0mm}{cyan!50!white,dashed},
+				attach boxed title to top left={yshift=-4mm},
+				boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{thm}
+
+%PROPOSITION
+\newtcbtheorem[use counter from=theorem]{proposition}{Proposition}%
+{enhanced,colback=white,breakable,frame empty,interior empty,colframe=defBlue!75!white, top=8mm,
+				coltitle=black,fonttitle=\bfseries,colbacktitle=defBlue!20!white,
+				borderline={0.5mm}{0mm}{defBlue!20!white},
+				borderline={0.5mm}{0mm}{defBlue!50!white,dashed},
+				attach boxed title to top left={yshift=-4mm},
+				boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{prop}
+
+%DEFINITION
+\newtcbtheorem[use counter from=theorem]{definition}{Definition}%
+{enhanced,colback=white,breakable,frame empty,interior empty,colframe=defBlue!75!white, top=8mm,
+				coltitle=black,fonttitle=\bfseries,colbacktitle=defBlue!20!white,
+				borderline={0.5mm}{0mm}{defBlue!20!white},
+				borderline={0.5mm}{0mm}{defBlue!50!white,dashed},
+				attach boxed title to top left={yshift=-4mm},
+				boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{def}
+
+%COROLLARY
+\newtcbtheorem[use counter from=theorem]{corollary}{Corollary}%
+{enhanced,colback=white,breakable,frame empty,interior empty,colframe=defBlue!75!white, top=8mm,
+				coltitle=black,fonttitle=\bfseries,colbacktitle=defBlue!20!white,
+				borderline={0.5mm}{0mm}{defBlue!20!white},
+				borderline={0.5mm}{0mm}{defBlue!50!white,dashed},
+				attach boxed title to top left={yshift=-4mm},
+				boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{cor}
+
+%REMARK
+\newtcbtheorem[no counter]{remark}{Remark}%
+{detach title, colback=white,enhanced ,breakable,frame empty, interior empty, fonttitle=\bfseries, coltitle=Violet, before upper={\tcbtitle.\quad},
+				borderline west={0.5mm}{0mm}{remarkPurple!40!white},
+				borderline west={0.5mm}{0mm}{remarkPurple!60!white,dashed}}{remark}
+
+%LEMMA
+\makeatletter
+\newtcbtheorem[number within = tcb@cnt@theorem]{lemma}{Lemma}%
+{enhanced,breakable,colback=white,frame empty,interior empty,colframe=orange!75!white, top=8mm,
+				coltitle=black,fonttitle=\bfseries,colbacktitle=orange!20!white,
+				borderline={0.5mm}{0mm}{orange!20!white},
+				borderline={0.5mm}{0mm}{orange!50!white,dashed},
+				attach boxed title to top left={yshift=-4mm},
+				boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{lemma}
+\makeatother
+
+
+%PROOF
+%%{enhanced,breakable,frame empty,interior empty,colframe=remarkPurple!75!white, top=8mm,
+%	coltitle=black,fonttitle=\bfseries,colbacktitle=remarkPurple!20!white,
+%	borderline={0.5mm}{0mm}{remarkPurple!20!white},
+%	borderline={0.5mm}{0mm}{remarkPurple!50!white,dashed},
+%	attach boxed title to top left={yshift=-4mm},
+%	boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{prf}
+
+
+\tcolorboxenvironment{proof}{% amsthm' 
+				blanker,breakable,left=5mm,
+				before skip=10pt,after skip=10pt,
+				borderline west={0.5mm}{0pt}{cyan!40},
+				borderline west={0.5mm}{0pt}{remarkPurple!10, dashed}}
+
+%PROBLEM
+\newtcbtheorem[auto counter]{problem}{Problem}%
+{enhanced,breakable,colback=white,frame empty,interior empty,colframe=cyan!50!white, top=8mm,
+				coltitle=black,fonttitle=\bfseries,colbacktitle=cyan!20!white,
+				borderline={0.5mm}{0mm}{cyan!20!white},
+				borderline={0.5mm}{0mm}{cyan!50!white,dashed},
+				attach boxed title to top left={yshift=-4mm},
+				boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{prob}
+
+%EXAMPLE
+%\newtcbtheorem[use counter from=problem]{example}{Example}%
+%{enhanced,breakable,colback=white,frame empty,interior empty,colframe=remarkPurple!50!white, top=8mm,
+%		coltitle=black,fonttitle=\bfseries,colbacktitle=remarkPurple!30!white,
+%		borderline={0.5mm}{0mm}{remarkPurple!30!white},
+%		borderline={0.5mm}{0mm}{remarkPurple!30!white,dashed},
+%		attach boxed title to top left={yshift=-4mm},
+%		boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{ex}
+
+
+\newtcbtheorem[use counter from=theorem]{example}{Example}%
+{detach title, colback=white,enhanced ,breakable,frame empty, interior empty, fonttitle=\bfseries, coltitle=black, before upper={\tcbtitle.\quad},
+		borderline west={0.5mm}{0mm}{remarkPurple!30!white},
+		borderline ={0.5mm}{0mm}{remarkPurple!30!white}}{example}
+
+%SOLUTION
+\newtcbtheorem[no counter]{solution}{Solution}%
+{enhanced,breakable,colback=white,frame empty,interior empty,colframe=green!75!white, top=8mm,
+				coltitle=black,fonttitle=\bfseries,colbacktitle=green!20!white,
+				borderline={0.5mm}{0mm}{green!20!white},
+				borderline={0.5mm}{0mm}{green!50!white,dashed},
+				attach boxed title to top left={yshift=-4mm},
+				boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{sol}
+\definecolor{realPurple}{HTML}{AA05F9}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+				style=Matlab-editor,
+				language=C,
+				aboveskip=3mm,
+				belowskip=3mm,
+				xleftmargin=3mm,
+				showstringspaces=false,
+				columns=flexible,
+				frame=none,
+				basicstyle={\small\ttfamily},
+				numberstyle=\tiny\color{gray},
+				keywordstyle=\color{blue},
+				commentstyle=\color{dkgreen},
+				stringstyle=\color{mauve},
+				breaklines=true,
+				breakatwhitespace=true,
+				mlshowsectionrules = true,
+				tabsize=3,
+                    escapechar = ~,
+				backgroundcolor=\color{cyan!5}
+}
+
+\newcommand\mmybox[2][fill=cyan!20]{%
+    \tikz[baseline]\node[%
+        inner ysep=0pt, 
+        inner xsep=2pt, 
+        anchor=text, 
+        rectangle, 
+        rounded corners=1mm,
+        #1] {\strut#2};%
+}
+
+
+\def\changemargin#1#2{\list{}{\rightmargin#2\leftmargin#1}\item[]}
+\let\endchangemargin=\endlist
+
+\linespread{1.4}
+
+
+
+% MAIN DOC
+\begin{document}
+
+\title{HW 6}
+\author{Adam Yang}
+% \date{\today}
+\maketitle
+
+
+
+
+\section*{Problem1}
+In the following answer, we are given a set $C \subseteq \{1,...,n\}$ of class. I'll use $i$ to denote a class, $i \in \{1,...,n\}$. $s_i$ has reward $r_i$, which could be positive and negative. $S$ is the set that denotes the class we select, $S'$ is the set that denotes the class we don't select. An edge from $s$ to $t$ means there is an edge from $s$ pointing to $t$.
+
+\subsection*{Algorithm}
+\begin{proof}[Algorithm]{}
+		\renewcommand{\qedsymbol}{}
+		An Algorithm to find a set $S$ of classes maximizing $R(S)$.
+		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
+- We construct a graph ~$G$~ with class node of every ~$i$~
+- Construt a source node ~$s$~ and a tank node ~$t$~
+- For all ~$i$~ with positive reward ~$r_i$~, contruct an edge from ~$s$~ to ~$i$~ with capacity ~$r_i$~
+- For all ~$i$~ with negative reward ~$r_i$~, construct an edge from ~$i$~ to ~$t$~ with capacity ~$-r_i$~
+- For all ~$i$~, construct an edge from ~$i$~ to ~$j$~ where ~$j$~ is the prerequisite of ~$i$~, ~$i\neq j$~, with capacity ~$p_{j,i}$~
+- Implement Edmonds-Karp to find a minimum s-t cut ~$(s+S,t+S')$~
+- output ~$(S,S')$~
+
+        
+		\end{lstlisting} 
+\end{proof}
+
+\subsection*{Proof}
+\begin{proof}[Correctness]{The algorithm finds the $S$ that maximizes $R(S)$}
+
+By definition, $R(S):=\sum_{i\in S}r_i-\sum_{j\notin S, i\in S}p_{j,i}$. We can do some calculation to reduce the problem:
+
+\[R(S) = \sum_{i\in S}r_i-\sum_{j\notin S, i\in S}p_{j,i}\]
+\[= \sum_{i\in S, r_i>0}r_i + \sum_{i\in S, r_i<0}r_i - \sum_{j\notin S, i\in S}p_{j,i} = \sum_{i\in S, r_i>0}r_i - \sum_{i\in S, r_i<0}|r_i| - \sum_{j\notin S, i\in S}p_{j,i} \]
+\[=\sum_{i\in C, r_i > 0}r_i - (\sum_{i\notin S, r_i>0}r_i + \sum_{i\in S, r_i<0}|r_i| + \sum_{j\notin S, i\in S}p_{j,i}) \]
+
+Therefore, 
+\[\mathbf{\max}[R(S)] =\mathbf{\max}[\sum_{i\in C, r_i > 0}r_i - (\sum_{i\notin S, r_i>0}r_i + \sum_{i\in S, r_i<0}|r_i| + \sum_{j\notin S, i\in S}p_{j,i})] \]
+
+Since $\sum_{i\in C, r_i>0}r_i$ is a constant, finding $\mathbf{\max}[R(S)]$ is equal finding $\mathbf{\min}[\sum_{i\notin S, r_i>0}r_i + \sum_{i\in S, r_i<0}|r_i| + \sum_{j\notin S, i\in S}p_{j,i}]$
+
+In a cut $(s+S, t+S')$, we have the following edges:
+
+1. edge from $s$ to $i$ for $i\notin S \Leftrightarrow i\in S', r_i > 0$. Each edge has capacity $r_i$.
+
+2. edge from $i$ to $t$ for $i\in S, r_i < 0$. Each edge has capacity $|r_i|$
+
+3. edge from $j\notin S$ to $i\in S$. Each edge has capacity $p_{j,i}$
+\end{proof}
+
+\subsection*{Running Time}
+
+
+\section*{Problem2}
+
+\subsubsection*{Problem a}
+\begin{proof}[Proof]{Lemma 1}
+
+    We prove by contradiction. Denote $|J|$ as $s$, denote $|T|$ as $k$. Assume contradiction, $|J| > |T| \Rightarrow s > k$, where $J = \{I_1, ..., I_n\}, T=\{t_1, ..., t_k\}$.  Therefore, this means that there are more non-overlapping interval than the point we hit by question's definition. Since every interval $I$ in $J$ is non-overlapping, every hitting point $t$ at most covers $1$ interval in $J$. Therefore, there are $s-k$ intervals in $J$ that doesn't overlap with other $k$ selected interval don't have any hitting points. This means that for some selected $j$ interval, $I_j\bigcap T =\varnothing$. Because $\forall j, I_j \bigcap T \neq \varnothing$, we have contradiction! Proved
+\end{proof}
+
+\subsubsection*{Problem b}
+Let's first define several notations in the following discussion. For each interval $I_i = [s_i, f_i], i = \{1,2,...,n\}$, where $s_i$ is the starting time of $s_i$ and ending time $f_i$. $J$ is a set that stores the selected intervals, $T$ is a set that stores the hitting points, $R$ is a set that stores all the input intervals. The algorithm is mostly based on the Greedy algorithm for Interval Selection \textbf{discussed in the lecture}.
+
+\subsection*{Algorithm}
+\begin{proof}[Algorithm]{}
+		\renewcommand{\qedsymbol}{}
+		An Algorithm to find select as many 
+		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
+Sort the intervals by non-decreasing finish time ~$f_i$~ //for each interval ~$I_i$~, we have starting time ~$s_i$~ and finishing time ~$f_i$~
+so now, ~$f_1 \leq f_2 \leq f_n$~
+Start with ~$R = \{I_1, ..., I_n\}$~ (remaining) and ~$J = \{\}, T=\{\}$~
+while ~$R$~ not empty:
+    ~$I_i :=$~ the existing interval with smallest ~$f_i$~ in ~$R$~ // the first one in R
+    add to ~$J$~ the interval ~$I_i$~ with smallest ~$f_i$~
+    add to ~$T$~ time in ~$T$~ with with smallest ~$f_i$~
+    remove from ~$R$~ all intervals ~$I_j$~ which intersect interval ~$I_i$~ where ~$j\neq i$~ and ~$I_i$~
+output ~$J$~ and ~$T$~
+
+        
+		\end{lstlisting} 
+\end{proof}
+
+\subsection*{Proof}
+
+
+\begin{proof}[1] \textbf{Each selected interval is non-overlapping}
+
+    Whenever we add an interval $I_i$, we delete all intersecting intervals $I_j, j\neq i$. Therefore, all the intervals left are non-overlapping for the interval selection in the next iteration. [Compare to the algorithm \textbf{discussed in the lecture}, only another assignment operation added in the algorithm.]
+\end{proof}
+
+\begin{proof}[2] \textbf{The algorithm will terminate}
+    In each iteration, we at least remove one interval from $R$, meaning the size of $R$ strictly decreases at least one each in iteration. Thus, the size of $R$ will converge to 0 and thus the algorithm terminates.
+\end{proof}
+
+\begin{proof}[3] \textbf{Selected Interval Set $J$ is the optimum}
+
+    By "week duality", assume we have two sets $X$ that contains different possible $J$, $Y$ that contains different possible $T$. Let $x\in X$ represents each $J$, $y\in Y$ represents each $T$. They have value function $g(x):=|J|$, $h(y)=|T|$. As proved in $Lemma 1$, for all $J$ and all $T$, $|J| \leq |T|$, meaning $f(x) \leq h(y)$. Therefore, if we find $x, y$ with $g(x) = h(y)$, then $x$ has largest $g(x)$ among all of $X$, and $y$ has smallest $h(y)$ among all of $Y$. Therefore, if we find a $J$ and corresponding $T$ such that $|J| = |T|$, $J$ is the largest set among all possible interval selection set (optimum) and $T$ is the smallest set among all possible hitting point set.
+
+    \qquad Therefore, if we show that the $T$ found in the algorithm is valid, $J$ is valid, and $|T|=|J|$ at the same time, we show the optimality of $J$. $J$ is valid as proved above.
+
+    \qquad First, let's prove that $T$ found in the algorithm is valid. By definition, $T = \{t_1, t_2,...,t_k\}$, such that n=for each interval, the algorithm has included at least one point: $\forall j: T \bigcap I_j \neq \varnothing $. Observing the algorithm, whenever we add a interval $I_i=[s_i,f_i]$, we also add a hitting point $t_i = f_i$. Therefore, $\forall I_j, j\neq i$ that intersects $I_i=[s_j, f_j]$ ($s_j \leq f_i$), $I_j$ has already have one hitting point. Now that $I_i$ and all those intersecting $I_j$ intervals have at least one point, we remove them from $R$ $\Rightarrow$ whenever an interval has at least a hitting point, it will be removed from $R$. Since the algorithm will terminate as all the intervals removed, $\forall j:T \bigcap I_j \neq \varnothing$. It is indeed a valid $T$.
+
+    \qquad Second, let's take a look at $|T|$. Notice that we only add a hitting point to $T$ when we add an interval, therefore, $|T| = |J|$. By the week duality stated above, now that both $T$ and $J$ are valid and $|T|=|J|$, this concludes over proof for $J$'s optimality.
+    
+\end{proof}
+
+
+\end{document}
