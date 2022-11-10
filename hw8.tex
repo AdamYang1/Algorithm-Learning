@@ -260,14 +260,14 @@
 
 
 \section*{Problem1}
-In the following answer, we are given a set $C \subseteq \{1,...,n\}$ of class. I'll use $i$ to denote a class, $i \in \{1,...,n\}$. $s_i$ has reward $r_i$, which could be positive and negative. $S$ is the set that denotes the class we select, $S'$ is the set that denotes the class we don't select. An edge from $s$ to $t$ means there is an edge from $s$ pointing to $t$.
+In the following answer, we are given a set $\{1,...,n\}$ of class, which will be denoted by $C$. I'll use $i$ to denote a class, $i \in \{1,...,n\}$. $s_i$ has reward $r_i$, which could be positive and negative. $S$ is the set that denotes the class we select, $S'$ is the set that denotes the class we don't select. An edge from $s$ to $t$ means there is an edge from $s$ pointing to $t$. We denote the number of classes $|C|$ as $n$.
 
 \subsection*{Algorithm}
 \begin{proof}[Algorithm]{}
 		\renewcommand{\qedsymbol}{}
 		An Algorithm to find a set $S$ of classes maximizing $R(S)$.
 		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
-- We construct a graph ~$G$~ with class node of every ~$i$~
+- We construct an acyclic and directed graph ~$G$~ with class node of every ~$i$~
 - Construt a source node ~$s$~ and a tank node ~$t$~
 - For all ~$i$~ with positive reward ~$r_i$~, contruct an edge from ~$s$~ to ~$i$~ with capacity ~$r_i$~
 - For all ~$i$~ with negative reward ~$r_i$~, construct an edge from ~$i$~ to ~$t$~ with capacity ~$-r_i$~
@@ -285,25 +285,31 @@ In the following answer, we are given a set $C \subseteq \{1,...,n\}$ of class. 
 By definition, $R(S):=\sum_{i\in S}r_i-\sum_{j\notin S, i\in S}p_{j,i}$. We can do some calculation to reduce the problem:
 
 \[R(S) = \sum_{i\in S}r_i-\sum_{j\notin S, i\in S}p_{j,i}\]
+
 \[= \sum_{i\in S, r_i>0}r_i + \sum_{i\in S, r_i<0}r_i - \sum_{j\notin S, i\in S}p_{j,i} = \sum_{i\in S, r_i>0}r_i - \sum_{i\in S, r_i<0}|r_i| - \sum_{j\notin S, i\in S}p_{j,i} \]
+
 \[=\sum_{i\in C, r_i > 0}r_i - (\sum_{i\notin S, r_i>0}r_i + \sum_{i\in S, r_i<0}|r_i| + \sum_{j\notin S, i\in S}p_{j,i}) \]
 
 Therefore, 
 \[\mathbf{\max}[R(S)] =\mathbf{\max}[\sum_{i\in C, r_i > 0}r_i - (\sum_{i\notin S, r_i>0}r_i + \sum_{i\in S, r_i<0}|r_i| + \sum_{j\notin S, i\in S}p_{j,i})] \]
 
-Since $\sum_{i\in C, r_i>0}r_i$ is a constant, finding $\mathbf{\max}[R(S)]$ is equal finding $\mathbf{\min}[\sum_{i\notin S, r_i>0}r_i + \sum_{i\in S, r_i<0}|r_i| + \sum_{j\notin S, i\in S}p_{j,i}]$
+Since $\sum_{i\in C, r_i>0}r_i$ is a constant because it doesn't depend on the $S$ we choose, finding $\mathbf{\max}[R(S)]$ is equal finding $\mathbf{\min}[\sum_{i\notin S, r_i>0}r_i + \sum_{i\in S, r_i<0}|r_i| + \sum_{j\notin S, i\in S}p_{j,i}]$. Denote $(\sum_{i\notin S, r_i>0}r_i + \sum_{i\in S, r_i<0}|r_i| + \sum_{j\notin S, i\in S}p_{j,i})$ as $Q(S)$, where $S$ is the set of classes that we take. Now, we can reduce the problem of finding maximum $R(S)$ to finding minimum $Q(S)$.
 
-In a cut $(s+S, t+S')$, we have the following edges:
+Observing the graph $G$,  the maximum-flow value in this network is at most $R=\sum_{i\in C,r_i>0}r_i$, [the capacity of the cut $(\{s\}, G-\{s\})$]. Edges of $G$ can be divided into three categories: those prerequisite classes $j$ of $i$, class $i$ points to $j$; those leaving the source $s$; and those entering the sink $t$. 
 
-1. edge from $s$ to $i$ for $i\notin S \Leftrightarrow i\in S', r_i > 0$. Each edge has capacity $r_i$.
+1. edges from $i\in S$ to $j\notin S$. Each edge has capacity $p_{j,i}$. Total contribution: $\sum_{i\in S, j\notin S}p_{j,i}$
 
-2. edge from $i$ to $t$ for $i\in S, r_i < 0$. Each edge has capacity $|r_i|$
+2. edges leaving from $s$ to $i$ for $i\notin S , r_i > 0$. Each edge has capacity $r_i$. Total contribution: $\sum_{i\notin S, r_i > 0}r_i$
 
-3. edge from $j\notin S$ to $i\in S$. Each edge has capacity $p_{j,i}$
+3. edges entering $t$ from $i$ for $i\in S, r_i < 0$. Each edge has capacity $|r_i| = -r_i$. Total contribution: $\sum_{i\in S, r_i<0}|r_i|$
+
+So the total cut is exactly $Q(S)$. Edmonds-Karp minimizes the total capacity cut, so it finds the set $S$ minimizing $Q(S)$. Minimizing $Q(S)$ maximizes $R(S)$, so this is the optimal solution for the this problem.
+
 \end{proof}
 
 \subsection*{Running Time}
-
+In this problem, we are not given the number of prerequisite relations, therefore. In this discussion, define such number as $m = \mathcal{O}(n^2)$ (each class is connected to each other). Therefore, building the graph $G$ in line 1 takes $\mathcal{O}(m+n)$ time. Line 2 takes $\mathcal{O}(1)$. Line 3-4 takes $\mathcal{O}(n)$ for looping all the classes. Line 5 takes $\mathcal{O}(m)$ for looping all possible prerequisite relation. Line 6 implements Edmonds-Karp, which take $\mathcal{O}(mn(m+n))$. Thus, the total running time is:
+\[T(n) = \mathcal{O}(m+n)+\mathcal{O}(mn(m+n)) = \mathcal{O}(m^2n+n^2m)\]
 
 \section*{Problem2}
 
