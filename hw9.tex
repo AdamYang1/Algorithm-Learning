@@ -331,7 +331,7 @@ for each vertex ~$v\in V, v \neq s, v \neq t$~:
         ~$S \leftarrow S \cup \{v\}$~
     else:
         ~$\Bar{S} \leftarrow \Bar{S} \cup \{v\}$~
-    disregard all the changes made // ~$G$~ goes back to the original graph
+        remove the newly added edge
 return ~$(S, \Bar{S})$~
     
 		\end{lstlisting} 
@@ -340,23 +340,21 @@ For graph $G$, $Opt(G)$ gives us the minimum cut capacities value for some to-be
 
 \textbf{Observation:} Focusing on a cut $(S,\Bar{S})$ with capacity $Opt(G) = C$.
 
-If a node $v\in S$, the operation on $(s,v)$ not change the capacity of $(S,\Bar{S})$. Therefore, if $Opt(G) = Opt(G')$ after operation on $(s,v)$, $v \in S$. If a node $v \in \Bar{S}$, the operation increase the capacity of original cut $(S,\Bar{S})$ since the cut allows more flow to pass through, meaning the new cut for $(S,\Bar{S})$ will be larger than $C$. Thus, if the capacity of this cut become larger after the operation, $v \in \Bar{S}$.
+If a node $v\in S$, the operation on $(s,v)$ not change the capacity of $(S,\Bar{S})$. If a node $v \in \Bar{S}$, the operation increase the capacity of original cut $(S,\Bar{S})$ since the cut allows more flow to pass through, meaning the new cut for $(S,\Bar{S})$ will be larger than $C$. Thus, if the capacity of this cut become larger after the operation, $v \in \Bar{S}$ for this cut. Therefore, we can focus on the value of $Opt(G)$ which finds the min cut capacity of $G$ to find the actual min cut. To deal with multiple min cut candidates, keeping the infinite capacity edges (line 13-14) ensures that all future OPTIMIZATION are dependent on $(s,v)$ where $c_{(s,v)}=\infty$, so $v$ finds the nodes in the right cut. 
 
 (1) There exists a unique min cut $(S,\Bar{S})$ with capacity $C$ to SEARCH.
 
 As observed above, if the capacity of a cut doesn't change after operation on $(s,v)$, we can say that $v\in S$ for that cut. Since there exists a unique min cut for $G$, $Opt(G)$ will return the capacities of that cut. If the operation on $(s,v)$ doesn't change the capacity of that unique min cut and thus $Opt(G) = Opt(G')$, we can say that $v\in S$. Nevertheless, if the cut capacity increases, $Opt(G) < Opt(G')$ because every other cut are strictly larger than original cut $(S,\Bar{S})$ and the cut capacity increase. Thus, we can say that $v \in \Bar{S}$ for the cut. Thus the output of $Opt(G)$ is the min cut $(S,\Bar{S})$.
 
-(2) There exists multiple min $s-t$ cuts $(S_1,\Bar{S_1}), ... , (S_k,\Bar{S_k})$. In this part of discussion, $i,j \in [1,k], i\neq j, k \geqslant 1$. 
+(2) There exists multiple min $s-t$ cut candidates $(S_1,\Bar{S_1}), ... , (S_k,\Bar{S_k})$ to SEARCH. In this part of discussion, $i,j \in \{1,...,k\}, i\neq j, k \geqslant 1$. I'll discuss the correctness of algorithm in two situations.
 
 For a node $v$ in $G$, if the operation on $(s,v)$ leads to $Opt(G') \geqslant Opt(G)$, we can say that $\forall (S_i, \Bar{S_i}): v \in \Bar{S_i}$ because the operation allows more flow to pass through all $k$ potential min cuts. Since $\forall (S_i, \Bar{S_i}): v\in \Bar{S_i}$, we add $v$ to $\Bar{S}$ (line 16). If the operation on $(s,v)$ doesn't change $Opt(G)$, this means that $v$ is in $S_i$ some other valid min cut $(S_i,\Bar{S_i})$. We add such $v$ to $S$ (line 14). By loop through all nodes (all cuts at the same time), we have $S = \bigcup_{i=1}^{k}S_i$ and $\Bar{S} = \bigcup_{i=1}^{k}\Bar{S_i}$. Therefore, by proving that the union of min cuts are still min cut we can prove our output $(S,\Bar{S})$ is a min cut.
 
-As discussed in lecture, at termination of Ford-Fulkerson, there is no more $s-t$ path in the residual graph. This means that every edge that crosses the min $s-t$ cut has no residual value. So, min cut $\Rightarrow$ are edges crosses the cut are filled. Also, if for a cut, every edge crosses that cut is filled, this means there is no $s-t$ path and thus FF algorithm will terminates and return the cut as the min cut. Thus, a $s-t$ cut is min cut if and only if its capacity with respect to the residual graph is zero.
+\textbf{Corollary: } A cut $(X,\Bar{X})$ is minimal if and only if every maximal flow $f$ saturates all arcs of $(X,\Bar{X})$ whereas all arcs of $(X,\Bar{X})$ are flowless with respect to f. [As discussed in lecture and stated by Ford and Fulkerson]
 
-WLOG, focus on two min cuts $(S_i,\Bar{S_i})$ and $(S_j, \Bar{S_j})$. Every outflow edge from $S_i$ and $S_j$ is filled. Therefore, every outflow edge from $S_i \cup S_j$ comes from $S_i$ or $S_j$. Since min cut $\Leftrightarrow$ edges crossing the cut are filled, $(S_i \cup S_j, \Bar{S_i} \cup \Bar{S_j})$ is also a min cut. Therefore, $(S,\Bar{S}) = (\bigcup_{i=1}^{k}{S_i},\bigcup_{i=1}^{k}\Bar{S_i})$ is also the min cut. This concludes the proof.
+Therefore, for two min cuts $(S_i,\Bar{S_i})$ and $(S_j, \Bar{S_j})$, we can prove that their union is still a min cut. Every outflow edge from $S_i$ and $S_j$ is filled. Therefore, every outflow edge from $S_i \cup S_j$ comes from $S_i$ or $S_j$. Since min cut $\Leftrightarrow$ edges crossing the cut are filled, $(S_i \cup S_j, \Bar{S_i} \cup \Bar{S_j})$ is also a min cut. Therefore, $(S,\Bar{S}) = (\bigcup_{i=1}^{k}{S_i},\bigcup_{i=1}^{k}\Bar{S_i})$ is also the min cut. This proves that the output of $S(G)$ with "API" $Opt(G)$ is indeed the min cut.
 
-
-
-% where $|S_1| \leqslant |S_2| \leqslant ... \leqslant |S_k|$.
+Since we call $Opt(G)$ API $\mathcal{O}(|E|)$ times, we can say that SEARCH is polynomial time reducible to OPTIMIZATION. Now that OPTIMIZATION is also polynomial time reducible to SEARCH, we concludes that OPTIMIZATION and SEARCH are polynomial-equivalent.
 
 
 \end{proof}
@@ -364,35 +362,107 @@ WLOG, focus on two min cuts $(S_i,\Bar{S_i})$ and $(S_j, \Bar{S_j})$. Every outf
 
 \section*{Problem2}
 \subsubsection*{Problem a}
-In the same scenario, we can convert the problem into a "natural" decision problem: "can the difference $\Delta$ between the total skill of the most skilled team and the least skilled team be at most (less than or equal to) a value $D$." 
+In the same scenario, we can convert the problem into a "natural" decision problem: "Is there an assignment of $n$ students to $k$ teams S.T. each team has $n/k$ students and the skill difference between most skilled team and least skilled team is at most $\Delta$" 
 
-\textbf{Certificate:} an classroom of $n$ people, a collection of $k$ teams (each with $n/k$ people), each with student has $s_i$ integer skill value.
+\textbf{Certificate:} an classroom of $n$ people, a collection/assignment of $k$ teams (each with $n/k$ people), each with student has $s_i$ integer skill value. ($\mathcal{O}(n)$ linear)
 
-\textbf{Certifier:} check if this is the correct collection of $k$ teams, calculate the skill difference $\Delta$ between the maximum team and the minimum team, and compare it with $D$.
+\textbf{Certifier:} check if this is the correct collection of $k$ teams, calculate the skill difference $\mathbf{\max}-\mathbf{\min}$ between the maximum team and the minimum team, and compare it with $\Delta$.
 
-The certifier of this problem needs (1) calculate the total score for each team, it requires $\mathcal{O}(n)$ for looping all $n$ students. (2) loop through all $k$ groups and store the $\mathbf{\max}$ and $\mathbf{\min}$ in $\mathcal{O}(k)$ (3) compute the difference $\Delta = \mathbf{\max} - \mathbf{\min}$ (4) then compare $\Delta$ with $D$. If $\Delta < D$, output "yes", else "no". Since the certifier requires $\mathcal{O}(n+k)$, and comparison between two integers is easy, the converted decision problem is in \textbf{NP}.
+The certifier of this problem needs (1) calculate the total score for each team, it requires $\mathcal{O}(n)$ for looping all $n$ students. (2) loop through all $k$ groups and store the $\mathbf{\max}$ and $\mathbf{\min}$ in $\mathcal{O}(k)$ (3) compute the difference $\mathbf{\max} - \mathbf{\min}$ (4) then compare $\Delta$ with the skill difference. If $\Delta < \mathbf{\max} - \mathbf{\min}$, output "no", else "yes". Since the certifier requires $\mathcal{O}(n+k)$, and comparison between two integers is easy, the converted decision problem is in \textbf{NP}.
 
 \subsubsection*{Problem b}
-In the same scenario, we can convert the problem into a "natural" decision problem: "can the a set $E$ of undirected edges such that for each of the cuts $(S_i, \Bar{S_i})$, the number of edges it cuts in the graph $G=(V, E)$ is at most $C$.
+In the same scenario, we can convert the problem into a "natural" decision problem: "given $k$ partitions $(S_i, \Bar{S_i}), i = 1, . . . , k$ of nodes, and a cut capacity bound $C \geqslant 0$, is there a way to get a set $E$ of undirected edges S.T. for all partitions the max number of edges $\leqslant C$.
 
-\textbf{Certificate:} a set $E$ of undirected edges on $G$
+\textbf{Certificate:} a set $E$ of undirected edges on $G$. ($\mathcal{O}(|V|^2)$ polynomial)
 
-\textbf{Certifier:} check if for all cut $(S_i,\Bar{S_i})$, the number of edges it cuts in $G=(V,E)$ is at most $C$
+\textbf{Certifier:} check if for all partitions $(S_i,\Bar{S_i})$ the number of edges it partitions in $G=(V,E)$ is at most $C$
 
-The certifier of this problem needs (1) loop through all $k$ possible cuts, it requires $\mathcal{O}(k)$ times of iterations (2) check the cut capacity for each cut $(S_i, \Bar{S_i})$, each of which requires $\mathcal{O}(|E|)$. Since the certifier requires $\mathcal{O}(k|E|)$, and the comparison between two values is easy, the converted decision problem is in \textbf{NP}.
+The certifier of this problem needs (1) loop through all $k$ possible partitions, it requires $\mathcal{O}(k)$ times of iterations (2) check the number of edges crossing for each partition $(S_i, \Bar{S_i})$ ($u \in S_i, v_\in \Bar{S_i}, (u,v)$), each of which requires $\mathcal{O}(|E|)$. Since the certifier requires $\mathcal{O}(k|E|)$, and the comparison between two values. If all partitions has less than $C$ edges then "yes" else "no". The converted decision problem is in \textbf{NP}.
 
 \section*{Problem3}
-\subsection*{Problem a}
-Can SOKOBAN be solved with at most $C$ steps ($C$ is an integer).
 
-\subsection*{Problem b}
-A sequence of move of the character
+\textbf{(a)}
 
-\subsection*{Problem c}
-Follow the sequence of move, check whether or not all boxes are put into the destination, and sees if the steps of the move in the sequence is at most (less than or equal) $C$.
+Given an integer $C$, is there a way to move all boxes from their start positions to the desired end position in at most $C$ steps?
+
+\textbf{(b)}
+A proposed sequence of move
+
+\textbf{(c)}
+(1) check whether or not the steps of move $\leqslant C$
+
+(2)  Follow the sequence of move, check whether or not all boxes are put into the end position.
+
+\textbf{(d)}
+The size of certificate (the steps of move) is not necessarily polynomial. It could be exponential.
 
 
 \section*{Problem4}
 \subsection*{Problem a}
+
+\textbf{Certificate:} $(P, \hat{x}, \hat{t}, \hat{z})$ and binary string $y$
+
+\textbf{Certifier:} 
+(1) check whether or not $P(\hat{x},y)$ terminates in $|\hat{t}|$ steps
+
+(2) check whether or not $|y| \leqslant |\hat{z}|$
+
+(3) run $P(\hat{x},y)$ for $|\hat{t}|$ steps. If $P(\hat{x},y)$ terminates in $|\hat{t}|$ steps, output $P(\hat{x},y)$. Else, output "no"
+
+\subsection*{Problem b}
+
+\begin{proof}{CERTIFICATION is NP-hard}
+
+Every problem in NP $\leqslant_p$ CERTIFICATION. We need to build a reduction $f$ from $X \in NP$ to CERTIFICATION.
+
+Since $X\in NP$, we have a efficient certifier $B(x,y)$ that terminates in $q(|x|,|y|)$ steps, where $|y| \leqslant r(|x|)$ ($q, r$ are some polynomial functions).
+
+Input: A problem $X\in NP$.
+
+Output: $(P, \hat{x}, \hat{t}, \hat{z})$.
+
+\qquad $\hat{z}$ is a binary string of length $r(|x|)$.
+
+\qquad $\hat{t}$ is a binary string of length $q(|x|+|y|)$.
+
+\qquad $\hat{x} = x$. 
+
+
+\qquad $P=B$.
+
+Therefore, we have $(B, x, \hat{t}, \hat{z})$ as output.
+
+$f$ needs to satisfy the following:
+
+\qquad 1. "Yes" instances map to "Yes" instances.
+
+\qquad If the correct answer for $x$ is "Yes" [there exists a certificate $y$ of length at most $|y| <= r(|x|)$ such that $B(x,y)$ answers "yes"], then there exists a binary string $y$ of length at most $|y| \leqslant |\hat{z}|$ S.T. $(P, \hat{x}, y)$ terminates in at most $|\hat{t}|$ steps and return "yes".
+
+
+\qquad 2. "No" instances map to "No" instances.
+
+\qquad If the correct answer for $x$ is "No",[for every certificate $y$, $B(x,y)$ answers "No"], then is no a binary string $y$ S.T. $P(\hat{x},y)$ return "Yes".
+
+\qquad 3. $f$ runs in polynomial time.
+
+Here are proofs for properties listed above:
+
+\qquad 1: If correct answer for $x$ is "Yes", then there is a binary string $y$ of length at most $|y| \leqslant r(|x|) = |\hat{z}|$ S.T. $B(x,y)$ return "Yes" in $|\hat{t}| = q(|x|+|y|)$ [properties discussed in lectures]. Therefore correct answer for $(B, x, \hat{t}, \hat{z})$ is "Yes" now that $P(\hat{x},y) = B(x,y)$ terminates in $|\hat{t}| = q(|x|+|y|)$ steps.
+
+\qquad 2: If the correct answer for $x$ is "no", then there is no binary string $y$ of length at most $|\hat{z}|$ S.T. $B(x,y)$ returns "yes" in at most $|\hat{t}|$ steps. Since there is no such a binary string $y$ that makes $P(\hat{x},y) = B(x,y)$ return "Yes, "No" is the correct answer for $(B,x,\hat{t},\hat{z})$
+
+
+\qquad 3: $|$binary string$|$ is polynomial. Adding $B$ takes $\mathcal{O}(1)$ time. Therefore, $f$ runs in polynomial time.
+
+
+
+
+
+
+
+
+    
+\end{proof}
+
 
 \end{document}
