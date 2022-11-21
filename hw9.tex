@@ -272,19 +272,21 @@ $S(G)$ takes an input of a graph $G$ and return the min-cut $(S, \Bar{S})$.
 \subsection*{Problem a}
 
 \begin{proof}{}{DECISION-OPTIMIZATION polynomial-time equivalence}
-    \subsubsection*{1. DECISION $\leqslant_p$ OPTIMIZATION}
+    \subsubsection*{1. DECISION is polynomial time reducible to OPTIMIZATION}
 
-Suppose $Opt(G)$ finds the smallest capacity value of any $s-t$ cut, denote it as $C'$. In order to find out if there is an $s-t$ cut $(S, \Bar{S})$ with capacity at most $C$, we need to compare $C$ and $C'$. If $C' \leqslant C$, then our answer for \textbf{Decision} problem is "yes". If $C' > C$, then our answer for \textbf{Decision} problem is "no" because the capacity can never be less than $C'$. Since in $D$, we use $Opt(G)$ once and do a $\mathcal{O}(1)$ comparison, DECISION $\leqslant_p$ OPTIMIZATION
+Suppose $Opt(G)$ finds the smallest capacity value of any $s-t$ cut, denote it as $C'$. In order to find out if there is an $s-t$ cut $(S, \Bar{S})$ with capacity at most $C$, we need to compare $C$ and $C'$. If $C' \leqslant C$, then our answer for \textbf{Decision} problem is "yes". If $C' > C$, then our answer for \textbf{Decision} problem is "no" because the capacity can never be less than $C'$. Since in $D$, we use $Opt(G)$ once and do a $\mathcal{O}(1)$ comparison, DECISION is polynomial time reducible to OPTIMIZATION 
 
-\subsubsection*{2. OPTIMIZATION $\leqslant_p$ DECISION}
+\subsubsection*{2. OPTIMIZATION is polynomial time reducible to DECISION}
 
+[Proof required]
+  
 Suppose $D$ returns if an $s-t$ cut $(S,\Bar{S})$ with capacity at most $C$ exists. We can first find out the largest possible capacity $C^+$ by summing the capacity of all the positive edges. Similarly, we can find out the smallest possible capacity $C^-$ by summing the capacity of all edges with negative capacities. We can have an array to store the information for capacities from $C^-$ to $C^+$, which is $\mathcal{O}(n)$ with total $C^+-C^-+1$ elements. With start index $0$ and ending index $C^+-C^-$, we can implement binary-search-like algorithm to determine the smallest capacity. Notice that if we find a capacity value $C$ where $D(C)$ is true but $D(C-1)$ is false, we find the smallest capacity of any $s-t$ cut because no $s-t$ cut has lower capacity than $C$. 
 
 \textbf{The running time:} Calculating $C^-$ and $C^+$ requires $\mathcal{O}(|E|)$. Notice that the running time is $\mathcal{O}(log n)$ for binary search. Since $C^++|C^-|+1 = \mathcal{O}(n)$, there are $\mathcal{O}(2^n)$ elements in terms of the number of bits. Therefore, the binary search which takes $\mathcal{O}(log{2^n}) = \mathcal{O}(n)$ is linear in terms of numbers of bit. Notice that the arithmetic operations in the algorithm take $\mathcal{O}(1)$, therefore the running time of this $Opt(G)$ with $D$ is weakly polynomial. [The algorithm is below]
 
 \begin{proof}[Algorithm]{}
 		\renewcommand{\qedsymbol}{}
-		Algorithm $Opt(G)$ with "API" $D$
+		Algorithm $Opt(G)$ with "API" $D(G)$
 		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
 ~$G(V,E)$~ := input Graph  ~$s$~ := source node  ~$t$~ := tank node
 ~$D$~ := Decision Problem API  ~$C^-$~ := ~$\sum_{e\in E:c_e\leqslant 0 }c_e$~ ~$C^+$~ := ~$\sum_{e\in E:c_e>0 0 }c_e$~
@@ -298,17 +300,64 @@ return R
 		\end{lstlisting} 
 \end{proof}
 
-Therefore,   OPTIMIZATION $\leqslant_p$ DECISION.
+Therefore,   OPTIMIZATION is polynomial time reducible to DECISION.
 Now that \textbf{Optimization problem} and \textbf{Decision problem} can be mutually polynomial-time reducible, they are polynomial-time equivalent.
 \end{proof}
 
 \subsection*{Problem b}
 \begin{proof}{}{OPTIMIZATION-SEARCH polynomial-time equivalence}
     
-\subsubsection*{1. OPTIMIZATION $\leqslant_p$ SEARCH}
-Suppose $S(G)$ finds the min-cut $(S,\Bar{S})$ for the graph $G$ that minimizes $c(S,\Bar{S})$. By the definition of min-cut, the value of $c(S,\Bar{S})$ is already the smallest capacity value of any $s-t$ cut. Therefore, since in $Opt(G)$ we find min-cut $(S,\Bar{S})$ using $S(G)$ and calculate the capacity $c(S,\Bar{S})$ in $\mathcal{O}(|E|)$,  OPTIMIZATION $\leqslant_p$ SEARCH.
+\subsubsection*{1. OPTIMIZATION is polynomial time reducible to SEARCH}
+Suppose $S(G)$ finds the min-cut $(S,\Bar{S})$ for the graph $G$ that minimizes $c(S,\Bar{S})$. By the definition of min-cut, the value of $c(S,\Bar{S})$ is already the smallest capacity value of any $s-t$ cut. Therefore, since in $Opt(G)$ we find min-cut $(S,\Bar{S})$ using $S(G)$ and calculate the capacity $c(S,\Bar{S})$ in $\mathcal{O}(|E|)$,  OPTIMIZATION is polynomial time reducible to SEARCH.
 
-\subsubsection*{2. SEARCH $\leqslant_p$ OPTIMIZATION} 
+\subsubsection*{2. SEARCH is polynomial time reducible to OPTIMIZATION} 
+\begin{proof}[Algorithm]{}
+		\renewcommand{\qedsymbol}{}
+		Algorithm $S(G)$ with "API" $Opt(G)$
+		\begin{lstlisting}[basicstyle=\fontsize{8}{9}\selectfont\ttfamily]
+Inputs:
+~$G(V,E)$~ := input Graph  ~$s$~ := source node  ~$t$~ := tank node
+~$Opt$~ := Decision Problem API
+Initializations:
+~$S$~ = ~$\{s\}$~
+~$\Bar{S}$~ = ~$\{t\}$~
+~$C$~ = ~$Opt(G)$~
+for each vertex ~$v\in V, v \neq s, v \neq t$~:
+    if there exists and edge ~$e(s,v)$~:
+        set ~$c_e = \infty$~
+    else:
+        construct an edge ~$e(s,v)$~ with capacity ~$c_e=\infty$~
+    if(~$Opt(G)$~ == C): // min cut stays the same
+        ~$S \leftarrow S \cup \{v\}$~
+    else:
+        ~$\Bar{S} \leftarrow \Bar{S} \cup \{v\}$~
+    disregard all the changes made // ~$G$~ goes back to the original graph
+return ~$(S, \Bar{S})$~
+    
+		\end{lstlisting} 
+\end{proof}
+For graph $G$, $Opt(G)$ gives us the minimum cut capacities value for some to-be-discovered $s-t$ cut $(S, \Bar{S})$, denoted as $C$. Notice that it is possible that we have multiple minimum cuts with same capacities value. In the following, the graph after operation of \texttt{set} $c_e = \infty$ or \texttt{construct an edge} $e(s,v)$ with capacity $c_e = \infty$ will be denoted as $G'$ for convenience. Also, the operation on edge $(s,v)$ refers to either make the capacity to $\infty$ or add a new edge with $\infty$ capacity for a vertex $v\in V, v\neq s, t$ for convenience.
+
+\textbf{Observation:} Focusing on a cut $(S,\Bar{S})$ with capacity $Opt(G) = C$.
+
+If a node $v\in S$, the operation on $(s,v)$ not change the capacity of $(S,\Bar{S})$. Therefore, if $Opt(G) = Opt(G')$ after operation on $(s,v)$, $v \in S$. If a node $v \in \Bar{S}$, the operation increase the capacity of original cut $(S,\Bar{S})$ since the cut allows more flow to pass through, meaning the new cut for $(S,\Bar{S})$ will be larger than $C$. Thus, if the capacity of this cut become larger after the operation, $v \in \Bar{S}$.
+
+(1) There exists a unique min cut $(S,\Bar{S})$ with capacity $C$ to SEARCH.
+
+As observed above, if the capacity of a cut doesn't change after operation on $(s,v)$, we can say that $v\in S$ for that cut. Since there exists a unique min cut for $G$, $Opt(G)$ will return the capacities of that cut. If the operation on $(s,v)$ doesn't change the capacity of that unique min cut and thus $Opt(G) = Opt(G')$, we can say that $v\in S$. Nevertheless, if the cut capacity increases, $Opt(G) < Opt(G')$ because every other cut are strictly larger than original cut $(S,\Bar{S})$ and the cut capacity increase. Thus, we can say that $v \in \Bar{S}$ for the cut. Thus the output of $Opt(G)$ is the min cut $(S,\Bar{S})$.
+
+(2) There exists multiple min $s-t$ cuts $(S_1,\Bar{S_1}), ... , (S_k,\Bar{S_k})$. In this part of discussion, $i,j \in [1,k], i\neq j, k \geqslant 1$. 
+
+For a node $v$ in $G$, if the operation on $(s,v)$ leads to $Opt(G') \geqslant Opt(G)$, we can say that $\forall (S_i, \Bar{S_i}): v \in \Bar{S_i}$ because the operation allows more flow to pass through all $k$ potential min cuts. Since $\forall (S_i, \Bar{S_i}): v\in \Bar{S_i}$, we add $v$ to $\Bar{S}$ (line 16). If the operation on $(s,v)$ doesn't change $Opt(G)$, this means that $v$ is in $S_i$ some other valid min cut $(S_i,\Bar{S_i})$. We add such $v$ to $S$ (line 14). By loop through all nodes (all cuts at the same time), we have $S = \bigcup_{i=1}^{k}S_i$ and $\Bar{S} = \bigcup_{i=1}^{k}\Bar{S_i}$. Therefore, by proving that the union of min cuts are still min cut we can prove our output $(S,\Bar{S})$ is a min cut.
+
+As discussed in lecture, at termination of Ford-Fulkerson, there is no more $s-t$ path in the residual graph. This means that every edge that crosses the min $s-t$ cut has no residual value. So, min cut $\Rightarrow$ are edges crosses the cut are filled. Also, if for a cut, every edge crosses that cut is filled, this means there is no $s-t$ path and thus FF algorithm will terminates and return the cut as the min cut. Thus, a $s-t$ cut is min cut if and only if its capacity with respect to the residual graph is zero.
+
+WLOG, focus on two min cuts $(S_i,\Bar{S_i})$ and $(S_j, \Bar{S_j})$. Every outflow edge from $S_i$ and $S_j$ is filled. Therefore, every outflow edge from $S_i \cup S_j$ comes from $S_i$ or $S_j$. Since min cut $\Leftrightarrow$ edges crossing the cut are filled, $(S_i \cup S_j, \Bar{S_i} \cup \Bar{S_j})$ is also a min cut. Therefore, $(S,\Bar{S}) = (\bigcup_{i=1}^{k}{S_i},\bigcup_{i=1}^{k}\Bar{S_i})$ is also the min cut. This concludes the proof.
+
+
+
+% where $|S_1| \leqslant |S_2| \leqslant ... \leqslant |S_k|$.
+
 
 \end{proof}
 
