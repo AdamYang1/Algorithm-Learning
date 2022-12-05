@@ -1,0 +1,346 @@
+\documentclass[openany]{article}
+
+%Typesetting and language
+\usepackage[american]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{charter}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+%Symbols
+\usepackage{amssymb, amsmath, amsthm, bm}
+\usepackage{mathrsfs}
+\usepackage{mathtools}
+\usepackage{marvosym}
+\usepackage{MnSymbol}
+
+%Colors & graphics
+\usepackage[dvipsnames]{xcolor}
+\usepackage{pgfplots}
+\usepackage[numbered,framed]{matlab-prettifier}
+\usepackage{pgfplots}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usepackage[object=vectorian]{pgfornament}
+\usepackage{wrapfig}
+\usepackage{varwidth}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{geometry}
+\usepackage{ulem}
+\usepackage[most]{tcolorbox}
+\usepackage{array}
+
+\setlength{\parindent}{0pt}
+
+\makeatletter
+\g@addto@macro\bfseries{\boldmath}
+\makeatother
+
+
+\renewcommand{\Re}{\mathfrak{Re}}
+\renewcommand{\Im}{\mathfrak{Im}}
+
+\geometry{left=2cm,right=2cm,bottom=2cm,top=2cm}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\sectionmark}[1]{\markright{\arabic{section} - #1}}
+\cfoot{\thepage}
+\lhead{CS270}
+\chead{HW10}
+\rhead{Adam Yang}
+\renewcommand{\headrulewidth}{1pt}
+
+
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\im}{im}
+\DeclareMathOperator{\var}{var}
+\DeclareMathOperator{\Orb}{Orb}
+\DeclareMathOperator{\Fix}{Fix}
+\DeclareMathOperator{\Stab}{Stab}
+\DeclareMathOperator{\cov}{cov}
+\DeclareMathOperator*{\esssup}{ess\,sup}
+\DeclareMathOperator{\corr}{corr}
+\DeclareMathOperator{\lik}{lik}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+
+\newcommand{\niceline}[2]{%
+		\nointerlineskip \vspace{.5\baselineskip}\hspace{\fill}
+		{\color{#1}
+				\resizebox{0.5\linewidth}{2ex}
+				{{%
+								{\begin{tikzpicture}
+										\node  (C) at (0,0) {};
+										\node (D) at (9,0) {};
+										\path (C) to [ornament=#2] (D);
+										\end{tikzpicture}}}}}%
+		\hspace{\fill}
+		\par\nointerlineskip \vspace{.5\baselineskip}
+}
+
+\definecolor{darkViolet}{HTML}{9400D3}
+\newcommand{\sweetline}{%
+		\noindent
+		\begin{center}
+				{\color{darkViolet}
+						\resizebox{0.5\linewidth}{1ex}
+						{{%
+										{\begin{tikzpicture}
+												\node  (C) at (0,0) {};
+												\node (D) at (9,0) {};
+												\path (C) to [ornament=85] (D);
+												\end{tikzpicture}}}}}%
+		\end{center}
+}
+
+\definecolor{remarkPurple}{HTML}{8346FF}
+\definecolor{defBlue}{HTML}{0673FF}
+\definecolor{exPurple}{HTML}{FF8710}
+
+%THEOREM
+\newtcbtheorem[auto counter,number within=section]{theorem}{Theorem}%
+{enhanced,colback=white, breakable,frame empty,interior empty,colframe=cyan!50!white, top=8mm,
+				coltitle=black,fonttitle=\bfseries,colbacktitle=cyan!15!white,
+				borderline={0.5mm}{0mm}{cyan!15!white},
+				borderline={0.5mm}{0mm}{cyan!50!white,dashed},
+				attach boxed title to top left={yshift=-4mm},
+				boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{thm}
+
+%PROPOSITION
+\newtcbtheorem[use counter from=theorem]{proposition}{Proposition}%
+{enhanced,colback=white,breakable,frame empty,interior empty,colframe=defBlue!75!white, top=8mm,
+				coltitle=black,fonttitle=\bfseries,colbacktitle=defBlue!20!white,
+				borderline={0.5mm}{0mm}{defBlue!20!white},
+				borderline={0.5mm}{0mm}{defBlue!50!white,dashed},
+				attach boxed title to top left={yshift=-4mm},
+				boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{prop}
+
+%DEFINITION
+\newtcbtheorem[use counter from=theorem]{definition}{Definition}%
+{enhanced,colback=white,breakable,frame empty,interior empty,colframe=defBlue!75!white, top=8mm,
+				coltitle=black,fonttitle=\bfseries,colbacktitle=defBlue!20!white,
+				borderline={0.5mm}{0mm}{defBlue!20!white},
+				borderline={0.5mm}{0mm}{defBlue!50!white,dashed},
+				attach boxed title to top left={yshift=-4mm},
+				boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{def}
+
+%COROLLARY
+\newtcbtheorem[use counter from=theorem]{corollary}{Corollary}%
+{enhanced,colback=white,breakable,frame empty,interior empty,colframe=defBlue!75!white, top=8mm,
+				coltitle=black,fonttitle=\bfseries,colbacktitle=defBlue!20!white,
+				borderline={0.5mm}{0mm}{defBlue!20!white},
+				borderline={0.5mm}{0mm}{defBlue!50!white,dashed},
+				attach boxed title to top left={yshift=-4mm},
+				boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{cor}
+
+%REMARK
+\newtcbtheorem[no counter]{remark}{Remark}%
+{detach title, colback=white,enhanced ,breakable,frame empty, interior empty, fonttitle=\bfseries, coltitle=Violet, before upper={\tcbtitle.\quad},
+				borderline west={0.5mm}{0mm}{remarkPurple!40!white},
+				borderline west={0.5mm}{0mm}{remarkPurple!60!white,dashed}}{remark}
+
+%LEMMA
+\makeatletter
+\newtcbtheorem[number within = tcb@cnt@theorem]{lemma}{Lemma}%
+{enhanced,breakable,colback=white,frame empty,interior empty,colframe=orange!75!white, top=8mm,
+				coltitle=black,fonttitle=\bfseries,colbacktitle=orange!20!white,
+				borderline={0.5mm}{0mm}{orange!20!white},
+				borderline={0.5mm}{0mm}{orange!50!white,dashed},
+				attach boxed title to top left={yshift=-4mm},
+				boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{lemma}
+\makeatother
+
+
+%PROOF
+%%{enhanced,breakable,frame empty,interior empty,colframe=remarkPurple!75!white, top=8mm,
+%	coltitle=black,fonttitle=\bfseries,colbacktitle=remarkPurple!20!white,
+%	borderline={0.5mm}{0mm}{remarkPurple!20!white},
+%	borderline={0.5mm}{0mm}{remarkPurple!50!white,dashed},
+%	attach boxed title to top left={yshift=-4mm},
+%	boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{prf}
+
+
+\tcolorboxenvironment{proof}{% amsthm' 
+				blanker,breakable,left=5mm,
+				before skip=10pt,after skip=10pt,
+				borderline west={0.5mm}{0pt}{cyan!40},
+				borderline west={0.5mm}{0pt}{remarkPurple!10, dashed}}
+
+%PROBLEM
+\newtcbtheorem[auto counter]{problem}{Problem}%
+{enhanced,breakable,colback=white,frame empty,interior empty,colframe=cyan!50!white, top=8mm,
+				coltitle=black,fonttitle=\bfseries,colbacktitle=cyan!20!white,
+				borderline={0.5mm}{0mm}{cyan!20!white},
+				borderline={0.5mm}{0mm}{cyan!50!white,dashed},
+				attach boxed title to top left={yshift=-4mm},
+				boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{prob}
+
+%EXAMPLE
+%\newtcbtheorem[use counter from=problem]{example}{Example}%
+%{enhanced,breakable,colback=white,frame empty,interior empty,colframe=remarkPurple!50!white, top=8mm,
+%		coltitle=black,fonttitle=\bfseries,colbacktitle=remarkPurple!30!white,
+%		borderline={0.5mm}{0mm}{remarkPurple!30!white},
+%		borderline={0.5mm}{0mm}{remarkPurple!30!white,dashed},
+%		attach boxed title to top left={yshift=-4mm},
+%		boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{ex}
+
+
+\newtcbtheorem[use counter from=theorem]{example}{Example}%
+{detach title, colback=white,enhanced ,breakable,frame empty, interior empty, fonttitle=\bfseries, coltitle=black, before upper={\tcbtitle.\quad},
+		borderline west={0.5mm}{0mm}{remarkPurple!30!white},
+		borderline ={0.5mm}{0mm}{remarkPurple!30!white}}{example}
+
+%SOLUTION
+\newtcbtheorem[no counter]{solution}{Solution}%
+{enhanced,breakable,colback=white,frame empty,interior empty,colframe=green!75!white, top=8mm,
+				coltitle=black,fonttitle=\bfseries,colbacktitle=green!20!white,
+				borderline={0.5mm}{0mm}{green!20!white},
+				borderline={0.5mm}{0mm}{green!50!white,dashed},
+				attach boxed title to top left={yshift=-4mm},
+				boxed title style={sharp corners=east,boxrule=1pt},varwidth boxed title}{sol}
+\definecolor{realPurple}{HTML}{AA05F9}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+				style=Matlab-editor,
+				language=C,
+				aboveskip=3mm,
+				belowskip=3mm,
+				xleftmargin=3mm,
+				showstringspaces=false,
+				columns=flexible,
+				frame=none,
+				basicstyle={\small\ttfamily},
+				numberstyle=\tiny\color{gray},
+				keywordstyle=\color{blue},
+				commentstyle=\color{dkgreen},
+				stringstyle=\color{mauve},
+				breaklines=true,
+				breakatwhitespace=true,
+				mlshowsectionrules = true,
+				tabsize=3,
+                    escapechar = ~,
+				backgroundcolor=\color{cyan!5}
+}
+
+\newcommand\mmybox[2][fill=cyan!20]{%
+    \tikz[baseline]\node[%
+        inner ysep=0pt, 
+        inner xsep=2pt, 
+        anchor=text, 
+        rectangle, 
+        rounded corners=1mm,
+        #1] {\strut#2};%
+}
+
+
+\def\changemargin#1#2{\list{}{\rightmargin#2\leftmargin#1}\item[]}
+\let\endchangemargin=\endlist
+
+\linespread{1.4}
+
+
+
+% MAIN DOC
+\begin{document}
+
+\title{HW 10}
+\author{Adam Yang}
+% \date{\today}
+\maketitle
+
+
+
+
+\section*{Problem1}
+
+\begin{proof}[Decision Problem]
+    \renewcommand{\qedsymbol}{}
+    
+    Given a graph $G=(V,E)$ with $n$ nodes and $m$ edges, where the nodes are the enclosures, and the edges capture proximity. Given $k_M \geqslant 0$ male lions and $k_F\geqslant 0$ female lions, each with \textit{territoriality} $t_i \geqslant 0$ (integer). When lion $i$ is connected with another lion in same gender, $i$ will create \textit{territoriality} $t_i$. Is there a way to assign lions to make the total \textit{territoriality} at most $T$ and each enclosure has at most one lion?
+    
+\end{proof}
+
+\begin{proof}{NP}
+
+\textbf{Certificate:} A proposed assignment lion to enclosures.
+
+\textbf{Certifier:} 
+1. For each vertex (enclosure), check if there is at most one lion.
+
+2. Let $T'$ denote the total territoriality in the proposed assignment. For each vertex $i$ (enclosre), add $t_i$ to $T'$ if $i$ has sex trouble (adjacent with same sex). If $T' \leqslant T$, then "YES", else then "NO". This takes polynomial time for looping through the graph. 
+\end{proof}
+
+\begin{proof}{NP-Complete}
+
+\textbf{Goal:} By proving INDEPENDENT-SET $\leqslant_p$ TERRITORIALITY, we can prove that this problem is a NP-hard and thus NP-complete problem. (NP proved above)
+
+\textbf{Reduction:} Denote the reduction function as $f$. The input to $f$ is input to INDEPENDENT-SET (a graph $G$ and integer $k$), the output of $f$ is the input to TERRITORIALITY (a graph $G'$, $k_M$, $k_F$, $t_i$, and $T$). "YES" instance to INDEPENDENT-SET maps to "YES" instance to TERRITORIALITY, "NO" to "NO". Set $G' = G$, $k_M$ or $k_F$ to $0$. WLOG, set $k_F=0$, $k_M = k$, each lion $i$ with integer \textit{territoriality} $t_i\geqslant 0$. Set $T=0$.
+
+\textbf{Proof of reduction:}
+
+\textbf{"YES" to "YES":} By definition, $G$ has an independent set of size at least $k$ $\Rightarrow$ there are at least $k$ disjoint nodes in $G$. Since $G' = G$, if there are at least $k$ disjoint nodes, TERRITORIALITY will output "YES" by assigning all $k_M$ lions to the corresponding disjoint nodes (no two male lions will be adjacent to each other and thus no $t_i$ generated, $T=0$).
+
+\textbf{"NO" to "NO":} (contrapositive) If there is a way to assign $k$ male lions to $G$ with $T=0$, then these $k$ lions are assigned in disjoint enclosures. Each enclosure is a node, therefore, these enclosures is a satisfying independent set with size $k$.
+
+\textbf{Polynomial Reduction:} The reduction only renames and declares new parameters needed in TERRITORIALITY, therefor it's polynomial.
+
+Now that TERRITORIALITY is NP and NP-Hard, it is NP-Complete.
+
+\end{proof}
+
+\section*{Problem2}
+
+\begin{proof}[Decision Problem]
+    \renewcommand{\qedsymbol}{}
+    $n$ guests. For each guest $i$, you are given three integers $h_i, s_i, f_i$. This means that guest $i$ will be available to hug during the time interval $[s_i, f_i]$. You want to hug them for $h_i \geqslant 0$ time. You can hug only one person at a time, and no hugs can be resumed/interrupted.
+    Is there a way to hug everyone for the desired amount of time?
+\end{proof}
+
+\begin{proof}{NP}
+
+\textbf{Certificate:} A proposed assignment to hug everyone with start time $t_i$ to start hugging each guest $i$.
+
+\textbf{Certifier:} 1. Check if the size of assignment is $n$.
+
+2. Check if $\forall t_i: [t_i, t_i+h_i]$ lies within $[s_i, f_i]$.
+
+3. Check if no two hugging time $[t_i, t_i+h_i]$ and $[t_j, t_j+h_j]$ are overlapped $(t_i \neq t_j)$.
+
+\end{proof}
+
+\begin{proof}{NP-Hard}
+
+\textbf{Goal:} By proving SUBSET-SUM $\leqslant_p$ THANKSGIVING-HUG, we can prove that this problem is a NP-hard and thus NP-complete problem. (NP proved above). For convenience, denote THANKSGIVING-HUG as HUG.
+
+\textbf{Reduction:} Denote the reduction function as $f$. Input to $f$ is input to SUBSET-SUM (a set of numbers $S$ and a target value $k$), output of $f$ is input to HUG ($n$ guests, each with available time $[s_i, f_i]$ and hugging time $h_i$). "YES" instance to SUBSET-SUM maps to "YES" instance to HUG, "NO" to "NO". 
+
+1. Calculate the sum of $S$, denotes as $H = \sum_{s_i\in S}s_i$. Set $N = n+1$. In the following discussion, $k \leqslant H$.
+
+2. For each guest $i$, set $s_i = 0$, $h_i=s_i$, $f_i = H+1$. 
+
+3. Add one special guest $i^*$ with $s_{i^*} = k, h_{i^*} = 1, f_{i^*} = k+1$.
+
+
+\textbf{Proof of reduction:} For convenience, denote a guest $i$ is in a set $S''$ means $h_i\in S''$.
+
+\textbf{"YES" to "YES":} If there is a subset $S' \subseteq S$ to sum up to $k$, then first hug guest $i$ in $S'$, and then hug special guest $i^*$, and then the rest of guests $j  \not\in S'$. Total time to hug guests in $S'$ is $k$ because $\sum_{s_i\in S'}s_i = k $ and $h_i = s_i$. Total time to hug special guest is $1$. Total time to hug the rest of guests is $\sum_{s_j\notin S', s_j\in S} s_j = H-\sum_{s_i\in S'} = H-k$. Therefore, all guests are hugged at $H+1$.
+
+
+\textbf{"NO" to "NO":} (contrapositive). If there is a way to hug everyone at $H+1$, there is no idle time because $\sum_i h_i = H+1$ (including the special guest $i^*$). Because $[s_{i^*},f_{i^*}] = [k, k+1]$, $[0,k]$ and $[k+1, H+1]$ is filled by hugging guests without any idle time. Because $\forall s_i: s_i=h_i$, being able to fill $[0,k]$ without idle time means there is a subset $S' \subseteq S$ to sum up to $k$.
+
+\textbf{Polynomial Reduction:} The reduction generate input to HUG by generating $|S|$ guests corresponding to $s_i\in S$ and a special guest. Therefore, it's polynomial. Now that THANKSGIVING-HUG is NP-Hard, it is also NP-Complete.
+\end{proof}
+
+\section*{Problem3}
+
+
+
+\end{document}
