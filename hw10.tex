@@ -341,6 +341,41 @@ Now that TERRITORIALITY is NP and NP-Hard, it is NP-Complete.
 
 \section*{Problem3}
 
+\section*{Problem4}
+
+For convenience, name this problem CORRECT.
+
+\begin{proof}
+    \textbf{Goal:} By showing HALT $\leqslant_m$ CORRECT, we can prove that this problem is undecidable. 
+
+\textbf{Reduction Function:} The input to reduction function is input to HALT (a program $P$). The output of reduction function is input to CORRECT, (a program $Q$, a graph $G$ with edge costs $c_e$). 
+
+\textbf{Desired Properties:}
+(1) If $P(P)$ terminates, then $Q(G, c_e)$ produces correct MST for $G$.
+
+(2) If $P(P)$ does not terminate, then $Q(G, c_e)$ doesn't produce correct MST for $G$.
+
+\textbf{Reduction:}
+Graph $Q$(Graph $G$, edge costs $c_e$)\{
+
+\qquad Run $P(P)$;
+
+\qquad return Kruskal($G, c_e$);
+
+\}
+
+If $P(P)$ terminates, then the program $Q$ always gets to the
+second line, and the second line ensures that it only
+terminates and gives correct MST for $G$ (Kruskal's Algorithm).
+
+If $P(P)$ does not terminate, then $Q$ never terminates, so no correct MST outputted
+
+Thus, reduction is correct, and COORECT is undecidable.
+
+
+\end{proof}
+
+
 
 
 \end{document}
