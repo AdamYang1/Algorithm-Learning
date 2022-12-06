@@ -275,7 +275,7 @@
 \textbf{Certifier:} 
 1. For each vertex (enclosure), check if there is at most one lion.
 
-2. Let $T'$ denote the total territoriality in the proposed assignment. For each vertex $i$ (enclosre), add $t_i$ to $T'$ if $i$ has sex trouble (adjacent with same sex). If $T' \leqslant T$, then "YES", else then "NO". This takes polynomial time for looping through the graph. 
+2. Let $T'$ denote the total territoriality in the proposed assignment. For each vertex $i$ (enclosre), add $t_i$ to $T'$ if $i$ has sex trouble (adjacent with same sex). If $T' \leqslant T$, then "YES", else then "NO". This takes polynomial time for looping through the nodes of graph. 
 \end{proof}
 
 \begin{proof}{NP-Complete}
@@ -286,11 +286,13 @@
 
 \textbf{Proof of reduction:}
 
+\textbf{Polynomial Reduction:} The reduction only renames and declares new parameters needed in TERRITORIALITY, therefor it's polynomial.
+
 \textbf{"YES" to "YES":} By definition, $G$ has an independent set of size at least $k$ $\Rightarrow$ there are at least $k$ disjoint nodes in $G$. Since $G' = G$, if there are at least $k$ disjoint nodes, TERRITORIALITY will output "YES" by assigning all $k_M$ lions to the corresponding disjoint nodes (no two male lions will be adjacent to each other and thus no $t_i$ generated, $T=0$).
 
 \textbf{"NO" to "NO":} (contrapositive) If there is a way to assign $k$ male lions to $G$ with $T=0$, then these $k$ lions are assigned in disjoint enclosures. Each enclosure is a node, therefore, these enclosures is a satisfying independent set with size $k$.
 
-\textbf{Polynomial Reduction:} The reduction only renames and declares new parameters needed in TERRITORIALITY, therefor it's polynomial.
+
 
 Now that TERRITORIALITY is NP and NP-Hard, it is NP-Complete.
 
@@ -314,6 +316,7 @@ Now that TERRITORIALITY is NP and NP-Hard, it is NP-Complete.
 
 3. Check if no two hugging time $[t_i, t_i+h_i]$ and $[t_j, t_j+h_j]$ are overlapped $(t_i \neq t_j)$.
 
+This is polynomial for looping through all $n$ guests.
 \end{proof}
 
 \begin{proof}{NP-Hard}
@@ -331,15 +334,73 @@ Now that TERRITORIALITY is NP and NP-Hard, it is NP-Complete.
 
 \textbf{Proof of reduction:} For convenience, denote a guest $i$ is in a set $S''$ means $h_i\in S''$.
 
+\textbf{Polynomial Reduction:} The reduction generate input to HUG by generating $|S|$ guests corresponding to $s_i\in S$ and a special guest. Therefore, it's polynomial. Now that THANKSGIVING-HUG is NP-Hard, it is also NP-Complete.
+
 \textbf{"YES" to "YES":} If there is a subset $S' \subseteq S$ to sum up to $k$, then first hug guest $i$ in $S'$, and then hug special guest $i^*$, and then the rest of guests $j  \not\in S'$. Total time to hug guests in $S'$ is $k$ because $\sum_{s_i\in S'}s_i = k $ and $h_i = s_i$. Total time to hug special guest is $1$. Total time to hug the rest of guests is $\sum_{s_j\notin S', s_j\in S} s_j = H-\sum_{s_i\in S'} = H-k$. Therefore, all guests are hugged at $H+1$.
 
 
 \textbf{"NO" to "NO":} (contrapositive). If there is a way to hug everyone at $H+1$, there is no idle time because $\sum_i h_i = H+1$ (including the special guest $i^*$). Because $[s_{i^*},f_{i^*}] = [k, k+1]$, $[0,k]$ and $[k+1, H+1]$ is filled by hugging guests without any idle time. Because $\forall s_i: s_i=h_i$, being able to fill $[0,k]$ without idle time means there is a subset $S' \subseteq S$ to sum up to $k$.
 
-\textbf{Polynomial Reduction:} The reduction generate input to HUG by generating $|S|$ guests corresponding to $s_i\in S$ and a special guest. Therefore, it's polynomial. Now that THANKSGIVING-HUG is NP-Hard, it is also NP-Complete.
+
 \end{proof}
 
 \section*{Problem3}
+
+\begin{proof}[Decision Problem]
+    \renewcommand{\qedsymbol}{}
+        Given a graph $G=(V,E)$, a central station node $s\in V$, is there a way to add an additional sets of edges $E'$ with size at most $k$ S.T. in new graph $G'=(V, E\bigcup E')$, every node has a path of length at most 2 hops to $s$    
+\end{proof}
+\begin{proof}{NP}
+
+    \textbf{Certificate:} A proposed set of additional edges $E'$ on $G$
+
+    \textbf{Certifier:} 1. Run BFS on each node to check whether $s$ can be reached within at most 2 hops
+
+    This is polynomial for looping through all $|V|$ nodes and implement BFS which is also polynomial.
+
+   
+\end{proof}
+\begin{proof}{NP-complete}
+
+    For convenience, denote this problem as CITY
+    
+    \textbf{Goal:} By proving 3SAT $\leqslant_p$ CITY, we can prove that this problem is a NP-hard and thus NP-complete problem (NP proved above).
+
+     \textbf{Reduction Function:} Input to the reduction function is the input to 3SAT (an instance of 3SAT with variables $x_i, i = 1,...,n$, and 3-CNF clauses $C_1, ..., C_m$, here we denote the number of literal as $n$ and the number of clauses as $m$). The input to the CITY is a graph $G$, and at most how many additional $k$ edges allowed, and a designated central station $s$. 
+
+    \textbf{Reduction:} In the reduction, we construct a new graph $G$ corresponding to the 3SAT input. Step 2-5 is constructing nodes and edges on an initially empty graph $G$.
+    
+    1. $k=n$, the input instance to CITY allows at most $n$ additional edges.
+
+    2. For each literal $x_i$, construct 2 nodes $x_i$ and $\Bar{x_i}$, and connect them by an edge
+
+    3. For each clause, create a node $w_i$ and connect to all literals in the clause $C_i$
+
+    4. Create a central station $s$
+
+    5. For each literal pair (total $n$ pair), add $n+1$ extra nodes to $x_i$ and $\Bar{x_i}$. These extra nodes are mutually disjoint (no direct connection) and only connect to $x_i$ and $\Bar{x_i}$. These extra nodes will be denoted as dummy nodes in the following discussion. All $n+1$ dummy nodes for a pair of literals will be denoted as a group.
+
+    \textbf{Proof of reduction:} For convenience, say a node $u$ is reachable means there exists a path from $u$ to $s$ with at most to hops in graph.
+
+    \textbf{Polynomial Reduction:} Step 2 takes $\mathcal{O}(n)$ time, step 3 takes $\mathcal{O}(m)$, step 5 takes $\mathcal{O}(n^2)$, step 1 and 4 take $\mathcal{O}(1)$. Thus, the reduction is polynomial to the size of its input.
+
+    \textbf{"YES" to "YES":} Given a satisfiable 3SAT equation, then there exists a way to add at most $n$ additional edges $E'$ to $G$ S.T. new graph $G'=(V,E\bigcup E')$, every node has a path of length at most 2 hops to $s$. Based on the truth assignment to each literal ($n$ assignments), connect the literal node and $s$. Therefore, $\forall x_i:$ $x_i$ and $\Bar{x_i}$ is reachable (first to $x_i$, then to negation). Similarly, $\forall w_i:$ $w_i$ is reachable (first to the literal in clause, then to $w_i$). $\forall$ dummy nodes: they are also reachable (first to the literal, then to dummy nodes). Thus, CITY is also "YES".
+
+    \textbf{"NO" to "NO":} (contrapositive) If there is a way to add at most $n$ additional edges $E'$ to $G$ S.T. new graph $G'=(V,E\bigcup E')$, every node has a path of length at most 2 hops to $s$, then the corresponding 3SAT equation is satisfiable.
+
+    1. In a "YES" instance in CITY, all $n$ additional edges must be connected to $n$ different literals: no dummy nodes, clause nodes are connected; and no such a pair $(x_i, \Bar{x_i})$ S.T. $x_i, \Bar{x_i}$ are both connected.
+
+    Let's prove by contradiction. Assume contradiction, there exist a pair $(x_i, \Bar{x_i})$ where neither $x_i$ nor $\Bar{x_i}$ are directly connected to $s$ in CITY's "YES" instance. To make all nodes reachable, both literal now takes at least one hop (from one of the dummy node to the literal). However, in order to make all $n+1$ reachable, $s$ must connect to all of them since they are only connected to the literal nodes. Thus, it takes more than $n$ edges to achieve this, which leads to a contradiction. Therefore, we show that in a "YES" instance, for all $n$ pairs of literal, one of the pair must be connected directly to $s$.
+    
+    2. As long as all $n$ edges are connected to all $n$ distinct literals, this means we have a solution ($E'$ implies truth assignment in 3SAT equation) in CITY's "YES" instance.
+
+    For each pair of literals, only the one assigned "true" is directly connected to $s$. This implies that $\forall x_i:$ either $x_i$ or $\Bar{x_i}$ is assigned "true" in the equation. Therefore, the assignment is valid. This assignment also satisfies the equation because $\forall w_i:$ $w_i$ is reachable, implying that $\forall C_i: \exists$ there is at least one literal assigned true. Thus, it suffices to say that 3SAT equation is satisfiable.
+
+    Since CITY is both NP and NP-hard, it is NP-complete.
+    
+   
+\end{proof}
+
 
 \section*{Problem4}
 
@@ -364,11 +425,14 @@ Graph $Q$(Graph $G$, edge costs $c_e$)\{
 
 \}
 
-If $P(P)$ terminates, then the program $Q$ always gets to the
+\textbf{Reduction terminates:}
+The reduction is in linear time (rewriting all input function to another function) [discussed in lecture].
+
+\textbf{"YES" to "YES":} If $P(P)$ terminates, then the program $Q$ always gets to the
 second line, and the second line ensures that it only
 terminates and gives correct MST for $G$ (Kruskal's Algorithm).
 
-If $P(P)$ does not terminate, then $Q$ never terminates, so no correct MST outputted
+\textbf{"NO" to "NO":} If $P(P)$ does not terminate, then $Q$ never terminates, so no correct MST outputted
 
 Thus, reduction is correct, and COORECT is undecidable.
 
