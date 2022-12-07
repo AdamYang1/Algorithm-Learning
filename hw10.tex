@@ -270,31 +270,38 @@
 
 \begin{proof}{NP}
 
-\textbf{Certificate:} A proposed assignment lion to enclosures.
+\textbf{Certificate:} A proposed assignment $k_M$ male lions and $k_F$ female lions to $n$ enclosures, each with $t_i$ territoriality.
 
 \textbf{Certifier:} 
 1. For each vertex (enclosure), check if there is at most one lion.
 
-2. Let $T'$ denote the total territoriality in the proposed assignment. For each vertex $i$ (enclosre), add $t_i$ to $T'$ if $i$ has sex trouble (adjacent with same sex). If $T' \leqslant T$, then "YES", else then "NO". This takes polynomial time for looping through the nodes of graph. 
+2. Let $T'$ denote the total territoriality in the proposed assignment, initialized to $0$. For each vertex $i$ (enclosure), add $t_i$ to $T'$ if $i$ has sex trouble (adjacent with same sex). If $T' \leqslant T$, then "YES", else then "NO". 
+
+\textbf{Polynomial Runtime:} Certifier takes polynomial time for looping through all $|V|$ nodes and $|E|$ edges, thus $\mathcal{O}(m+n)$. Thus, it is a NP problem.
 \end{proof}
+
+\qquad \textbf{For convenience, name the problem as TERRITORIALITY.}
 
 \begin{proof}{NP-Complete}
 
+
+
 \textbf{Goal:} By proving INDEPENDENT-SET $\leqslant_p$ TERRITORIALITY, we can prove that this problem is a NP-hard and thus NP-complete problem. (NP proved above)
 
-\textbf{Reduction:} Denote the reduction function as $f$. The input to $f$ is input to INDEPENDENT-SET (a graph $G$ and integer $k$), the output of $f$ is the input to TERRITORIALITY (a graph $G'$, $k_M$, $k_F$, $t_i$, and $T$). "YES" instance to INDEPENDENT-SET maps to "YES" instance to TERRITORIALITY, "NO" to "NO". Set $G' = G$, $k_M$ or $k_F$ to $0$. WLOG, set $k_F=0$, $k_M = k$, each lion $i$ with integer \textit{territoriality} $t_i\geqslant 0$. Set $T=0$.
+\textbf{Reduction Function:} Denote the reduction function as $f$. The input to $f$ is input to INDEPENDENT-SET (a graph $G$ and integer $k$), the output of $f$ is the input to TERRITORIALITY (a graph $G'$, $k_M$, $k_F$, $t_i$, and $T$). "YES" instance to INDEPENDENT-SET maps to "YES" instance to TERRITORIALITY, "NO" to "NO". 
+
+\textbf{Reduction:} Set $G' = G$, $k_M$ or $k_F$ to $0$. WLOG(either male to 0 or female to 0 works), set $k_F=0$, $k_M = k$. For each lion $i$, set \textit{territoriality} $t_i=\infty$. Set $T=0$. 
 
 \textbf{Proof of reduction:}
 
-\textbf{Polynomial Reduction:} The reduction only renames and declares new parameters needed in TERRITORIALITY, therefor it's polynomial.
+\qquad \textbf{Polynomial Reduction:} The reduction only renames and declares new parameters needed in TERRITORIALITY, therefor it's polynomial.
 
-\textbf{"YES" to "YES":} By definition, $G$ has an independent set of size at least $k$ $\Rightarrow$ there are at least $k$ disjoint nodes in $G$. Since $G' = G$, if there are at least $k$ disjoint nodes, TERRITORIALITY will output "YES" by assigning all $k_M$ lions to the corresponding disjoint nodes (no two male lions will be adjacent to each other and thus no $t_i$ generated, $T=0$).
+\qquad \textbf{"YES" to "YES":} By definition, $G$ has an independent set of size at least $k$ $\Rightarrow$ there are at least $k$ disjoint nodes in $G$. Since $G' = G$, if there are at least $k$ disjoint nodes, TERRITORIALITY will output "YES" by assigning all $k_M$ lions to the corresponding disjoint nodes (no two male lions will be adjacent to each other and thus no $t_i$ generated, $T=0$).
 
-\textbf{"NO" to "NO":} (contrapositive) If there is a way to assign $k$ male lions to $G$ with $T=0$, then these $k$ lions are assigned in disjoint enclosures. Each enclosure is a node, therefore, these enclosures is a satisfying independent set with size $k$.
+\qquad \textbf{"NO" to "NO":} (contrapositive) If there is a way to assign $k$ male lions to $G$ with $T=0$, then these $k$ lions are assigned in disjoint enclosures. Each enclosure is a node, therefore, these enclosures is a satisfying independent set with size $k$. [Direct proof is also easy: if there exists there are some adjacent nodes in the proposed set of nodes ("NO" for INDEPENDENT-SET), then there must be some adjacent enclosures, thus $T>0$ ("NO" for territoriality)]
 
 
-
-Now that TERRITORIALITY is NP and NP-Hard, it is NP-Complete.
+\qquad Now that TERRITORIALITY is NP and NP-Hard, it is NP-Complete.
 
 \end{proof}
 
@@ -310,22 +317,27 @@ Now that TERRITORIALITY is NP and NP-Hard, it is NP-Complete.
 
 \textbf{Certificate:} A proposed assignment to hug everyone with start time $t_i$ to start hugging each guest $i$.
 
-\textbf{Certifier:} 1. Check if the size of assignment is $n$.
+\textbf{Certifier:} 1. Check if the size of assignment is $n$. If the size is less than $n$, then "NO" because we can't hug everyone one.
 
 2. Check if $\forall t_i: [t_i, t_i+h_i]$ lies within $[s_i, f_i]$.
 
 3. Check if no two hugging time $[t_i, t_i+h_i]$ and $[t_j, t_j+h_j]$ are overlapped $(t_i \neq t_j)$.
 
-This is polynomial for looping through all $n$ guests.
+\textbf{Polynomial Runtime:} Certifier is polynomial for looping through all $n$ guests, $\mathcal{O}(n)$. 
+
+Thus, THANKSGIVING-HUG is NP problem.
+
 \end{proof}
 
 \begin{proof}{NP-Hard}
 
+\textbf{Note:} SUBSET-SUM will be defined just as discussed in discussion session: Given a set $C$ of $n$ natural numbers, is there a subset of $C$ S.T. its sum is exactly $k$. Also, in the following discussion, all numbers included in SUBSET-SUM is positive (as discussed in piazza). 0 makes no contribution and thus is excluded as well.
+
 \textbf{Goal:} By proving SUBSET-SUM $\leqslant_p$ THANKSGIVING-HUG, we can prove that this problem is a NP-hard and thus NP-complete problem. (NP proved above). For convenience, denote THANKSGIVING-HUG as HUG.
 
-\textbf{Reduction:} Denote the reduction function as $f$. Input to $f$ is input to SUBSET-SUM (a set of numbers $S$ and a target value $k$), output of $f$ is input to HUG ($n$ guests, each with available time $[s_i, f_i]$ and hugging time $h_i$). "YES" instance to SUBSET-SUM maps to "YES" instance to HUG, "NO" to "NO". 
+\textbf{Reduction:} Denote the reduction function as $f$. Input to $f$ is input to SUBSET-SUM (a set of numbers $S$ and a target value $k$), output of $f$ is input to HUG ($N$ guests, each with available time $[s_i, f_i]$ and hugging time $h_i$). "YES" instance to SUBSET-SUM maps to "YES" instance to HUG, "NO" to "NO". 
 
-1. Calculate the sum of $S$, denotes as $H = \sum_{s_i\in S}s_i$. Set $N = n+1$. In the following discussion, $k \leqslant H$.
+1. Calculate the sum of $S$, denotes as $H = \sum_{s_i\in S}s_i$. Set $N = n+1$. In the following discussion, $k \leqslant H$ since $k>H$ trivially leads to "NO" to "NO" instances.
 
 2. For each guest $i$, set $s_i = 0$, $h_i=s_i$, $f_i = H+1$. 
 
@@ -334,12 +346,14 @@ This is polynomial for looping through all $n$ guests.
 
 \textbf{Proof of reduction:} For convenience, denote a guest $i$ is in a set $S''$ means $h_i\in S''$.
 
-\textbf{Polynomial Reduction:} The reduction generate input to HUG by generating $|S|$ guests corresponding to $s_i\in S$ and a special guest. Therefore, it's polynomial. Now that THANKSGIVING-HUG is NP-Hard, it is also NP-Complete.
+\qquad \textbf{Polynomial Reduction:} The reduction generate input to HUG by generating $|S|$ guests corresponding to $s_i\in S$ and a special guest. Therefore, it's polynomial. Now that THANKSGIVING-HUG is NP-Hard, it is also NP-Complete.
 
-\textbf{"YES" to "YES":} If there is a subset $S' \subseteq S$ to sum up to $k$, then first hug guest $i$ in $S'$, and then hug special guest $i^*$, and then the rest of guests $j  \not\in S'$. Total time to hug guests in $S'$ is $k$ because $\sum_{s_i\in S'}s_i = k $ and $h_i = s_i$. Total time to hug special guest is $1$. Total time to hug the rest of guests is $\sum_{s_j\notin S', s_j\in S} s_j = H-\sum_{s_i\in S'} = H-k$. Therefore, all guests are hugged at $H+1$.
+\qquad \textbf{"YES" to "YES":} If there is a subset $S' \subseteq S$ to sum up to $k$, then first hug guest $i$ in $S'$, and then hug special guest $i^*$, and then the rest of guests $j  \not\in S'$. Total time to hug guests in $S'$ is $k$ because $\sum_{s_i\in S'}s_i = k $ and $h_i = s_i$. Total time to hug special guest is $1$. Total time to hug the rest of guests is $\sum_{s_j\notin S', s_j\in S} s_j = H-\sum_{s_i\in S'} = H-k$. Therefore, all guests are hugged at $H+1$ when there is no idle time.
 
 
-\textbf{"NO" to "NO":} (contrapositive). If there is a way to hug everyone at $H+1$, there is no idle time because $\sum_i h_i = H+1$ (including the special guest $i^*$). Because $[s_{i^*},f_{i^*}] = [k, k+1]$, $[0,k]$ and $[k+1, H+1]$ is filled by hugging guests without any idle time. Because $\forall s_i: s_i=h_i$, being able to fill $[0,k]$ without idle time means there is a subset $S' \subseteq S$ to sum up to $k$.
+\qquad \textbf{"NO" to "NO":} (contrapositive). If there is a way to hug everyone at $H+1$, there is no idle time because $\sum_i h_i = H+1$ (including the special guest $i^*$). Because $[s_{i^*},f_{i^*}] = [k, k+1]$, we can say that $[0,k]$ and $[k+1, H+1]$ is filled by hugging guests without any idle time. Because $\forall s_i: s_i=h_i$, being able to fill $[0,k]$ without idle time means there is a subset $S' \subseteq S$ to sum up to $k$.
+
+Now that HUG is NP and NP-hard, it is NP-complete.
 
 
 \end{proof}
@@ -354,9 +368,9 @@ This is polynomial for looping through all $n$ guests.
 
     \textbf{Certificate:} A proposed set of additional edges $E'$ on $G$
 
-    \textbf{Certifier:} 1. Run BFS on each node to check whether $s$ can be reached within at most 2 hops
+    \textbf{Certifier:} 1. Run BFS on each node with two levels to check whether $s$ can be reached within at most 2 hops
 
-    This is polynomial for looping through all $|V|$ nodes and implement BFS which is also polynomial.
+    \textbf{Polynomial Runtime:} This is polynomial for looping through all $|V|$ nodes and implement BFS with two levels which is also polynomial.
 
    
 \end{proof}
@@ -378,23 +392,24 @@ This is polynomial for looping through all $n$ guests.
 
     4. Create a central station $s$
 
-    5. For each literal pair (total $n$ pair), add $n+1$ extra nodes to $x_i$ and $\Bar{x_i}$. These extra nodes are mutually disjoint (no direct connection) and only connect to $x_i$ and $\Bar{x_i}$. These extra nodes will be denoted as dummy nodes in the following discussion. All $n+1$ dummy nodes for a pair of literals will be denoted as a group.
+    5. For each literal pair (total $n$ pair), add $n+1$ extra nodes to $x_i$ and $\Bar{x_i}$. These extra nodes are mutually disjoint (no direct connection) and only connect to $x_i$ and $\Bar{x_i}$ (a dummy node $u$ only has edges $(u, x_i)$ and $(u,\Bar{x_i})$) These extra nodes will be denoted as dummy nodes in the following discussion. All $n+1$ dummy nodes for a pair of literals will be denoted as a group.
 
     \textbf{Proof of reduction:} For convenience, say a node $u$ is reachable means there exists a path from $u$ to $s$ with at most to hops in graph.
 
-    \textbf{Polynomial Reduction:} Step 2 takes $\mathcal{O}(n)$ time, step 3 takes $\mathcal{O}(m)$, step 5 takes $\mathcal{O}(n^2)$, step 1 and 4 take $\mathcal{O}(1)$. Thus, the reduction is polynomial to the size of its input.
-
-    \textbf{"YES" to "YES":} Given a satisfiable 3SAT equation, then there exists a way to add at most $n$ additional edges $E'$ to $G$ S.T. new graph $G'=(V,E\bigcup E')$, every node has a path of length at most 2 hops to $s$. Based on the truth assignment to each literal ($n$ assignments), connect the literal node and $s$. Therefore, $\forall x_i:$ $x_i$ and $\Bar{x_i}$ is reachable (first to $x_i$, then to negation). Similarly, $\forall w_i:$ $w_i$ is reachable (first to the literal in clause, then to $w_i$). $\forall$ dummy nodes: they are also reachable (first to the literal, then to dummy nodes). Thus, CITY is also "YES".
-
-    \textbf{"NO" to "NO":} (contrapositive) If there is a way to add at most $n$ additional edges $E'$ to $G$ S.T. new graph $G'=(V,E\bigcup E')$, every node has a path of length at most 2 hops to $s$, then the corresponding 3SAT equation is satisfiable.
-
-    1. In a "YES" instance in CITY, all $n$ additional edges must be connected to $n$ different literals: no dummy nodes, clause nodes are connected; and no such a pair $(x_i, \Bar{x_i})$ S.T. $x_i, \Bar{x_i}$ are both connected.
-
-    Let's prove by contradiction. Assume contradiction, there exist a pair $(x_i, \Bar{x_i})$ where neither $x_i$ nor $\Bar{x_i}$ are directly connected to $s$ in CITY's "YES" instance. To make all nodes reachable, both literal now takes at least one hop (from one of the dummy node to the literal). However, in order to make all $n+1$ reachable, $s$ must connect to all of them since they are only connected to the literal nodes. Thus, it takes more than $n$ edges to achieve this, which leads to a contradiction. Therefore, we show that in a "YES" instance, for all $n$ pairs of literal, one of the pair must be connected directly to $s$.
     
-    2. As long as all $n$ edges are connected to all $n$ distinct literals, this means we have a solution ($E'$ implies truth assignment in 3SAT equation) in CITY's "YES" instance.
+    \qquad \textbf{Polynomial Reduction:} Step 2 takes $\mathcal{O}(n)$ time, step 3 takes $\mathcal{O}(m)$, step 5 takes $\mathcal{O}(n^2)$, step 1 and 4 take $\mathcal{O}(1)$. Thus, the reduction is polynomial to the size of its input.
 
-    For each pair of literals, only the one assigned "true" is directly connected to $s$. This implies that $\forall x_i:$ either $x_i$ or $\Bar{x_i}$ is assigned "true" in the equation. Therefore, the assignment is valid. This assignment also satisfies the equation because $\forall w_i:$ $w_i$ is reachable, implying that $\forall C_i: \exists$ there is at least one literal assigned true. Thus, it suffices to say that 3SAT equation is satisfiable.
+    \qquad \textbf{"YES" to "YES":} Given a satisfiable 3SAT equation, then there exists a way to add at most $n$ additional edges $E'$ to $G$ S.T. new graph $G'=(V,E\bigcup E')$, every node has a path of length at most 2 hops to $s$. Based on the truth assignment to each literal ($n$ assignments), connect the literal node and $s$. Therefore, $\forall x_i:$ $x_i$ and $\Bar{x_i}$ is reachable (first to $x_i$, then to negation). Similarly, $\forall w_i:$ $w_i$ is reachable (first to the literal in clause, then to $w_i$). $\forall$ dummy nodes: they are also reachable (first to the literal, then to dummy nodes). Thus, CITY is also "YES".
+
+    \qquad \textbf{"NO" to "NO":} (contrapositive) If there is a way to add at most $n$ additional edges $E'$ to $G$ S.T. new graph $G'=(V,E\bigcup E')$, every node has a path of length at most 2 hops to $s$, then the corresponding 3SAT equation is satisfiable.
+
+   \qquad 1. In a "YES" instance in CITY, all $n$ additional edges must be connected to $n$ different literals such that it is one edge per literal pair (no dummy nodes, clause nodes are connected; and no such a pair $(x_i, \Bar{x_i})$ S.T. $x_i, \Bar{x_i}$ are both connected) .
+
+    \qquad Let's prove by contradiction. Assume contradiction, there exist a pair $(x_i, \Bar{x_i})$ where neither $x_i$ nor $\Bar{x_i}$ are directly connected to $s$ in a CITY's "YES" instance. To make all nodes reachable, both literal now takes at least one hop (from one of the dummy node to the literal). However, in order to make all $n+1$ reachable, $s$ must connect to all of them since they are only connected to the literal nodes and literals are not connected to $s$. Thus, it takes more than $n$ edges to achieve this, which leads to a contradiction. Therefore, we show that in a "YES" instance, for all $n$ pairs of literal, one of the pair must be connected directly to $s$. Thus, in "YES" instance of CITY, all literal pairs must have a least one directly connected to $s$.
+    
+    \qquad 2. As long as all $n$ edges are connected to all $n$ distinct literals, this means we have a solution ($E'$ implies truth assignment in 3SAT equation) in CITY's "YES" instance.
+
+   \qquad For each pair of literals, we assign literal "true" when it is directly connected to $s$. ($E'$ implies truth assignment). Therefore, the assignment is valid. Since all literal pairs has at least one directly connected to $s$, all clause nodes are also reachable by one hop to literal and then to itself from $s$. Thus, this assignment also satisfies the equation because $\forall w_i:$ $w_i$ is reachable, implying that $\forall C_i: \exists$ there is at least one literal assigned true. Thus, it suffices to say that 3SAT equation is satisfiable.
 
     Since CITY is both NP and NP-hard, it is NP-complete.
     
@@ -434,7 +449,7 @@ terminates and gives correct MST for $G$ (Kruskal's Algorithm).
 
 \textbf{"NO" to "NO":} If $P(P)$ does not terminate, then $Q$ never terminates, so no correct MST outputted
 
-Thus, reduction is correct, and COORECT is undecidable.
+Thus, reduction is correct, and CORECT is undecidable.
 
 
 \end{proof}
